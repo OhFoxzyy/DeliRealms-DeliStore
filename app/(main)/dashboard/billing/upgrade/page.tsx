@@ -75,7 +75,7 @@ export default function UpgradePage() {
                   <ul className="space-y-2">
                     {plan.features.map((feature, idx) => (
                       <li key={idx} className="flex items-start gap-2 text-sm">
-                        <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                        <Check className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
                         <span>{feature}</span>
                       </li>
                     ))}
@@ -146,7 +146,7 @@ export default function UpgradePage() {
                 </div>
               </div>
 
-              <div className="bg-muted p-4 rounded-lg text-sm">
+              <div className="p-4 rounded-lg text-sm">
                 <p className="text-muted-foreground">
                   By confirming your subscription, you agree to our terms of service and privacy policy. 
                   Your subscription will automatically renew each {plan.interval} unless cancelled.

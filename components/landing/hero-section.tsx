@@ -81,7 +81,7 @@ function AnimatedDRBackground() {
 
 export function HeroSection() {
   return (
-    <section className="relative min-h-screen flex flex-col justify-center pt-16 overflow-hidden">
+    <section className="relative min-h-screen flex flex-col justify-center pt-16 overflow-hidden bg-black">
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(120,119,198,0.1),rgba(255,255,255,0))]" />
         <AnimatedDRBackground />
