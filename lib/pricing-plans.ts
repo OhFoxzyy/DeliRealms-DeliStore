@@ -30,7 +30,7 @@ export const PRICING_PLANS: PricingPlan[] = [
       '10 pages per project',
       '1GB storage',
       '10GB bandwidth',
-      'DeliStore subdomain',
+      'vixle subdomain',
       'Basic components',
       'Community support',
     ],
@@ -60,7 +60,7 @@ export const PRICING_PLANS: PricingPlan[] = [
       'Custom domain support',
       'All components',
       'Priority support',
-      'Remove DeliStore branding',
+      'Remove vixle branding',
       'Advanced analytics',
     ],
     limits: {

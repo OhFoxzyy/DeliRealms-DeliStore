@@ -119,7 +119,7 @@ const SignInPage = () => {
             Welcome back
           </p>
           <p className="mt-3 text-xl font-semibold tracking-tight">
-            Sign in to DeliStore
+            Sign in to vixle
           </p>
           <p className="mt-1 text-xs text-muted-foreground/80 text-center">
             Access your DeliRealms storefront, deployments and dashboards.

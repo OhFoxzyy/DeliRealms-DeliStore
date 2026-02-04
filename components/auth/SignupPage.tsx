@@ -138,7 +138,7 @@ const SignUpPage = () => {
             Get started
           </p>
           <p className="mt-3 text-xl font-semibold tracking-tight">
-            Sign up for DeliStore
+            Sign up for vixle
           </p>
           <p className="mt-1 text-xs text-muted-foreground/80 text-center">
             Create your account to start deploying and managing your stores.

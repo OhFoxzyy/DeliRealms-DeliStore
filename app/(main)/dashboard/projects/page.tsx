@@ -93,7 +93,7 @@ export default async function ProjectsPage() {
                       <p>{project.pages.length} page{project.pages.length !== 1 ? 's' : ''}</p>
                       {project.subdomain && (
                         <p className="truncate font-mono text-xs mt-1">
-                          {project.subdomain}.delistore.app
+                          {project.subdomain}.vixle.app
                         </p>
                       )}
                       {project.customDomain && (

@@ -15,7 +15,7 @@ export function CTASection() {
               Ready to deploy?
             </h2>
             <p className="text-lg text-muted-foreground mb-8 max-w-xl mx-auto">
-              Join thousands of developers earning with DeliStore. Get started
+              Join thousands of developers earning with vixle. Get started
               in seconds with our free tier.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">

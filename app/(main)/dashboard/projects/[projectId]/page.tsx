@@ -150,7 +150,7 @@ export default function ProjectDetailPage() {
   const projectUrl = project.customDomain 
     ? `https://${project.customDomain}` 
     : project.subdomain 
-    ? `https://${project.subdomain}.delistore.app` 
+    ? `https://${project.subdomain}.vixle.app` 
     : null;
 
   return (

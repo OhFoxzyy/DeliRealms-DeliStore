@@ -104,7 +104,7 @@ export default function NewProjectPage() {
                   onChange={(e) => handleSubdomainChange(e.target.value)}
                 />
                 <span className="text-sm text-muted-foreground whitespace-nowrap">
-                  .delistore.app
+                  .vixle.app
                 </span>
               </div>
               <p className="text-xs text-muted-foreground">

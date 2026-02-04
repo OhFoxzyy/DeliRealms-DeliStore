@@ -241,7 +241,7 @@ function UsageItem({
 function ProjectCard({ project }: { project: any }) {
   const latestDeployment = project.deployments?.[0];
   const domain = project.subdomain 
-    ? `${project.subdomain}.delistore.app` 
+    ? `${project.subdomain}.vixle.app` 
     : project.customDomain || null;
 
   return (

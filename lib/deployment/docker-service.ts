@@ -45,7 +45,7 @@ export class DockerDeploymentService {
       await this.createDockerfile(projectDir);
 
       // Build Docker image
-      const imageName = `delistore-${config.subdomain}`;
+      const imageName = `vixle-${config.subdomain}`;
       console.log('[v0] Building Docker image:', imageName);
       await execAsync(`docker build -t ${imageName} ${projectDir}`);
 
@@ -70,7 +70,7 @@ export class DockerDeploymentService {
       // Configure Nginx reverse proxy
       await this.configureNginx(config.subdomain, config.port);
 
-      const url = `https://${config.subdomain}.delistore.app`;
+      const url = `https://${config.subdomain}.vixle.app`;
       console.log('[v0] Deployment successful. URL:', url);
 
       return {
@@ -89,7 +89,7 @@ export class DockerDeploymentService {
 
   async undeploy(projectId: string, subdomain: string): Promise<{ success: boolean; error?: string }> {
     try {
-      const imageName = `delistore-${subdomain}`;
+      const imageName = `vixle-${subdomain}`;
       
       // Stop and remove container
       await execAsync(`docker stop ${imageName} || true`);
@@ -286,7 +286,7 @@ CMD ["npm", "start"]`;
   private async configureNginx(subdomain: string, port: number): Promise<void> {
     const nginxConfig = `server {
     listen 80;
-    server_name ${subdomain}.delistore.app;
+    server_name ${subdomain}.vixle.app;
 
     location / {
         proxy_pass http://localhost:${port};
