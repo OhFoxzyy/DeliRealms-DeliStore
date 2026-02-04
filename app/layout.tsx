@@ -2,7 +2,7 @@ import React from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
-import { SessionProvider } from "next-auth/react";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,11 +22,12 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >
           <main>{children}</main>
+          <Toaster richColors position="bottom-right" />
         </ThemeProvider>
       </body>
     </html>

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@/generated/prisma";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
+import { sendVerificationEmail } from "@/lib/resend";
+import crypto from "crypto";
 
 const prisma = new PrismaClient();
 
@@ -38,9 +40,30 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // Create verification token
+    const token = crypto.randomBytes(32).toString('hex');
+    const expires = new Date();
+    expires.setHours(expires.getHours() + 24); // Token expires in 24 hours
+
+    await prisma.emailVerification.create({
+      data: {
+        userId: user.id,
+        token,
+        expires,
+      },
+    });
+
+    // Send verification email
+    try {
+      await sendVerificationEmail(email, token);
+    } catch (emailError) {
+      console.error('Failed to send verification email:', emailError);
+      // Don't fail the registration if email fails
+    }
+
     return NextResponse.json(
       {
-        message: "Account created successfully. Please wait for approval.",
+        message: "Account created successfully. Please check your email to verify your account.",
         user: {
           id: user.id,
           email: user.email,
