@@ -80,13 +80,13 @@ export const authOptions: NextAuthOptions = {
           const dbUser = await prisma.user.findUnique({
             where: { email: user.email! },
           });
-          token.role = dbUser?.role || "unverified";
+          token.role = dbUser?.role || "user";
           token.id = user.id;
           token.username = dbUser?.username || null;
           token.profilePictureId = dbUser?.profilePictureId || null;
         } catch (error) {
           console.error("Error fetching user role:", error);
-          token.role = "unverified";
+          token.role = "user";
           token.id = user.id;
           token.username = null;
           token.profilePictureId = null;
