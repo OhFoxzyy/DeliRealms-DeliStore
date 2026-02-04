@@ -35,3 +35,14 @@
 2. Open your browser at `http://localhost:3000`.
 
 > Recommended: Node.js **v24.12.0** (or the latest version compatible with `next` in `package.json`).
+
+### Production deployment with Nginx
+
+An `nginx.conf` is provided for production deployment. Use it as a reverse proxy in front of Next.js:
+
+1. Run Next.js: `npm run build && npm start` (default port 3000)
+2. Replace `example.com` in `nginx.conf` with your domain
+3. Place the config in `/etc/nginx/sites-available/` and symlink to `sites-enabled`
+4. Run `nginx -t` to validate, then `systemctl reload nginx`
+
+The config includes: reverse proxy to Next.js, static asset caching, security headers, and optional www→non-www and http→https redirects.

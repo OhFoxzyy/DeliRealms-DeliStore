@@ -63,13 +63,13 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
-    async signIn({ user }) {
-      if (user.email) {
-        const existingUser = await prisma.user.findUnique({
+    async signIn({ user, account }) {
+      if (account?.provider === "credentials" && user.email) {
+        const dbUser = await prisma.user.findUnique({
           where: { email: user.email },
         });
-        if (existingUser) {
-          return true;
+        if (dbUser && !dbUser.emailVerified) {
+          return "/verify-email?error=unverified";
         }
       }
       return true;
@@ -80,13 +80,13 @@ export const authOptions: NextAuthOptions = {
           const dbUser = await prisma.user.findUnique({
             where: { email: user.email! },
           });
-          token.role = dbUser?.role || "user";
+          token.role = dbUser?.role || "hobby";
           token.id = user.id;
           token.username = dbUser?.username || null;
           token.profilePictureId = dbUser?.profilePictureId || null;
         } catch (error) {
           console.error("Error fetching user role:", error);
-          token.role = "user";
+          token.role = "hobby";
           token.id = user.id;
           token.username = null;
           token.profilePictureId = null;

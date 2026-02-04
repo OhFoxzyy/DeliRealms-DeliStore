@@ -5,6 +5,7 @@ import { componentLibrary, type ComponentDefinition } from './component-library'
 import { Card } from '../ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Input } from '../ui/input';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '../ui/hover-card';
 import { usePageBuilder } from './page-builder-context';
 import { Skeleton } from '../ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
@@ -164,6 +165,25 @@ export function ComponentPanel() {
   );
 }
 
+function ComponentPreview({ component }: { component: ComponentDefinition }) {
+  const content = component.defaultContent || {};
+  const style = component.defaultStyle || {};
+  return (
+    <div className="w-32 p-2 bg-muted/50 rounded border border-border space-y-1">
+      {component.type === 'heading' && <div style={{ ...style, fontSize: '10px', margin: 0 }}>{content.text || 'Heading'}</div>}
+      {component.type === 'text' && <div style={{ ...style, fontSize: '8px', margin: 0 }}>{(content.text || 'Text').slice(0, 25)}...</div>}
+      {component.type === 'button' && <div style={{ ...style, padding: '2px 6px', fontSize: '8px' }}>{content.text || 'Button'}</div>}
+      {component.type === 'container' && <div style={{ ...style, padding: '6px', minHeight: 24 }} className="border border-dashed border-border rounded text-[8px]">Container</div>}
+      {component.type === 'image' && <div style={{ ...style, width: 48, height: 32 }} className="bg-muted rounded flex items-center justify-center text-[8px]">Img</div>}
+      {component.type === 'hero' && <div style={{ ...style, padding: '6px' }} className="rounded"><span className="text-[8px] font-bold">{content.heading || 'Hero'}</span></div>}
+      {component.type === 'divider' && <hr style={style} className="my-1" />}
+      {!['heading', 'text', 'button', 'container', 'image', 'hero', 'divider'].includes(component.type) && (
+        <div className="text-[8px] text-muted-foreground">{component.label}</div>
+      )}
+    </div>
+  );
+}
+
 function ComponentGrid({
   components,
   onDragStart,
@@ -174,15 +194,24 @@ function ComponentGrid({
   return (
     <div className="grid grid-cols-2 gap-2">
       {components.map((component) => (
-        <Card
-          key={component.type}
-          draggable
-          onDragStart={(e) => onDragStart(e, component)}
-          className="p-4 cursor-move hover:border-foreground transition-colors flex flex-col items-center justify-center gap-2 text-center"
-        >
-          <div className="text-muted-foreground">{component.icon}</div>
-          <span className="text-xs font-medium">{component.label}</span>
-        </Card>
+        <HoverCard key={component.type} openDelay={200} closeDelay={100}>
+          <HoverCardTrigger asChild>
+            <Card
+              draggable
+              onDragStart={(e) => onDragStart(e, component)}
+              className="p-4 cursor-move hover:border-foreground transition-colors flex flex-col items-center justify-center gap-2 text-center"
+            >
+              <div className="text-muted-foreground">{component.icon}</div>
+              <span className="text-xs font-medium">{component.label}</span>
+            </Card>
+          </HoverCardTrigger>
+          <HoverCardContent side="left" className="w-auto p-0">
+            <div className="p-1">
+              <p className="text-xs text-muted-foreground mb-1">Preview</p>
+              <ComponentPreview component={component} />
+            </div>
+          </HoverCardContent>
+        </HoverCard>
       ))}
     </div>
   );

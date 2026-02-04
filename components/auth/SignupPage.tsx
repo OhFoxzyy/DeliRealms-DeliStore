@@ -18,7 +18,6 @@ import { Github, Chrome } from "lucide-react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -64,21 +63,8 @@ const SignUpPage = () => {
         return;
       }
 
-      toast({
-        title: "Success",
-        description: "Account created! Please wait for administrator approval.",
-      });
-
-      const signInResult = await signIn("credentials", {
-        email: data.email,
-        password: data.password,
-        redirect: false,
-      });
-
-      if (signInResult?.ok) {
-        router.push("/dashboard");
-        router.refresh();
-      }
+      router.push("/verify-email?type=check-email");
+      router.refresh();
     } catch (error) {
       toast({
         title: "Error",

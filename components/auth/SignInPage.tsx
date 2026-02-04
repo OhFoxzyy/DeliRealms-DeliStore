@@ -51,7 +51,10 @@ const SignInPage = () => {
         redirect: false,
       });
 
-      if (result?.error) {
+      if (result?.url?.includes("verify-email")) {
+        router.push(result.url);
+        router.refresh();
+      } else if (result?.error) {
         toast({
           title: "Error",
           description: "Invalid email or password",

@@ -35,31 +35,24 @@ export function LayersPanel() {
     const element = elements.find(el => el.id === id);
     if (element) {
       updateElement(id, {
-        ...element,
-        styles: {
-          ...element.styles,
+        style: {
+          ...element.style,
           visibility: currentVisibility ? 'hidden' : 'visible',
         },
       });
     }
   };
 
-  const toggleLock = (id: string, currentLock: boolean) => {
-    const element = elements.find(el => el.id === id);
-    if (element) {
-      updateElement(id, {
-        ...element,
-        locked: !currentLock,
-      });
-    }
+  const toggleLock = (_id: string, _currentLock: boolean) => {
+    // Locked state not yet implemented in PageElement - no-op
   };
 
   const renderElement = (element: any, depth: number = 0) => {
     const hasChildren = element.children && element.children.length > 0;
     const isExpanded = expandedElements.has(element.id);
     const isSelected = selectedElementId === element.id;
-    const isVisible = element.styles?.visibility !== 'hidden';
-    const isLocked = element.locked || false;
+    const isVisible = (element as { style?: { visibility?: string } }).style?.visibility !== 'hidden';
+    const isLocked = false;
 
     return (
       <div key={element.id}>

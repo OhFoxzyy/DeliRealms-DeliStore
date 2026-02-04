@@ -336,7 +336,7 @@ function StyleProperties({ style, onChange }: any) {
             <Label className="text-xs">Text Color</Label>
             <Input
               type="color"
-              value={style.color || '#000000'}
+              value={style.color || '#e5e5e5'}
               onChange={(e) => onChange('color', e.target.value)}
               className="h-8"
             />
@@ -380,7 +380,7 @@ function StyleProperties({ style, onChange }: any) {
           <Label className="text-xs">Border Color</Label>
           <Input
             type="color"
-            value={style.borderColor || '#000000'}
+            value={style.borderColor || '#404040'}
             onChange={(e) => onChange('borderColor', e.target.value)}
             className="h-8"
           />

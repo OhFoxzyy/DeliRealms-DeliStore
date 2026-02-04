@@ -12,6 +12,8 @@ interface PageBuilderContextType {
   updateElement: (id: string, updates: Partial<PageElement>) => void;
   deleteElement: (id: string) => void;
   addElement: (element: PageElement, parentId?: string) => void;
+  addElementAt: (element: PageElement, parentId: string | null, index: number) => void;
+  moveElement: (id: string, direction: 'up' | 'down') => void;
   duplicateElement: (id: string) => void;
   undo: () => void;
   redo: () => void;
@@ -128,6 +130,66 @@ export function PageBuilderProvider({
     });
   }, [saveToHistory]);
 
+  const addElementAt = useCallback((element: PageElement, parentId: string | null, index: number) => {
+    setElements((prev) => {
+      const insertAt = (items: PageElement[], targetParentId: string | null, targetIndex: number): PageElement[] => {
+        if (targetParentId === null) {
+          const result = [...items];
+          result.splice(targetIndex, 0, element);
+          return result;
+        }
+        return items.map((item) => {
+          if (item.id === targetParentId) {
+            const children = item.children || [];
+            const newChildren = [...children];
+            newChildren.splice(targetIndex, 0, element);
+            return { ...item, children: newChildren };
+          }
+          if (item.children) {
+            return { ...item, children: insertAt(item.children, targetParentId, targetIndex) };
+          }
+          return item;
+        });
+      };
+      const newElements = insertAt(prev, parentId, index);
+      saveToHistory(newElements);
+      return newElements;
+    });
+  }, [saveToHistory]);
+
+  const moveElement = useCallback((id: string, direction: 'up' | 'down') => {
+    setElements((prev) => {
+      const findLocation = (items: PageElement[], parentId: string | null): { parentId: string | null; index: number; siblings: PageElement[] } | null => {
+        for (let i = 0; i < items.length; i++) {
+          if (items[i].id === id) return { parentId, index: i, siblings: items };
+          if (items[i].children) {
+            const found = findLocation(items[i].children!, items[i].id);
+            if (found) return found;
+          }
+        }
+        return null;
+      };
+      const loc = findLocation(prev, null);
+      if (!loc) return prev;
+      const { index, siblings } = loc;
+      const newIdx = direction === 'up' ? index - 1 : index + 1;
+      if (newIdx < 0 || newIdx >= siblings.length) return prev;
+      const newSiblings = [...siblings];
+      [newSiblings[index], newSiblings[newIdx]] = [newSiblings[newIdx], newSiblings[index]];
+      const applyNewSiblings = (items: PageElement[], targetParentId: string | null): PageElement[] => {
+        if (targetParentId === null) return newSiblings;
+        return items.map((item) => {
+          if (item.id === targetParentId) return { ...item, children: newSiblings };
+          if (item.children) return { ...item, children: applyNewSiblings(item.children, targetParentId) };
+          return item;
+        });
+      };
+      const result = applyNewSiblings(prev, loc.parentId);
+      saveToHistory(result);
+      return result;
+    });
+  }, [saveToHistory]);
+
   const duplicateElement = useCallback((id: string) => {
     setElements((prev) => {
       const duplicateRecursive = (items: PageElement[]): PageElement[] => {
@@ -176,6 +238,8 @@ export function PageBuilderProvider({
         updateElement,
         deleteElement,
         addElement,
+        addElementAt,
+        moveElement,
         duplicateElement,
         undo,
         redo,

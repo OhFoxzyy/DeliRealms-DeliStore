@@ -2,6 +2,7 @@
 
 import { usePageBuilder } from './page-builder-context';
 import { RenderElement } from './render-element';
+import { DropZone } from './drop-zone';
 import type { PageElement } from '@/lib/page-builder/types';
 import { componentLibrary } from './component-library';
 import { cn } from '@/lib/utils';
@@ -10,32 +11,32 @@ interface BuilderCanvasProps {
   viewMode?: 'desktop' | 'tablet' | 'mobile';
 }
 
-export function BuilderCanvas({ viewMode = 'desktop' }: BuilderCanvasProps) {
-  const { elements, addElement } = usePageBuilder();
+function createElementFromDrag(componentData: string): PageElement | null {
+  const component = JSON.parse(componentData);
+  const componentDef = componentLibrary.find((c) => c.type === component.type);
+  if (!componentDef) return null;
+  return {
+    id: `${component.type}-${Date.now()}`,
+    type: component.type,
+    content: { ...componentDef.defaultContent },
+    style: { ...componentDef.defaultStyle },
+    children: component.type === 'container' ? [] : undefined,
+  };
+}
 
-  const handleDrop = (e: React.DragEvent) => {
+export function BuilderCanvas({ viewMode = 'desktop' }: BuilderCanvasProps) {
+  const { elements, addElement, addElementAt } = usePageBuilder();
+
+  const createDropHandler = (parentId: string | null, index: number) => (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-
     const componentData = e.dataTransfer.getData('component');
     if (!componentData) return;
-
-    const component = JSON.parse(componentData);
-    const componentDef = componentLibrary.find(c => c.type === component.type);
-    
-    if (!componentDef) return;
-
-    const newElement: PageElement = {
-      id: `${component.type}-${Date.now()}`,
-      type: component.type,
-      content: { ...componentDef.defaultContent },
-      style: { ...componentDef.defaultStyle },
-      children: component.type === 'container' ? [] : undefined,
-    };
-
-    addElement(newElement);
+    const newElement = createElementFromDrag(componentData);
+    if (newElement) addElementAt(newElement, parentId, index);
   };
 
+  const handleDrop = createDropHandler(null, elements.length);
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'copy';
@@ -48,15 +49,17 @@ export function BuilderCanvas({ viewMode = 'desktop' }: BuilderCanvasProps) {
   };
 
   return (
-    <div 
+    <div
       className="flex-1 overflow-auto bg-[#111111] p-6 flex justify-center"
       onDrop={handleDrop}
       onDragOver={handleDragOver}
     >
-      <div className={cn(
-        "transition-all duration-300 bg-background rounded-lg shadow-2xl min-h-[800px] border border-border/30",
-        canvasWidth[viewMode]
-      )}>
+      <div
+        className={cn(
+          'transition-all duration-300 bg-background rounded-lg shadow-2xl min-h-[800px] border border-border/30',
+          canvasWidth[viewMode]
+        )}
+      >
         {elements.length === 0 ? (
           <div className="flex items-center justify-center h-[800px] text-center border-2 border-dashed border-border/50 rounded-lg m-4">
             <div>
@@ -74,10 +77,22 @@ export function BuilderCanvas({ viewMode = 'desktop' }: BuilderCanvasProps) {
             </div>
           </div>
         ) : (
-          <div className="p-6">
-            {elements.map((element) => (
-              <RenderElement key={element.id} element={element} />
+          <div className="p-6 flex flex-col gap-0">
+            {elements.map((element, index) => (
+              <div key={element.id} className="contents">
+                <DropZone
+                  onDrop={createDropHandler(null, index)}
+                  parentId={null}
+                  index={index}
+                />
+                <RenderElement element={element} parentId={null} siblingIndex={index} createDropHandler={createDropHandler} />
+              </div>
             ))}
+            <DropZone
+              onDrop={createDropHandler(null, elements.length)}
+              parentId={null}
+              index={elements.length}
+            />
           </div>
         )}
       </div>

@@ -44,7 +44,7 @@ export const builtinComponentPresets: ComponentPreset[] = [
     defaultStyle: {
       fontSize: '32px',
       fontWeight: '700',
-      color: '#000000',
+      color: '#e5e5e5',
       marginBottom: '16px',
     },
   },
@@ -58,7 +58,7 @@ export const builtinComponentPresets: ComponentPreset[] = [
     defaultStyle: {
       fontSize: '16px',
       lineHeight: '1.6',
-      color: '#333333',
+      color: '#a3a3a3',
     },
   },
   {
@@ -139,7 +139,7 @@ export const builtinComponentPresets: ComponentPreset[] = [
     defaultStyle: {
       width: '100%',
       height: '1px',
-      backgroundColor: '#e5e7eb',
+      backgroundColor: '#404040',
       margin: '20px 0',
     },
   },
@@ -161,7 +161,7 @@ export const builtinComponentPresets: ComponentPreset[] = [
       alignItems: 'center',
       justifyContent: 'center',
       padding: '80px 20px',
-      backgroundColor: '#f9fafb',
+      backgroundColor: '#1a1a1a',
       textAlign: 'center',
     },
   },
@@ -181,8 +181,8 @@ export const builtinComponentPresets: ComponentPreset[] = [
     },
     defaultStyle: {
       padding: '32px',
-      backgroundColor: '#ffffff',
-      border: '1px solid #e5e7eb',
+      backgroundColor: '#1a1a1a',
+      border: '1px solid #404040',
       borderRadius: '12px',
       textAlign: 'center',
     },

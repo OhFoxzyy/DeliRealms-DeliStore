@@ -9,9 +9,10 @@ datasource db {
 }
 
 enum Role {
-  user
+  hobby
+  pro
+  elite
   admin
-  owner
 }
 
 model User {
@@ -21,7 +22,7 @@ model User {
   emailVerified     DateTime?
   image             String?   @db.Text
   password          String?
-  role              Role      @default(user)
+  role              Role      @default(hobby)
   username          String?   @unique
   profilePictureId  String?
   createdAt         DateTime  @default(now())

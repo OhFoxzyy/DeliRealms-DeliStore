@@ -32,7 +32,7 @@ export async function POST(req: Request) {
       where: { id: verification.userId },
       data: {
         emailVerified: new Date(),
-        role: 'user',
+        role: 'hobby',
       },
     });
 

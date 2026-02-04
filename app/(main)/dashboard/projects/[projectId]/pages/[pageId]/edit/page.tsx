@@ -21,7 +21,11 @@ export default async function PageEditorPage({
 
   const page = await prisma.page.findUnique({
     where: { id: pageId },
-    include: { project: true },
+    include: {
+      project: {
+        include: { pages: { orderBy: { createdAt: 'asc' } } },
+      },
+    },
   });
 
   if (!page || page.project.userId !== session.user.id) {
@@ -36,13 +40,21 @@ export default async function PageEditorPage({
     console.error('Failed to parse page content:', e);
   }
 
+  const pages = page.project.pages.map((p) => ({
+    id: p.id,
+    name: p.name,
+    slug: p.slug,
+    isHome: p.isHome,
+  }));
+
   return (
     <PageBuilder
       projectId={projectId}
-      pageSlug={pageId}
       pageId={pageId}
       initialElements={initialElements}
       pageName={page.name}
+      pageSlug={page.slug}
+      pages={pages}
     />
   );
 }
