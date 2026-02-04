@@ -20,19 +20,13 @@ import {
   Smartphone,
   RefreshCw,
   ExternalLink,
-  Settings,
-  ChevronDown
+  Star,
 } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import type { PageElement } from '@/lib/page-builder/types';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '../ui/dropdown-menu';
+import { componentLibrary } from './component-library';
 
 interface PageBuilderProps {
   projectId: string;
@@ -66,8 +60,9 @@ function PageBuilderInner({
   pageName: string;
   pageSlug: string;
 }) {
-  const { elements, undo, redo, canUndo, canRedo } = usePageBuilder();
+  const { elements, selectedElement, undo, redo, canUndo, canRedo } = usePageBuilder();
   const [isSaving, setIsSaving] = useState(false);
+  const [isSavingTemplate, setIsSavingTemplate] = useState(false);
   const [isPublished, setIsPublished] = useState(false);
   const [viewMode, setViewMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
 
@@ -89,6 +84,51 @@ function PageBuilderInner({
       toast.error(error.message || 'Failed to save page');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleSaveTemplate = async () => {
+    if (!selectedElement) {
+      toast.error('Select an element to save as a template.');
+      return;
+    }
+
+    const suggestedName =
+      selectedElement.content?.text ||
+      selectedElement.type.charAt(0).toUpperCase() +
+        selectedElement.type.slice(1);
+
+    const name = window.prompt('Template name', suggestedName);
+    if (!name) return;
+
+    setIsSavingTemplate(true);
+    try {
+      const baseDef = componentLibrary.find(
+        (c) => c.type === selectedElement.type,
+      );
+
+      const response = await fetch('/api/components', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          type: selectedElement.type,
+          category: baseDef?.category ?? 'elements',
+          defaultContent: selectedElement.content,
+          defaultStyle: selectedElement.style,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error((data as any).error || 'Failed to save template');
+      }
+
+      toast.success('Template saved to your library.');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to save template');
+    } finally {
+      setIsSavingTemplate(false);
     }
   };
 
@@ -193,6 +233,17 @@ function PageBuilderInner({
           </div>
 
           <Separator orientation="vertical" className="h-6 mx-2" />
+
+          {/* Save as Template */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleSaveTemplate}
+            disabled={isSavingTemplate || !selectedElement}
+          >
+            <Star className="mr-2 h-4 w-4" />
+            Save as template
+          </Button>
 
           {/* Save Button */}
           <Button 

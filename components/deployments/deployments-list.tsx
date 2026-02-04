@@ -30,19 +30,28 @@ export function DeploymentsList({ projectId, deployments, isPublished }: Deploym
   const handleDeploy = async () => {
     setIsDeploying(true);
     try {
-      const response = await fetch(`/api/projects/${projectId}/build`, {
+      const response = await fetch(`/api/projects/${projectId}/deploy`, {
         method: 'POST',
       });
 
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Failed to start deployment');
+        const data = await response.json().catch(() => ({}));
+        throw new Error((data as any).error || 'Failed to start deployment');
       }
 
-      toast.success('Deployment started! This may take a few minutes.');
-      router.refresh();
+      const data = await response.json();
+
+      toast.success('Deployment started! Redirecting to details...');
+
+      if (data.deployment?.id) {
+        router.push(
+          `/dashboard/projects/${projectId}/deployments/${data.deployment.id}`,
+        );
+      } else {
+        router.refresh();
+      }
     } catch (error: any) {
-      toast.error(error.message);
+      toast.error(error.message || 'Failed to start deployment');
     } finally {
       setIsDeploying(false);
     }

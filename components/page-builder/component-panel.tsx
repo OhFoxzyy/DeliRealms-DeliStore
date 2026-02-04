@@ -1,32 +1,110 @@
 "use client";
 
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { componentLibrary, type ComponentDefinition } from './component-library';
 import { Card } from '../ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import { Input } from '../ui/input';
 import { usePageBuilder } from './page-builder-context';
-import type { PageElement } from '@/lib/page-builder/types';
+import { Skeleton } from '../ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
+
+type CategoryFilter = 'all' | 'layout' | 'elements' | 'ecommerce';
 
 export function ComponentPanel() {
   const { addElement } = usePageBuilder();
-  const [selectedCategory, setSelectedCategory] = useState<'all' | 'layout' | 'elements' | 'ecommerce'>('all');
+  const { toast } = useToast();
+  const [selectedCategory, setSelectedCategory] = useState<CategoryFilter>('all');
+  const [components, setComponents] = useState<ComponentDefinition[] | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    const loadComponents = async () => {
+      setIsLoading(true);
+      try {
+        const res = await fetch('/api/components');
+        if (!res.ok) {
+          throw new Error('Failed to load components');
+        }
+        const data = await res.json();
+
+        if (Array.isArray(data) && data.length > 0) {
+          // Map API components into the local definition shape.
+          const apiComponents: ComponentDefinition[] = data.map((c: any) => {
+            const base =
+              componentLibrary.find((b) => b.type === c.type) ?? null;
+
+            return {
+              type: c.type,
+              label: c.name ?? base?.label ?? c.type,
+              icon: base?.icon ?? base?.icon ?? null,
+              category: (c.category as CategoryFilter) ?? base?.category ?? 'elements',
+              defaultContent: c.defaultContent ?? base?.defaultContent ?? {},
+              defaultStyle: c.defaultStyle ?? base?.defaultStyle ?? {},
+            };
+          });
+
+          setComponents(apiComponents);
+        } else {
+          // Fallback to local library if API returns nothing.
+          setComponents(componentLibrary);
+        }
+      } catch (error) {
+        console.error(error);
+        toast({
+          title: 'Unable to load components',
+          description: 'Using the default component set for now.',
+          variant: 'destructive',
+        });
+        setComponents(componentLibrary);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    void loadComponents();
+  }, [toast]);
 
   const handleDragStart = (e: React.DragEvent, component: ComponentDefinition) => {
     e.dataTransfer.setData('component', JSON.stringify(component));
     e.dataTransfer.effectAllowed = 'copy';
   };
 
-  const filteredComponents = selectedCategory === 'all'
-    ? componentLibrary
-    : componentLibrary.filter(c => c.category === selectedCategory);
+  const filteredComponents = useMemo(() => {
+    const source = components ?? componentLibrary;
+
+    let result = source;
+    if (selectedCategory !== 'all') {
+      result = result.filter((c) => c.category === selectedCategory);
+    }
+
+    if (search.trim()) {
+      const term = search.trim().toLowerCase();
+      result = result.filter((c) =>
+        c.label.toLowerCase().includes(term) ||
+        c.type.toLowerCase().includes(term),
+      );
+    }
+
+    return result;
+  }, [components, selectedCategory, search]);
 
   return (
     <div className="w-80 border-l bg-background h-full overflow-y-auto">
-      <div className="p-4 border-b">
-        <h2 className="text-lg font-semibold">Components</h2>
-        <p className="text-xs text-muted-foreground mt-1">
-          Drag and drop components onto the canvas
-        </p>
+      <div className="p-4 border-b space-y-3">
+        <div>
+          <h2 className="text-lg font-semibold">Components</h2>
+          <p className="text-xs text-muted-foreground mt-1">
+            Drag and drop components onto the canvas
+          </p>
+        </div>
+        <Input
+          placeholder="Search components..."
+          className="h-8 text-xs"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
       </div>
 
       <Tabs defaultValue="all" className="w-full">
@@ -46,16 +124,40 @@ export function ComponentPanel() {
         </TabsList>
 
         <TabsContent value="all" className="p-4 space-y-2">
-          <ComponentGrid components={filteredComponents} onDragStart={handleDragStart} />
+          {isLoading && <ComponentGridSkeleton />}
+          {!isLoading && (
+            <ComponentGrid
+              components={filteredComponents}
+              onDragStart={handleDragStart}
+            />
+          )}
         </TabsContent>
         <TabsContent value="layout" className="p-4 space-y-2">
-          <ComponentGrid components={filteredComponents} onDragStart={handleDragStart} />
+          {isLoading && <ComponentGridSkeleton />}
+          {!isLoading && (
+            <ComponentGrid
+              components={filteredComponents}
+              onDragStart={handleDragStart}
+            />
+          )}
         </TabsContent>
         <TabsContent value="elements" className="p-4 space-y-2">
-          <ComponentGrid components={filteredComponents} onDragStart={handleDragStart} />
+          {isLoading && <ComponentGridSkeleton />}
+          {!isLoading && (
+            <ComponentGrid
+              components={filteredComponents}
+              onDragStart={handleDragStart}
+            />
+          )}
         </TabsContent>
         <TabsContent value="ecommerce" className="p-4 space-y-2">
-          <ComponentGrid components={filteredComponents} onDragStart={handleDragStart} />
+          {isLoading && <ComponentGridSkeleton />}
+          {!isLoading && (
+            <ComponentGrid
+              components={filteredComponents}
+              onDragStart={handleDragStart}
+            />
+          )}
         </TabsContent>
       </Tabs>
     </div>
@@ -85,3 +187,20 @@ function ComponentGrid({
     </div>
   );
 }
+
+function ComponentGridSkeleton() {
+  return (
+    <div className="grid grid-cols-2 gap-2">
+      {Array.from({ length: 8 }).map((_, index) => (
+        <Card
+          key={index}
+          className="p-4 flex flex-col items-center justify-center gap-2"
+        >
+          <Skeleton className="h-6 w-6 rounded-full" />
+          <Skeleton className="h-3 w-16" />
+        </Card>
+      ))}
+    </div>
+  );
+}
+
