@@ -10,8 +10,9 @@ const prisma = new PrismaClient();
 export default async function DeploymentsPage({
   params,
 }: {
-  params: { projectId: string };
+  params: Promise<{ projectId: string }>;
 }) {
+  const { projectId } = await params;
   const session = await getServerSession(authOptions);
   
   if (!session?.user) {
@@ -19,7 +20,7 @@ export default async function DeploymentsPage({
   }
 
   const project = await prisma.project.findUnique({
-    where: { id: params.projectId },
+    where: { id: projectId },
     include: {
       deployments: {
         orderBy: { createdAt: 'desc' },
