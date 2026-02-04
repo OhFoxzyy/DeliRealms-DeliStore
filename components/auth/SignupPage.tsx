@@ -76,7 +76,7 @@ const SignUpPage = () => {
       });
 
       if (signInResult?.ok) {
-        router.push("/waiting-approval");
+        router.push("/dashboard");
         router.refresh();
       }
     } catch (error) {
@@ -95,7 +95,7 @@ const SignUpPage = () => {
   ) => {
     try {
       setIsLoading(true);
-      await signIn(provider, { callbackUrl: "/waiting-approval" });
+      await signIn(provider, { callbackUrl: "/dashboard" });
     } catch (error) {
       toast({
         title: "Error",
@@ -107,16 +107,10 @@ const SignUpPage = () => {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_top,_#020617,_#020617_45%,_#020617)]">
-      {/* floating gradient orbs */}
-      <div className="pointer-events-none absolute inset-0 opacity-60">
-        <div className="absolute -left-32 -top-40 h-64 w-64 rounded-full bg-[conic-gradient(from_180deg_at_50%_50%,#22d3ee,#a855f7,#22c55e,#22d3ee)] blur-3xl animate-[spin_30s_linear_infinite]" />
-        <div className="absolute -right-32 bottom-[-6rem] h-72 w-72 rounded-full bg-[radial-gradient(circle_at_30%_30%,#0ea5e9,#4f46e5,_transparent_70%)] blur-3xl opacity-80 animate-[spin_40s_linear_infinite_reverse]" />
-      </div>
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-black">
 
-      <div className="relative max-w-sm w-full border border-white/10 rounded-2xl px-8 py-8 shadow-[0_22px_70px_rgba(15,23,42,0.9)] bg-slate-900/70 backdrop-blur-2xl">
-        {/* subtle animated top accent */}
-        <div className="pointer-events-none absolute inset-x-10 -top-px h-px bg-gradient-to-r from-transparent via-violet-400/70 to-transparent animate-[pulse_3s_ease-in-out_infinite]" />
+      <div className="relative max-w-sm w-full border border-white/10 rounded-2xl px-8 py-8 bg-black backdrop-blur-2xl">
+        <div className="pointer-events-none absolute inset-x-10 -top-px h-px bg-linear-to-r from-transparent via-lime-400/70 to-transparent animate-[pulse_3s_ease-in-out_infinite]" />
 
         {/* inner grid */}
         <div className="absolute inset-0 -z-10 opacity-40">
@@ -140,14 +134,14 @@ const SignUpPage = () => {
         </div>
 
         <div className="relative isolate flex flex-col items-center animate-in fade-in-0 zoom-in-95 duration-500">
-          <p className="mt-2 text-xs font-mono uppercase tracking-[0.22em] text-violet-300/70">
+          <p className="mt-2 text-xs font-mono uppercase tracking-[0.22em] text-white">
             Get started
           </p>
           <p className="mt-3 text-xl font-semibold tracking-tight">
             Sign up for DeliStore
           </p>
           <p className="mt-1 text-xs text-muted-foreground/80 text-center">
-            Create your account to start deploying and managing your realms.
+            Create your account to start deploying and managing your stores.
           </p>
 
           <div className="mt-7 space-y-2 w-full">
@@ -175,7 +169,7 @@ const SignUpPage = () => {
 
           <div className="my-7 w-full flex items-center justify-center overflow-hidden">
             <Separator className="bg-white/10" />
-            <span className="text-xs px-2 text-muted-foreground/80">or</span>
+            <span className="text-sm px-2 uppercase text-muted-foreground/80">or</span>
             <Separator className="bg-white/10" />
           </div>
 
@@ -196,7 +190,7 @@ const SignUpPage = () => {
                       <Input
                         type="text"
                         placeholder="Your name"
-                        className="w-full bg-white/5 border-white/10 focus-visible:ring-violet-400/60 transition-colors"
+                        className="w-full bg-white/5 border-white/10 transition-colors"
                         {...field}
                       />
                     </FormControl>
@@ -215,8 +209,8 @@ const SignUpPage = () => {
                     <FormControl>
                       <Input
                         type="email"
-                        placeholder="you@delirealms.net"
-                        className="w-full bg-white/5 border-white/10 focus-visible:ring-violet-400/60 transition-colors"
+                        placeholder="you@gmail.com"
+                        className="w-full bg-white/5 border-white/10 transition-colors"
                         {...field}
                       />
                     </FormControl>
@@ -235,8 +229,8 @@ const SignUpPage = () => {
                     <FormControl>
                       <Input
                         type="password"
-                        placeholder="••••••••"
-                        className="w-full bg-white/5 border-white/10 focus-visible:ring-violet-400/60 transition-colors"
+                        placeholder="Password"
+                        className="w-full bg-white/5 border-white/10"
                         {...field}
                       />
                     </FormControl>
@@ -246,7 +240,7 @@ const SignUpPage = () => {
               />
               <Button
                 type="submit"
-                className="mt-4 w-full bg-gradient-to-r from-violet-400 via-fuchsia-500 to-sky-400 text-slate-950 font-medium shadow-[0_18px_45px_rgba(139,92,246,0.55)] hover:shadow-[0_22px_60px_rgba(139,92,246,0.75)] transition-all duration-200"
+                className="mt-4 w-full cursor-pointer"
                 disabled={isLoading}
               >
                 {isLoading ? "Creating account..." : "Continue with Email"}
@@ -258,7 +252,7 @@ const SignUpPage = () => {
             Already have an account?
             <Link
               href="/signin"
-              className="ml-1 underline underline-offset-4 text-foreground/90 hover:text-violet-300 transition-colors"
+              className="ml-1 underline underline-offset-4 text-foreground/90 transition-colors"
             >
               Log in
             </Link>
