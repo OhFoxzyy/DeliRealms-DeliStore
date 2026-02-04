@@ -49,7 +49,7 @@ export default async function DashboardPage() {
       {/* Left Sidebar */}
       <aside className="w-full lg:w-80 border-b lg:border-b-0 lg:border-r border-border p-4 lg:p-6 space-y-6">
         {/* Usage Section */}
-        <Card>
+        <Card className='bg-black'>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-medium">Usage</CardTitle>
@@ -73,7 +73,7 @@ export default async function DashboardPage() {
         </Card>
 
         {/* Alerts Section */}
-        <Card>
+        <Card className='bg-black'>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium">Alerts</CardTitle>
           </CardHeader>
@@ -92,7 +92,7 @@ export default async function DashboardPage() {
         </Card>
 
         {/* Recent Activity */}
-        <Card>
+        <Card className='bg-black'>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium">Recent Activity</CardTitle>
           </CardHeader>
@@ -173,9 +173,9 @@ export default async function DashboardPage() {
 
         {/* Projects Grid */}
         {projects.length === 0 ? (
-          <Card className="p-12">
+          <Card className="p-12 bg-black">
             <div className="flex flex-col items-center justify-center text-center">
-              <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-4">
+              <div className="h-12 w-12 rounded-full flex items-center justify-center mb-4">
                 <Plus className="h-6 w-6 text-muted-foreground" />
               </div>
               <h3 className="text-lg font-semibold mb-2">No projects yet</h3>

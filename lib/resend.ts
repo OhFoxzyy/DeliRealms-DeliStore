@@ -7,7 +7,7 @@ export async function sendVerificationEmail(email: string, token: string) {
   
   try {
     await resend.emails.send({
-      from: 'DeliStore <noreply@delistore.com>',
+      from: 'DeliStore <noreply@delistore.app>',
       to: email,
       subject: 'Verify your email address',
       html: `

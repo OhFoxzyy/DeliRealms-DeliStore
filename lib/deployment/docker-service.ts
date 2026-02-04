@@ -70,7 +70,7 @@ export class DockerDeploymentService {
       // Configure Nginx reverse proxy
       await this.configureNginx(config.subdomain, config.port);
 
-      const url = `https://${config.subdomain}.delistore.com`;
+      const url = `https://${config.subdomain}.delistore.app`;
       console.log('[v0] Deployment successful. URL:', url);
 
       return {
@@ -286,7 +286,7 @@ CMD ["npm", "start"]`;
   private async configureNginx(subdomain: string, port: number): Promise<void> {
     const nginxConfig = `server {
     listen 80;
-    server_name ${subdomain}.delistore.com;
+    server_name ${subdomain}.delistore.app;
 
     location / {
         proxy_pass http://localhost:${port};

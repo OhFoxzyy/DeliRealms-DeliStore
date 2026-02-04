@@ -156,11 +156,11 @@ export default function ProjectDetailPage() {
   return (
     <div className="min-h-screen">
       {/* Project Header */}
-      <div className="border-b border-border bg-background/95 backdrop-blur">
+      <div className="border-b border-border backdrop-blur">
         <div className="container px-4 py-6">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-linear-to-br from-lime-500 to-lime-600">
                 <span className="text-lg font-bold text-white">
                   {project.name.charAt(0).toUpperCase()}
                 </span>
@@ -231,7 +231,7 @@ export default function ProjectDetailPage() {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Pages Section */}
-            <Card>
+            <Card className="bg-black">
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
                   <CardTitle>Pages</CardTitle>
@@ -296,7 +296,7 @@ export default function ProjectDetailPage() {
             </Card>
 
             {/* Recent Deployments */}
-            <Card>
+            <Card className="bg-black">
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
                   <CardTitle>Recent Deployments</CardTitle>
@@ -356,7 +356,7 @@ export default function ProjectDetailPage() {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Quick Actions */}
-            <Card>
+            <Card className="bg-black">
               <CardHeader>
                 <CardTitle className="text-base">Quick Actions</CardTitle>
               </CardHeader>
@@ -383,7 +383,7 @@ export default function ProjectDetailPage() {
             </Card>
 
             {/* Project Info */}
-            <Card>
+            <Card className="bg-black">
               <CardHeader>
                 <CardTitle className="text-base">Project Info</CardTitle>
               </CardHeader>

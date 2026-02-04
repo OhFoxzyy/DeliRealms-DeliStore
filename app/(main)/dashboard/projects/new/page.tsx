@@ -60,7 +60,7 @@ export default function NewProjectPage() {
         </Button>
       </Link>
 
-      <Card>
+      <Card className='bg-black'>
         <CardHeader>
           <CardTitle>Create New Project</CardTitle>
           <CardDescription>
@@ -104,7 +104,7 @@ export default function NewProjectPage() {
                   onChange={(e) => handleSubdomainChange(e.target.value)}
                 />
                 <span className="text-sm text-muted-foreground whitespace-nowrap">
-                  .delistore.com
+                  .delistore.app
                 </span>
               </div>
               <p className="text-xs text-muted-foreground">

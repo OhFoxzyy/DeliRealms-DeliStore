@@ -9,7 +9,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     <SessionProvider>
       <div className="min-h-screen flex flex-col">
         <DashboardHeader />
-        <main className="flex-1 bg-background">
+        <main className="flex-1 bg-black">
           <div className="max-w-6xl mx-auto w-full px-4 lg:px-6 py-6">
             {children}
           </div>

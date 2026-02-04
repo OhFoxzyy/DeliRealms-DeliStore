@@ -28,6 +28,7 @@ import {
   CreditCard
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Logo from "../logo";
 
 const mainNavItems = [
   { href: "/dashboard", label: "Overview", exact: true },
@@ -52,9 +53,7 @@ export function DashboardHeader() {
           <div className="flex items-center gap-3">
           {/* Logo */}
           <Link href="/dashboard" className="flex items-center">
-            <svg height="22" viewBox="0 0 76 65" fill="currentColor">
-              <path d="M37.5274 0L75.0548 65H0L37.5274 0Z" />
-            </svg>
+            <Logo/>
           </Link>
           
           <span className="text-muted-foreground">/</span>
@@ -70,10 +69,10 @@ export function DashboardHeader() {
                   </AvatarFallback>
                 </Avatar>
                 <span className="font-medium text-sm">
-                  {session?.user?.name || "Loading..."}
+                  {session?.user?.name || "Unknown"}
                 </span>
-                <Badge variant="secondary" className="text-xs px-1.5 py-0 h-5">
-                  Hobby
+                <Badge variant="ghost" className="text-xs px-1.5 py-0 h-5">
+                  {session?.user?.role}
                 </Badge>
                 <ChevronDown className="h-3 w-3 text-muted-foreground" />
               </Button>
@@ -198,7 +197,7 @@ export function DashboardHeader() {
       </div>
 
       {/* Secondary Navigation */}
-      <div className="border-t border-border bg-muted/60">
+      <div className="border-t border-border bg-background/90">
         <div className="flex items-center overflow-x-auto max-w-6xl mx-auto px-4 lg:px-6">
           <nav className="flex items-center gap-1">
           {mainNavItems.map((item) => {

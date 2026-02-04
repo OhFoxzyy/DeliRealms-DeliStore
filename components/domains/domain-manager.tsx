@@ -75,7 +75,7 @@ export function DomainManager({ projectId, subdomain: initialSubdomain, customDo
     }
   };
 
-  const subdomainUrl = subdomain ? `https://${subdomain}.delistore.com` : null;
+  const subdomainUrl = subdomain ? `https://${subdomain}.delistore.app` : null;
 
   return (
     <div className="space-y-6">
@@ -114,7 +114,7 @@ export function DomainManager({ projectId, subdomain: initialSubdomain, customDo
                 onChange={(e) => setSubdomain(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
               />
               <span className="text-sm text-muted-foreground whitespace-nowrap">
-                .delistore.com
+                .delistore.app
               </span>
             </div>
             <p className="text-xs text-muted-foreground">
@@ -181,7 +181,7 @@ export function DomainManager({ projectId, subdomain: initialSubdomain, customDo
               <div className="space-y-1 font-mono text-xs bg-background p-2 rounded">
                 <p>Type: CNAME</p>
                 <p>Name: {customDomain.split('.')[0]}</p>
-                <p>Value: proxy.delistore.com</p>
+                <p>Value: proxy.delistore.app</p>
               </div>
             </div>
           )}
@@ -202,7 +202,7 @@ export function DomainManager({ projectId, subdomain: initialSubdomain, customDo
         </CardHeader>
         <CardContent className="space-y-2 text-sm text-muted-foreground">
           <p>
-            <strong>Subdomain:</strong> Get started quickly with a free delistore.com subdomain. Perfect for testing and development.
+            <strong>Subdomain:</strong> Get started quickly with a free delistore.app subdomain. Perfect for testing and development.
           </p>
           <p>
             <strong>Custom Domain:</strong> Use your own domain to build your brand. You'll need to configure DNS records with your domain provider.

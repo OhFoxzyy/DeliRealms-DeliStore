@@ -27,7 +27,7 @@ export function ProjectTabs({ projectId, projectName }: ProjectTabsProps) {
   const baseHref = `/dashboard/projects/${projectId}`;
 
   return (
-    <div className="border-b bg-background/95 backdrop-blur">
+    <div className="border-b bg-black backdrop-blur">
       <div className="container px-4">
         <div className="flex items-center justify-between py-2">
           <h2 className="text-lg font-semibold">{projectName}</h2>

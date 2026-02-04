@@ -117,7 +117,7 @@ export function DeploymentsList({ projectId, deployments, isPublished }: Deploym
         <CardContent>
           {deployments.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-8">
-              No deployments yet. Click "Deploy Now" to create your first deployment.
+              No deployments yet. Click &quot;Deploy Now&quot; to create your first deployment.
             </p>
           ) : (
             <div className="space-y-3">

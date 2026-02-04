@@ -9,9 +9,9 @@ datasource db {
 }
 
 enum Role {
-  unverified
   user
   admin
+  owner
 }
 
 model User {
@@ -21,7 +21,7 @@ model User {
   emailVerified     DateTime?
   image             String?   @db.Text
   password          String?
-  role              Role      @default(unverified)
+  role              Role      @default(user)
   username          String?   @unique
   profilePictureId  String?
   createdAt         DateTime  @default(now())
