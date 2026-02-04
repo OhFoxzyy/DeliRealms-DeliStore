@@ -13,17 +13,18 @@ const domainSchema = z.object({
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { projectId: string } }
+  { params }: { params: Promise<{ projectId: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
+    const { projectId } = await params;
     
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const project = await prisma.project.findUnique({
-      where: { id: params.projectId },
+      where: { id: projectId },
     });
 
     if (!project || project.userId !== session.user.id) {
@@ -60,7 +61,7 @@ export async function PATCH(
     }
 
     const updatedProject = await prisma.project.update({
-      where: { id: params.projectId },
+      where: { id: projectId },
       data: {
         ...(subdomain !== undefined && { subdomain }),
         ...(customDomain !== undefined && { customDomain }),

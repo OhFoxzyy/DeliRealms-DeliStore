@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/auth';
 import { PrismaClient } from '@/generated/prisma';
+import { createBasicTemplate } from '@/lib/page-templates/basic';
+import { generatePageCodeFromElements } from '@/lib/page-builder/codegen';
 import { z } from 'zod';
 
 const prisma = new PrismaClient();
@@ -45,16 +47,19 @@ export async function POST(req: Request) {
       },
     });
 
-    // Create a default home page
+    // Create a default home page using the basic template.
+    const { elements } = createBasicTemplate();
+    const content = JSON.stringify({ elements });
+    const code = generatePageCodeFromElements(elements);
+
     await prisma.page.create({
       data: {
         projectId: project.id,
         name: 'Home',
         slug: 'index',
         isHome: true,
-        content: JSON.stringify({
-          elements: []
-        }),
+        content,
+        code,
       },
     });
 

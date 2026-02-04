@@ -13,17 +13,18 @@ const envVarSchema = z.object({
 
 export async function POST(
   req: Request,
-  { params }: { params: { projectId: string } }
+  { params }: { params: Promise<{ projectId: string }> },
 ) {
   try {
     const session = await getServerSession(authOptions);
+    const { projectId } = await params;
     
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const project = await prisma.project.findUnique({
-      where: { id: params.projectId },
+      where: { id: projectId },
     });
 
     if (!project || project.userId !== session.user.id) {
@@ -37,7 +38,7 @@ export async function POST(
     const existing = await prisma.environmentVariable.findUnique({
       where: {
         projectId_key: {
-          projectId: params.projectId,
+          projectId,
           key,
         },
       },
@@ -52,7 +53,7 @@ export async function POST(
 
     const envVar = await prisma.environmentVariable.create({
       data: {
-        projectId: params.projectId,
+        projectId,
         key,
         value,
       },

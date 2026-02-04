@@ -2,22 +2,24 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/auth';
 import { PrismaClient } from '@/generated/prisma';
+import { generatePageCodeFromElements } from '@/lib/page-builder/codegen';
 
 const prisma = new PrismaClient();
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { pageId: string } }
+  { params }: { params: Promise<{ pageId: string }> },
 ) {
   try {
     const session = await getServerSession(authOptions);
+    const { pageId } = await params;
     
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const page = await prisma.page.findUnique({
-      where: { id: params.pageId },
+      where: { id: pageId },
       include: { project: true },
     });
 
@@ -25,11 +27,32 @@ export async function PATCH(
       return NextResponse.json({ error: 'Page not found' }, { status: 404 });
     }
 
-    const { content } = await req.json();
+    const body = await req.json();
+    const content: string | undefined = body.content;
+
+    if (!content) {
+      return NextResponse.json(
+        { error: 'Missing content' },
+        { status: 400 },
+      );
+    }
+
+    let code: string | undefined;
+    try {
+      const parsed = JSON.parse(content);
+      if (Array.isArray(parsed.elements)) {
+        code = generatePageCodeFromElements(parsed.elements);
+      }
+    } catch {
+      // If parsing fails, keep code undefined and only update content
+    }
 
     const updatedPage = await prisma.page.update({
-      where: { id: params.pageId },
-      data: { content },
+      where: { id: pageId },
+      data: {
+        content,
+        ...(code ? { code } : {}),
+      },
     });
 
     return NextResponse.json({ page: updatedPage });

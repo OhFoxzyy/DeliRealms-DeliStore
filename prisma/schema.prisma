@@ -114,6 +114,7 @@ model Page {
   name      String
   slug      String
   content   String   @db.LongText
+  code      String?  @db.LongText
   isHome    Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

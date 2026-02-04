@@ -7,17 +7,18 @@ const prisma = new PrismaClient();
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { projectId: string; id: string } }
+  { params }: { params: Promise<{ projectId: string; id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
+    const { id } = await params;
     
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const envVar = await prisma.environmentVariable.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { project: true },
     });
 
@@ -29,7 +30,7 @@ export async function DELETE(
     }
 
     await prisma.environmentVariable.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ message: 'Environment variable deleted' });

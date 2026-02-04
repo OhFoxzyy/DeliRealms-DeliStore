@@ -5,13 +5,14 @@ import { db } from '@/lib/prisma';
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await getServerSession(authOptions);
+    const { id } = await params;
 
     const component = await db.component.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!component) {
@@ -47,18 +48,17 @@ export async function GET(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await getServerSession(authOptions);
+    const { id } = await params;
 
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const existing = await db.component.findUnique({
-      where: { id: params.id },
-    });
+    const existing = await db.component.findUnique({ where: { id } });
 
     if (!existing) {
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
@@ -71,7 +71,7 @@ export async function PATCH(
     const body = await req.json();
 
     const updated = await db.component.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         name: body.name ?? existing.name,
         type: body.type ?? existing.type,
@@ -104,18 +104,17 @@ export async function PATCH(
 
 export async function DELETE(
   _req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await getServerSession(authOptions);
+    const { id } = await params;
 
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const existing = await db.component.findUnique({
-      where: { id: params.id },
-    });
+    const existing = await db.component.findUnique({ where: { id } });
 
     if (!existing) {
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
@@ -125,7 +124,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    await db.component.delete({ where: { id: params.id } });
+    await db.component.delete({ where: { id } });
 
     return NextResponse.json({ success: true });
   } catch (error) {

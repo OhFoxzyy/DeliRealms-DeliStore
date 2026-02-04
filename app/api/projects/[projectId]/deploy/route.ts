@@ -69,6 +69,7 @@ export async function POST(
       pages: project.pages.map(p => ({
         slug: p.slug,
         content: p.content,
+        code: p.code,
       })),
       port,
     });

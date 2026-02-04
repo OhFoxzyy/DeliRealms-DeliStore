@@ -133,7 +133,7 @@ function PageBuilderInner({
   };
 
   return (
-    <div className="h-screen flex flex-col bg-[#0a0a0a]">
+    <div className="fixed inset-0 z-40 flex flex-col bg-[#0a0a0a]">
       {/* Header */}
       <header className="h-14 border-b border-border/50 bg-background/95 backdrop-blur px-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
