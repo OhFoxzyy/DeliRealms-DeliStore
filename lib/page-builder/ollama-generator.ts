@@ -31,11 +31,12 @@ export async function generatePageElementsWithOllama(
   prompt: string,
   ollamaHost = process.env.OLLAMA_HOST || 'http://localhost:11434'
 ): Promise<PageElement[]> {
+  const model = process.env.OLLAMA_MODEL || 'llama3.2';
   const response = await fetch(`${ollamaHost}/api/chat`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model: 'llama3.2',
+      model,
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: prompt },

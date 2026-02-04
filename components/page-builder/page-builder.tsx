@@ -60,9 +60,10 @@ interface PageBuilderProps {
   pageName: string;
   pageSlug: string;
   pages?: PageInfo[];
+  projectUrl?: string | null;
 }
 
-export function PageBuilder({ projectId, pageId, initialElements, pageName, pageSlug, pages = [] }: PageBuilderProps) {
+export function PageBuilder({ projectId, pageId, initialElements, pageName, pageSlug, pages = [], projectUrl = null }: PageBuilderProps) {
   return (
     <PageBuilderProvider initialElements={initialElements}>
       <PageBuilderInner 
@@ -71,6 +72,7 @@ export function PageBuilder({ projectId, pageId, initialElements, pageName, page
         pageName={pageName}
         pageSlug={pageSlug}
         pages={pages}
+        projectUrl={projectUrl}
       />
     </PageBuilderProvider>
   );
@@ -82,12 +84,14 @@ function PageBuilderInner({
   pageName,
   pageSlug,
   pages,
+  projectUrl,
 }: { 
   projectId: string; 
   pageId: string; 
   pageName: string;
   pageSlug: string;
   pages: PageInfo[];
+  projectUrl: string | null;
 }) {
   const { elements, selectedElement, undo, redo, canUndo, canRedo } = usePageBuilder();
   const [isSaving, setIsSaving] = useState(false);
@@ -294,13 +298,18 @@ function PageBuilderInner({
 
           <Separator orientation="vertical" className="h-6 mx-2" />
 
-          {/* Preview */}
-          <Button variant="ghost" size="icon" className="h-8 w-8">
-            <Eye className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8">
-            <ExternalLink className="h-4 w-4" />
-          </Button>
+          {/* Preview / View */}
+          {projectUrl ? (
+            <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+              <a href={projectUrl} target="_blank" rel="noopener noreferrer" title="View page">
+                <ExternalLink className="h-4 w-4" />
+              </a>
+            </Button>
+          ) : (
+            <Button variant="ghost" size="icon" className="h-8 w-8" disabled title="Deploy to view page">
+              <Eye className="h-4 w-4" />
+            </Button>
+          )}
 
           <Separator orientation="vertical" className="h-6 mx-2" />
 

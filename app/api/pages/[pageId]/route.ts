@@ -64,3 +64,38 @@ export async function PATCH(
     );
   }
 }
+
+export async function DELETE(
+  _req: Request,
+  { params }: { params: Promise<{ pageId: string }> },
+) {
+  try {
+    const session = await getServerSession(authOptions);
+    const { pageId } = await params;
+
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const page = await prisma.page.findUnique({
+      where: { id: pageId },
+      include: { project: true },
+    });
+
+    if (!page || page.project.userId !== session.user.id) {
+      return NextResponse.json({ error: 'Page not found' }, { status: 404 });
+    }
+
+    await prisma.page.delete({
+      where: { id: pageId },
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Page delete error:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete page' },
+      { status: 500 }
+    );
+  }
+}

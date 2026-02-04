@@ -16,7 +16,7 @@ interface RenderElementProps {
 }
 
 export function RenderElement({ element, parentId, siblingIndex = 0, createDropHandler }: RenderElementProps) {
-  const { selectElement, selectedElement, duplicateElement, deleteElement, moveElement, addElementAt } = usePageBuilder();
+  const { selectElement, selectedElement, duplicateElement, deleteElement, moveElement } = usePageBuilder();
   const isSelected = selectedElement?.id === element.id;
 
   const handleClick = (e: React.MouseEvent) => {

@@ -93,8 +93,8 @@ export function DashboardHeader() {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-blue-500">
-                Create Team
+              <DropdownMenuItem className="text-blue-500" asChild>
+                <Link href="/dashboard/billing/upgrade">Upgrade Plan</Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -125,9 +125,12 @@ export function DashboardHeader() {
               variant="outline"
               size="sm"
               className="hidden lg:flex h-8 gap-1.5"
+              asChild
             >
-              <MessageSquare className="h-3.5 w-3.5" />
-              Feedback
+              <a href="mailto:support@vixle.app?subject=Feedback">
+                <MessageSquare className="h-3.5 w-3.5" />
+                Feedback
+              </a>
             </Button>
 
             {/* Notifications */}

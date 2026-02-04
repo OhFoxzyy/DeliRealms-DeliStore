@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { projectId: string } }
+  { params }: { params: Promise<{ projectId: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -122,7 +122,7 @@ export async function POST(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { projectId: string } }
+  { params }: { params: Promise<{ projectId: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -130,7 +130,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { projectId } = params;
+    const { projectId } = await params;
 
     const project = await prisma.project.findUnique({
       where: { id: projectId, userId: session.user.id },

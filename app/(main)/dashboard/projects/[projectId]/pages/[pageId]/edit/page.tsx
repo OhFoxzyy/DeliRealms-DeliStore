@@ -47,6 +47,12 @@ export default async function PageEditorPage({
     isHome: p.isHome,
   }));
 
+  const projectUrl = page.project.customDomain
+    ? `https://${page.project.customDomain}/${page.slug === 'index' ? '' : page.slug}`
+    : page.project.subdomain
+    ? `https://${page.project.subdomain}.vixle.app/${page.slug === 'index' ? '' : page.slug}`
+    : null;
+
   return (
     <PageBuilder
       projectId={projectId}
@@ -55,6 +61,7 @@ export default async function PageEditorPage({
       pageName={page.name}
       pageSlug={page.slug}
       pages={pages}
+      projectUrl={projectUrl}
     />
   );
 }

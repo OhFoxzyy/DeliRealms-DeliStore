@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -65,6 +65,7 @@ const tabs = [
 export default function ProjectDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const pathname = usePathname();
   const projectId = params.projectId as string;
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
@@ -95,6 +96,55 @@ export default function ProjectDetailPage() {
     fetchProject();
   }, [projectId, router]);
 
+  const handleDuplicatePage = async (pageId: string) => {
+    try {
+      const pageData = project?.pages.find((p) => p.id === pageId);
+      if (!pageData) throw new Error("Page not found");
+      const projRes = await fetch(`/api/projects/${projectId}`);
+      if (!projRes.ok) throw new Error("Failed to fetch project");
+      const proj = await projRes.json();
+      const pageContent = proj.pages?.find((p: { id: string; content?: string }) => p.id === pageId);
+      const content = (pageContent?.content ?? JSON.stringify({ elements: [] })) as string;
+      const res = await fetch(`/api/projects/${projectId}/pages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: `${pageData.name} (copy)`,
+          slug: `${pageData.slug}-copy-${Date.now().toString(36)}`,
+          isHome: false,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to duplicate");
+      const { page } = await res.json();
+      if (pageContent?.content) {
+        const patchRes = await fetch(`/api/pages/${page.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ content }),
+        });
+        if (!patchRes.ok) throw new Error("Failed to copy content");
+      }
+      toast.success("Page duplicated");
+      setProject((prev) => prev ? { ...prev, pages: [...prev.pages, { id: page.id, name: page.name, slug: page.slug, isHome: page.isHome, updatedAt: page.updatedAt }] } : null);
+      router.refresh();
+    } catch {
+      toast.error("Failed to duplicate page");
+    }
+  };
+
+  const handleDeletePage = async (pageId: string, pageName: string) => {
+    if (!confirm(`Delete page "${pageName}"?`)) return;
+    try {
+      const res = await fetch(`/api/pages/${pageId}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete");
+      toast.success("Page deleted");
+      setProject((prev) => prev ? { ...prev, pages: prev.pages.filter((p) => p.id !== pageId) } : null);
+      router.refresh();
+    } catch {
+      toast.error("Failed to delete page");
+    }
+  };
+
   const handleDeploy = async () => {
     setDeploying(true);
     try {
@@ -104,9 +154,15 @@ export default function ProjectDetailPage() {
       if (!response.ok) throw new Error("Deployment failed");
       const data = await response.json();
       toast.success("Deployment started successfully");
+      const newDeploy = {
+        id: data.deployment?.id,
+        status: "building",
+        url: data.deployment?.url,
+        createdAt: new Date().toISOString(),
+      };
       setProject((prev) => prev ? {
         ...prev,
-        deployments: [data.deployment, ...prev.deployments],
+        deployments: [newDeploy, ...prev.deployments],
       } : null);
     } catch (error) {
       toast.error("Failed to start deployment");
@@ -207,20 +263,26 @@ export default function ProjectDetailPage() {
         {/* Tabs */}
         <div className="container px-4">
           <nav className="flex gap-1 -mb-px">
-            {tabs.map((tab) => (
-              <Link
-                key={tab.id}
-                href={`/dashboard/projects/${projectId}${tab.href}`}
-                className={cn(
-                  "px-4 py-2 text-sm font-medium transition-colors border-b-2",
-                  tab.id === "overview"
-                    ? "border-foreground text-foreground"
-                    : "border-transparent text-muted-foreground hover:text-foreground hover:border-muted-foreground"
-                )}
-              >
-                {tab.label}
-              </Link>
-            ))}
+            {tabs.map((tab) => {
+              const href = `/dashboard/projects/${projectId}${tab.href}`;
+              const isActive = tab.href === "" 
+                ? typeof window !== "undefined" && !window.location.pathname.replace(`/dashboard/projects/${projectId}`, "").split("/").filter(Boolean)[0]
+                : typeof window !== "undefined" && window.location.pathname.startsWith(href);
+              return (
+                <Link
+                  key={tab.id}
+                  href={href}
+                  className={cn(
+                    "px-4 py-2 text-sm font-medium transition-colors border-b-2",
+                    (tab.href === "" && !window?.location?.pathname?.includes("/pages") && !window?.location?.pathname?.includes("/deployments") && !window?.location?.pathname?.includes("/domains") && !window?.location?.pathname?.includes("/env-vars") && !window?.location?.pathname?.includes("/settings"))
+                      ? "border-foreground text-foreground"
+                      : "border-transparent text-muted-foreground hover:text-foreground hover:border-muted-foreground"
+                  )}
+                >
+                  {tab.label}
+                </Link>
+              );
+            })}
           </nav>
         </div>
       </div>
@@ -260,12 +322,11 @@ export default function ProjectDetailPage() {
                 ) : (
                   <div className="space-y-2">
                     {project.pages.map((page) => (
-                      <Link
+                      <div
                         key={page.id}
-                        href={`/dashboard/projects/${projectId}/pages/${page.id}/edit`}
                         className="flex items-center justify-between p-3 rounded-lg border border-border hover:bg-accent transition-colors"
                       >
-                        <div className="flex items-center gap-3">
+                        <Link href={`/dashboard/projects/${projectId}/pages/${page.id}/edit`} className="flex items-center gap-3 flex-1 min-w-0">
                           <FileText className="h-4 w-4 text-muted-foreground" />
                           <div>
                             <p className="font-medium">{page.name}</p>
@@ -275,20 +336,23 @@ export default function ProjectDetailPage() {
                             <Badge variant="outline" className="text-xs">Home</Badge>
                           )}
                         </div>
+                        </Link>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => e.stopPropagation()}>
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem>Edit</DropdownMenuItem>
-                            <DropdownMenuItem>Duplicate</DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                              <Link href={`/dashboard/projects/${projectId}/pages/${page.id}/edit`}>Edit</Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={(e) => { e.preventDefault(); handleDuplicatePage(page.id); }}>Duplicate</DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+                            <DropdownMenuItem className="text-destructive" onClick={(e) => { e.preventDefault(); handleDeletePage(page.id, page.name); }}>Delete</DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
-                      </Link>
+                      </div>
                     ))}
                   </div>
                 )}
@@ -324,9 +388,9 @@ export default function ProjectDetailPage() {
                         <div className="flex items-center gap-3">
                           <div className={cn(
                             "h-2 w-2 rounded-full",
-                            deployment.status === "ready" ? "bg-green-500" :
+                            deployment.status === "active" ? "bg-green-500" :
                             deployment.status === "building" ? "bg-yellow-500 animate-pulse" :
-                            deployment.status === "error" ? "bg-red-500" : "bg-muted"
+                            deployment.status === "failed" ? "bg-red-500" : "bg-muted"
                           )} />
                           <div>
                             <p className="font-medium text-sm">{deployment.status}</p>

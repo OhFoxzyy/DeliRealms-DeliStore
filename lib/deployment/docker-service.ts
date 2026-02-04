@@ -28,7 +28,7 @@ export interface PageElement {
 
 export class DockerDeploymentService {
   private baseDir = '/tmp/deployments';
-  private nginxConfigDir = '/etc/nginx/sites-enabled';
+  private nginxConfigDir = '/etc/nginx/sites-enabled/deployments';
 
   async deploy(config: DeploymentConfig): Promise<{ success: boolean; containerId?: string; url?: string; error?: string }> {
     try {
@@ -298,7 +298,7 @@ CMD ["npm", "start"]`;
     }
 }`;
 
-    const configPath = path.join(this.nginxConfigDir, `${subdomain}.conf`);
+    const configPath = path.join(this.nginxConfigDir, `${subdomain}.vixle.app.conf`);
     await fs.writeFile(configPath, nginxConfig);
     
     // Reload Nginx
@@ -306,7 +306,7 @@ CMD ["npm", "start"]`;
   }
 
   private async removeNginxConfig(subdomain: string): Promise<void> {
-    const configPath = path.join(this.nginxConfigDir, `${subdomain}.conf`);
+    const configPath = path.join(this.nginxConfigDir, `${subdomain}.vixle.app.conf`);
     await fs.unlink(configPath).catch(() => {});
     await execAsync('nginx -s reload').catch(() => {});
   }

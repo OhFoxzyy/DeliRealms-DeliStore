@@ -158,8 +158,12 @@ export default async function DashboardPage() {
                     New Project
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem>Import from GitHub</DropdownMenuItem>
-                <DropdownMenuItem>Clone Template</DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard/integrations">Import from GitHub</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard/projects/new">Clone Template</Link>
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -189,8 +193,8 @@ export default async function DashboardPage() {
                     New Project
                   </Link>
                 </Button>
-                <Button variant="outline">
-                  Browse Templates
+                <Button variant="outline" asChild>
+                  <Link href="/dashboard/projects">Browse Projects</Link>
                 </Button>
               </div>
             </div>
@@ -296,12 +300,12 @@ function ProjectCard({ project }: { project: any }) {
             {latestDeployment ? (
               <>
                 <span className={`h-2 w-2 rounded-full ${
-                  latestDeployment.status === 'ready' ? 'bg-green-500' :
+                  latestDeployment.status === 'active' ? 'bg-green-500' :
                   latestDeployment.status === 'building' ? 'bg-yellow-500 animate-pulse' :
-                  latestDeployment.status === 'error' ? 'bg-red-500' : 'bg-muted'
+                  latestDeployment.status === 'failed' ? 'bg-red-500' : 'bg-muted'
                 }`} />
                 <span className="text-muted-foreground capitalize">
-                  {latestDeployment.status === 'ready' ? 'Production' : latestDeployment.status}
+                  {latestDeployment.status === 'active' ? 'Live' : latestDeployment.status}
                 </span>
               </>
             ) : (

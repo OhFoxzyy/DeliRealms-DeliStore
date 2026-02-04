@@ -13,7 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 type CategoryFilter = 'all' | 'layout' | 'elements' | 'ecommerce';
 
 export function ComponentPanel() {
-  const { addElement } = usePageBuilder();
+  usePageBuilder();
   const { toast } = useToast();
   const [selectedCategory, setSelectedCategory] = useState<CategoryFilter>('all');
   const [components, setComponents] = useState<ComponentDefinition[] | null>(null);
@@ -108,20 +108,14 @@ export function ComponentPanel() {
         />
       </div>
 
-      <Tabs defaultValue="all" className="w-full">
+      <Tabs value={selectedCategory} onValueChange={(v) => setSelectedCategory(v as CategoryFilter)} className="w-full">
         <TabsList className="w-full grid grid-cols-4 px-4">
-          <TabsTrigger value="all" onClick={() => setSelectedCategory('all')}>
+          <TabsTrigger value="all">
             All
           </TabsTrigger>
-          <TabsTrigger value="layout" onClick={() => setSelectedCategory('layout')}>
-            Layout
-          </TabsTrigger>
-          <TabsTrigger value="elements" onClick={() => setSelectedCategory('elements')}>
-            Elements
-          </TabsTrigger>
-          <TabsTrigger value="ecommerce" onClick={() => setSelectedCategory('ecommerce')}>
-            Shop
-          </TabsTrigger>
+          <TabsTrigger value="layout">Layout</TabsTrigger>
+          <TabsTrigger value="elements">Elements</TabsTrigger>
+          <TabsTrigger value="ecommerce">Shop</TabsTrigger>
         </TabsList>
 
         <TabsContent value="all" className="p-4 space-y-2">
