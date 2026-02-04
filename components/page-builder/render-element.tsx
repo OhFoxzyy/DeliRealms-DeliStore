@@ -174,6 +174,7 @@ export function RenderElement({ element }: RenderElementProps) {
   return (
     <div
       onClick={handleClick}
+      data-element-id={element.id}
       className={cn(
         'relative',
         isSelected && 'ring-2 ring-blue-500 ring-offset-2'

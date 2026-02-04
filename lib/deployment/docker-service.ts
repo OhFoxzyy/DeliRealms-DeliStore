@@ -10,7 +10,7 @@ export interface DeploymentConfig {
   projectName: string;
   subdomain: string;
   envVars: Record<string, string>;
-  pages: Array<{ slug: string; content: string }>;
+  pages: Array<{ slug: string; content: string; code?: string | null }>;
   port: number;
 }
 
@@ -153,9 +153,14 @@ export class DockerDeploymentService {
         : path.join(appDir, page.slug);
       
       await fs.mkdir(pageDir, { recursive: true });
+      const code =
+        page.code && page.code.trim().length > 0
+          ? page.code
+          : this.generatePageComponent(page.content);
+
       await fs.writeFile(
         path.join(pageDir, 'page.tsx'),
-        this.generatePageComponent(page.content)
+        code
       );
     }
 

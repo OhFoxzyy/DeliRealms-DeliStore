@@ -8,10 +8,11 @@ const prisma = new PrismaClient();
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { projectId: string; deploymentId: string } },
+  { params }: { params: Promise<{ projectId: string; deploymentId: string }> },
 ) {
   try {
     const session = await getServerSession(authOptions);
+    const { projectId, deploymentId } = await params;
 
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -19,8 +20,8 @@ export async function GET(
 
     const deployment = await prisma.deployment.findFirst({
       where: {
-        id: params.deploymentId,
-        projectId: params.projectId,
+        id: deploymentId,
+        projectId,
         project: {
           userId: session.user.id,
         },
