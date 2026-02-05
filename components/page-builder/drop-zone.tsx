@@ -41,10 +41,18 @@ export function DropZone({ onDrop, parentId, index, className }: DropZoneProps) 
       data-drop-parent={parentId}
       data-drop-index={index}
       className={cn(
-        "min-h-[24px] transition-colors flex-shrink-0",
-        isOver && "bg-white/20 rounded",
+        "min-h-[40px] transition-all flex-shrink-0 relative",
+        isOver 
+          ? "bg-accent/20 border-2 border-dashed border-accent rounded-lg" 
+          : "border-2 border-dashed border-transparent hover:border-border/40 rounded-lg",
         className
       )}
-    />
+    >
+      {isOver && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-xs font-medium text-foreground/70">Drop here</span>
+        </div>
+      )}
+    </div>
   );
 }

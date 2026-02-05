@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/auth';
 import { PrismaClient } from '@/generated/prisma';
 import { PageBuilder } from '@/components/page-builder/page-builder';
+import type { PageData, PageTheme } from '@/lib/page-builder/types';
 
 const prisma = new PrismaClient();
 
@@ -33,9 +34,13 @@ export default async function PageEditorPage({
   }
 
   let initialElements = [];
+  let initialTheme: PageTheme | null = null;
   try {
-    const content = JSON.parse(page.content);
+    const content = JSON.parse(page.content) as PageData | any;
     initialElements = content.elements || [];
+    if (content.globalStyles?.theme) {
+      initialTheme = content.globalStyles.theme as PageTheme;
+    }
   } catch (e) {
     console.error('Failed to parse page content:', e);
   }
@@ -58,6 +63,7 @@ export default async function PageEditorPage({
       projectId={projectId}
       pageId={pageId}
       initialElements={initialElements}
+      initialTheme={initialTheme}
       pageName={page.name}
       pageSlug={page.slug}
       pages={pages}

@@ -14,6 +14,33 @@ export type ElementType =
   | 'feature-grid'
   | 'checkout';
 
+/**
+ * Simple theme model for the page builder.
+ * This is intentionally generic and stored under PageData.globalStyles
+ * for backwards compatibility with existing saved pages.
+ */
+export interface PageThemePalette {
+  primary: string;
+  secondary: string;
+  accent: string;
+  background: string;
+  surface: string;
+  text: string;
+}
+
+export interface PageThemeGradient {
+  id: string;
+  label: string;
+  value: string; // e.g. "linear-gradient(135deg, #6366f1, #ec4899)"
+}
+
+export interface PageTheme {
+  id: string;
+  name: string;
+  palette: PageThemePalette;
+  gradients?: PageThemeGradient[];
+}
+
 export interface ElementStyle {
   // Layout
   width?: string;
@@ -55,6 +82,11 @@ export interface ElementStyle {
   // Colors
   color?: string;
   backgroundColor?: string;
+  /**
+   * Optional gradient background expressed as a CSS linear-gradient string.
+   * When set, this should visually override backgroundColor.
+   */
+  backgroundGradient?: string;
   borderColor?: string;
   
   // Border
@@ -103,5 +135,13 @@ export interface PageElement {
 
 export interface PageData {
   elements: PageElement[];
-  globalStyles?: Record<string, any>;
+  /**
+   * globalStyles.theme is used by the visual page builder
+   * while keeping the old shape compatible with existing content.
+   */
+  globalStyles?: {
+    theme?: PageTheme;
+    // Allow other keys without breaking older data.
+    [key: string]: any;
+  };
 }

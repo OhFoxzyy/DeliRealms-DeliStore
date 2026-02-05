@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { PageBuilderProvider, usePageBuilder } from './page-builder-context';
 import { BuilderCanvas } from './builder-canvas';
 import { ComponentPanel } from './component-panel';
@@ -22,6 +22,7 @@ import {
   ExternalLink,
   Star,
   ChevronDown,
+  X,
 } from 'lucide-react';
 import Link from 'next/link';
 import {
@@ -40,10 +41,13 @@ import {
   DialogTrigger,
 } from '../ui/dialog';
 import { Textarea } from '../ui/textarea';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import type { PageElement } from '@/lib/page-builder/types';
+import type { PageElement, PageTheme, PageData } from '@/lib/page-builder/types';
 import { componentLibrary } from './component-library';
 
 interface PageInfo {
@@ -57,15 +61,16 @@ interface PageBuilderProps {
   projectId: string;
   pageId: string;
   initialElements: PageElement[];
+  initialTheme?: PageTheme | null;
   pageName: string;
   pageSlug: string;
   pages?: PageInfo[];
   projectUrl?: string | null;
 }
 
-export function PageBuilder({ projectId, pageId, initialElements, pageName, pageSlug, pages = [], projectUrl = null }: PageBuilderProps) {
+export function PageBuilder({ projectId, pageId, initialElements, initialTheme = null, pageName, pageSlug, pages = [], projectUrl = null }: PageBuilderProps) {
   return (
-    <PageBuilderProvider initialElements={initialElements}>
+    <PageBuilderProvider initialElements={initialElements} initialTheme={initialTheme}>
       <PageBuilderInner 
         projectId={projectId} 
         pageId={pageId} 
@@ -93,20 +98,45 @@ function PageBuilderInner({
   pages: PageInfo[];
   projectUrl: string | null;
 }) {
-  const { elements, selectedElement, undo, redo, canUndo, canRedo } = usePageBuilder();
+  const { elements, selectedElement, theme, undo, redo, canUndo, canRedo, setElements } = usePageBuilder();
   const [isSaving, setIsSaving] = useState(false);
   const [isSavingTemplate, setIsSavingTemplate] = useState(false);
   const [isPublished, setIsPublished] = useState(false);
   const [viewMode, setViewMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
+  const [isFullscreenPreview, setIsFullscreenPreview] = useState(false);
+  const [aiDialogOpen, setAiDialogOpen] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [designerMode, setDesignerMode] = useState(false);
+  const [componentName, setComponentName] = useState('');
+  const [componentCategory, setComponentCategory] = useState<'layout' | 'elements' | 'ecommerce'>('elements');
+  
+  // Handle ESC key to close fullscreen preview
+  React.useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isFullscreenPreview) {
+        setIsFullscreenPreview(false);
+      }
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, [isFullscreenPreview]);
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
+      const content: PageData = {
+        elements,
+        globalStyles: {
+          theme: theme || undefined,
+        },
+      };
+
       const response = await fetch(`/api/pages/${pageId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          content: JSON.stringify({ elements }),
+          content: JSON.stringify(content),
         }),
       });
 
@@ -192,6 +222,52 @@ function PageBuilderInner({
       toast.error(error.message || 'Failed to save template');
     } finally {
       setIsSavingTemplate(false);
+    }
+  };
+
+  const handleSaveComponent = async () => {
+    if (elements.length === 0) {
+      toast.error('Add at least one element to save as a component.');
+      return;
+    }
+
+    if (!componentName.trim()) {
+      toast.error('Please enter a component name.');
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      // In designer mode, save the root element(s) as a component
+      const rootElement = elements[0];
+      const baseDef = componentLibrary.find(
+        (c) => c.type === rootElement?.type,
+      );
+
+      const response = await fetch('/api/components', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: componentName.trim(),
+          type: rootElement.type,
+          category: componentCategory,
+          defaultContent: rootElement.content,
+          defaultStyle: rootElement.style,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error((data as any).error || 'Failed to save component');
+      }
+
+      toast.success('Component saved to your library.');
+      setComponentName('');
+      setDesignerMode(false);
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to save component');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -298,13 +374,47 @@ function PageBuilderInner({
 
           <Separator orientation="vertical" className="h-6 mx-2" />
 
+          {/* Mode Toggle */}
+          <div className="flex items-center gap-2 px-2 border border-border/50 rounded-lg">
+            <Button
+              variant={!designerMode ? "default" : "ghost"}
+              size="sm"
+              className={cn("h-7 text-xs", !designerMode && "bg-accent")}
+              onClick={() => setDesignerMode(false)}
+            >
+              Page
+            </Button>
+            <Button
+              variant={designerMode ? "default" : "ghost"}
+              size="sm"
+              className={cn("h-7 text-xs", designerMode && "bg-accent")}
+              onClick={() => setDesignerMode(true)}
+            >
+              Component
+            </Button>
+          </div>
+
+          <Separator orientation="vertical" className="h-6 mx-2" />
+
           {/* Preview / View */}
           {projectUrl ? (
-            <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
-              <a href={projectUrl} target="_blank" rel="noopener noreferrer" title="View page">
-                <ExternalLink className="h-4 w-4" />
-              </a>
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8" title="View page">
+                  <Eye className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => window.open(projectUrl, '_blank')}>
+                  <ExternalLink className="mr-2 h-4 w-4" />
+                  Open in new tab
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setIsFullscreenPreview(true)}>
+                  <Eye className="mr-2 h-4 w-4" />
+                  Fullscreen preview
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
             <Button variant="ghost" size="icon" className="h-8 w-8" disabled title="Deploy to view page">
               <Eye className="h-4 w-4" />
@@ -372,19 +482,73 @@ function PageBuilderInner({
           </Button>
 
           {/* Save Button */}
-          <Button 
-            size="sm" 
-            onClick={handleSave} 
-            disabled={isSaving}
-            className="bg-blue-600 hover:bg-blue-700"
-          >
-            {isSaving ? (
-              <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Save className="mr-2 h-4 w-4" />
-            )}
-            Save
-          </Button>
+          {designerMode ? (
+            <Dialog open={componentName !== '' || isSaving} onOpenChange={(open) => !open && !isSaving && setComponentName('')}>
+              <DialogTrigger asChild>
+                <Button 
+                  size="sm" 
+                  disabled={elements.length === 0}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  <Save className="mr-2 h-4 w-4" />
+                  Save Component
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Save Component</DialogTitle>
+                  <DialogDescription>
+                    Save this component to your library for use across all projects.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 mt-4">
+                  <div className="space-y-2">
+                    <Label>Component Name</Label>
+                    <Input
+                      value={componentName}
+                      onChange={(e) => setComponentName(e.target.value)}
+                      placeholder="My Custom Component"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Category</Label>
+                    <Select value={componentCategory} onValueChange={(v) => setComponentCategory(v as any)}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="layout">Layout</SelectItem>
+                        <SelectItem value="elements">Elements</SelectItem>
+                        <SelectItem value="ecommerce">E-commerce</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setComponentName('')}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleSaveComponent} disabled={isSaving || !componentName.trim()}>
+                    {isSaving ? 'Saving...' : 'Save'}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          ) : (
+            <Button 
+              size="sm" 
+              onClick={handleSave} 
+              disabled={isSaving}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              {isSaving ? (
+                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="mr-2 h-4 w-4" />
+              )}
+              Save
+            </Button>
+          )}
         </div>
       </header>
 
@@ -401,6 +565,42 @@ function PageBuilderInner({
         {/* Right Panel - Components */}
         <ComponentPanel />
       </div>
+      
+      {/* Fullscreen Preview Overlay */}
+      {isFullscreenPreview && (
+        <div className="fixed inset-0 z-50 bg-black/95 flex flex-col">
+          <div className="h-14 border-b border-border/50 bg-background/95 backdrop-blur px-4 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="font-medium">{pageName}</span>
+              <span className="text-muted-foreground text-sm">/{pageSlug}</span>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsFullscreenPreview(false)}
+              className="h-8 w-8"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+          <div className="flex-1 overflow-hidden">
+            {projectUrl ? (
+              <iframe
+                src={projectUrl}
+                className="w-full h-full border-0"
+                title="Page preview"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                <div className="text-center">
+                  <p className="text-lg mb-2">Page not yet deployed</p>
+                  <p className="text-sm">Deploy your project to see a live preview</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -7,11 +7,123 @@ import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Plus, X, RotateCcw } from 'lucide-react';
 import { ScrollArea } from '../ui/scroll-area';
+import { Switch } from '../ui/switch';
+import { cn } from '@/lib/utils';
+import type { PageTheme } from '@/lib/page-builder/types';
+
+const themePresets: PageTheme[] = [
+  {
+    id: 'dark-default',
+    name: 'Dark default',
+    palette: {
+      primary: '#6366f1',
+      secondary: '#10b981',
+      accent: '#f97316',
+      background: '#020617',
+      surface: '#111827',
+      text: '#e5e7eb',
+    },
+    gradients: [
+      {
+        id: 'indigo-pink',
+        label: 'Indigo → Pink',
+        value: 'linear-gradient(135deg, #6366f1, #ec4899)',
+      },
+      {
+        id: 'emerald-cyan',
+        label: 'Emerald → Cyan',
+        value: 'linear-gradient(135deg, #10b981, #06b6d4)',
+      },
+    ],
+  },
+  {
+    id: 'light-default',
+    name: 'Light',
+    palette: {
+      primary: '#3b82f6',
+      secondary: '#10b981',
+      accent: '#f59e0b',
+      background: '#ffffff',
+      surface: '#f9fafb',
+      text: '#111827',
+    },
+    gradients: [
+      {
+        id: 'blue-purple',
+        label: 'Blue → Purple',
+        value: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
+      },
+      {
+        id: 'sunset',
+        label: 'Sunset',
+        value: 'linear-gradient(135deg, #f59e0b, #ef4444)',
+      },
+    ],
+  },
+  {
+    id: 'emerald',
+    name: 'Emerald',
+    palette: {
+      primary: '#10b981',
+      secondary: '#06b6d4',
+      accent: '#8b5cf6',
+      background: '#0a0f0d',
+      surface: '#1a2e24',
+      text: '#d1fae5',
+    },
+    gradients: [
+      {
+        id: 'emerald-teal',
+        label: 'Emerald → Teal',
+        value: 'linear-gradient(135deg, #10b981, #06b6d4)',
+      },
+    ],
+  },
+  {
+    id: 'sunset-gradient',
+    name: 'Sunset Gradient',
+    palette: {
+      primary: '#f97316',
+      secondary: '#ec4899',
+      accent: '#fbbf24',
+      background: '#1a0a0a',
+      surface: '#2d1a1a',
+      text: '#fef3c7',
+    },
+    gradients: [
+      {
+        id: 'sunset-full',
+        label: 'Sunset',
+        value: 'linear-gradient(135deg, #f97316, #ec4899, #fbbf24)',
+      },
+    ],
+  },
+];
 
 export function StyleEditor() {
-  const { selectedElement, updateElement, deleteElement } = usePageBuilder();
+  const { selectedElement, updateElement, deleteElement, theme, setTheme } = usePageBuilder();
+
+  const ensureDefaultTheme = () => {
+    if (theme) return theme;
+    const fallback = themePresets[0];
+    setTheme(fallback);
+    return fallback;
+  };
+
+  const currentTheme = ensureDefaultTheme();
+
+  const handleThemePresetChange = (presetId: string) => {
+    const preset = themePresets.find((p) => p.id === presetId);
+    if (preset) {
+      setTheme(preset);
+    }
+  };
+
+  const handleResetTheme = () => {
+    setTheme(themePresets[0]);
+  };
 
   if (!selectedElement) {
     return (
@@ -41,6 +153,72 @@ export function StyleEditor() {
 
   return (
     <div className="w-80 border-l bg-background h-full flex flex-col">
+      {/* Theme / page-level controls */}
+      <div className="p-4 border-b space-y-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-sm font-semibold">Theme</h2>
+            <p className="text-[11px] text-muted-foreground">
+              Quickly change your page colors.
+            </p>
+          </div>
+        </div>
+        <div className="space-y-2">
+          <Select
+            value={currentTheme.id}
+            onValueChange={handleThemePresetChange}
+          >
+            <SelectTrigger className="h-8 text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {themePresets.map((preset) => (
+                <SelectItem key={preset.id} value={preset.id}>
+                  {preset.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {/* Swatch row like [][][][][][] */}
+          <div className="flex items-center gap-1">
+            {Object.values(currentTheme.palette).map((color, idx) => (
+              <button
+                key={`${color}-${idx}`}
+                type="button"
+                aria-label={color}
+                className="h-5 w-5 rounded-[4px] border border-border/60 hover:scale-110 transition-transform"
+                style={{ background: color }}
+                title={color}
+              />
+            ))}
+          </div>
+          {currentTheme.gradients && currentTheme.gradients.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-1">
+              {currentTheme.gradients.map((g) => (
+                <button
+                  key={g.id}
+                  type="button"
+                  className="h-5 flex-1 min-w-[40px] rounded-[4px] border border-border/60 hover:scale-110 transition-transform"
+                  style={{ backgroundImage: g.value }}
+                  title={g.label}
+                />
+              ))}
+            </div>
+          )}
+          <div className="flex gap-1 pt-1">
+            <Button
+              size="xs"
+              variant="outline"
+              className="h-7 text-[10px] flex-1"
+              onClick={handleResetTheme}
+            >
+              <RotateCcw className="mr-1 h-3 w-3" />
+              Reset
+            </Button>
+          </div>
+        </div>
+      </div>
+
       <div className="p-4 border-b flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold">Properties</h2>
@@ -56,7 +234,7 @@ export function StyleEditor() {
         </Button>
       </div>
 
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 scrollbar-none">
         <Tabs defaultValue="content" className="w-full">
           <TabsList className="w-full grid grid-cols-2 px-4">
             <TabsTrigger value="content">Content</TabsTrigger>
@@ -215,16 +393,323 @@ function ContentEditor({ element, onChange }: any) {
         </>
       );
 
-    default:
+    case 'hero':
       return (
-        <p className="text-sm text-muted-foreground">
-          No content properties available for this element
-        </p>
+        <>
+          <div className="space-y-2">
+            <Label>Heading</Label>
+            <Input
+              value={element.content.heading || ''}
+              onChange={(e) => onChange('heading', e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Subheading</Label>
+            <Textarea
+              value={element.content.subheading || ''}
+              onChange={(e) => onChange('subheading', e.target.value)}
+              rows={3}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Button text</Label>
+            <Input
+              value={element.content.buttonText || ''}
+              onChange={(e) => onChange('buttonText', e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Button link</Label>
+            <Input
+              value={element.content.buttonHref || ''}
+              onChange={(e) => onChange('buttonHref', e.target.value)}
+              placeholder="#"
+            />
+          </div>
+        </>
+      );
+
+    case 'pricing-card':
+      return (
+        <>
+          <div className="space-y-2">
+            <Label>Title</Label>
+            <Input
+              value={element.content.title || ''}
+              onChange={(e) => onChange('title', e.target.value)}
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="space-y-2">
+              <Label>Price</Label>
+              <Input
+                value={element.content.price || ''}
+                onChange={(e) => onChange('price', e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Period</Label>
+              <Input
+                value={element.content.period || ''}
+                onChange={(e) => onChange('period', e.target.value)}
+                placeholder="/month"
+              />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label>Features</Label>
+            <FeatureListEditor
+              items={element.content.features || []}
+              onChange={(items) => onChange('features', items)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Button text</Label>
+            <Input
+              value={element.content.buttonText || ''}
+              onChange={(e) => onChange('buttonText', e.target.value)}
+            />
+          </div>
+        </>
+      );
+
+    case 'feature-grid':
+      return (
+        <div className="space-y-2">
+          <Label>Features</Label>
+          <FeatureGridEditor
+            items={element.content.features || []}
+            onChange={(items) => onChange('features', items)}
+          />
+        </div>
+      );
+
+    default:
+      // Generic key-value editor for unknown types
+      const contentKeys = Object.keys(element.content || {});
+      if (contentKeys.length === 0) {
+        return (
+          <p className="text-sm text-muted-foreground">
+            No content properties for this element type.
+          </p>
+        );
+      }
+      return (
+        <div className="space-y-2">
+          {contentKeys.map((key) => {
+            const value = element.content[key];
+            const isString = typeof value === 'string';
+            const isNumber = typeof value === 'number';
+            const isBoolean = typeof value === 'boolean';
+            
+            if (isBoolean) {
+              return (
+                <div key={key} className="flex items-center justify-between">
+                  <Label className="text-xs capitalize">{key}</Label>
+                  <Switch
+                    checked={value}
+                    onCheckedChange={(checked) => onChange(key, checked)}
+                  />
+                </div>
+              );
+            }
+            
+            if (isString && value.length > 100) {
+              return (
+                <div key={key} className="space-y-1">
+                  <Label className="text-xs capitalize">{key}</Label>
+                  <Textarea
+                    value={value}
+                    onChange={(e) => onChange(key, e.target.value)}
+                    rows={3}
+                    className="text-xs"
+                  />
+                </div>
+              );
+            }
+            
+            return (
+              <div key={key} className="space-y-1">
+                <Label className="text-xs capitalize">{key}</Label>
+                <Input
+                  type={isNumber ? 'number' : 'text'}
+                  value={String(value)}
+                  onChange={(e) => {
+                    const newValue = isNumber ? Number(e.target.value) : e.target.value;
+                    onChange(key, newValue);
+                  }}
+                  className="h-8 text-xs"
+                />
+              </div>
+            );
+          })}
+        </div>
       );
   }
 }
 
+function FeatureListEditor({
+  items,
+  onChange,
+}: {
+  items: string[];
+  onChange: (items: string[]) => void;
+}) {
+  const handleUpdate = (index: number, value: string) => {
+    const next = [...items];
+    next[index] = value;
+    onChange(next);
+  };
+
+  const handleAdd = () => {
+    onChange([...(items || []), 'New feature']);
+  };
+
+  const handleRemove = (index: number) => {
+    const next = items.filter((_: string, i: number) => i !== index);
+    onChange(next);
+  };
+
+  if (!items || items.length === 0) {
+    return (
+      <div className="space-y-2">
+        <p className="text-xs text-muted-foreground">
+          No features yet. Add your first feature.
+        </p>
+        <Button size="xs" variant="outline" type="button" onClick={handleAdd}>
+          <Plus className="mr-1 h-3 w-3" />
+          Add feature
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      {items.map((feature: string, index: number) => (
+        <div key={index} className="flex items-center gap-2">
+          <Input
+            value={feature}
+            onChange={(e) => handleUpdate(index, e.target.value)}
+            className="h-8 text-xs"
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 text-muted-foreground hover:text-destructive"
+            onClick={() => handleRemove(index)}
+          >
+            <X className="h-3 w-3" />
+          </Button>
+        </div>
+      ))}
+      <Button size="xs" variant="outline" type="button" onClick={handleAdd}>
+        <Plus className="mr-1 h-3 w-3" />
+        Add feature
+      </Button>
+    </div>
+  );
+}
+
+function FeatureGridEditor({
+  items,
+  onChange,
+}: {
+  items: { title: string; description: string }[];
+  onChange: (items: { title: string; description: string }[]) => void;
+}) {
+  const handleUpdate = (
+    index: number,
+    key: 'title' | 'description',
+    value: string,
+  ) => {
+    const next = [...items];
+    const current = next[index] || { title: '', description: '' };
+    next[index] = { ...current, [key]: value };
+    onChange(next);
+  };
+
+  const handleAdd = () => {
+    onChange([
+      ...(items || []),
+      { title: 'New feature', description: 'Describe this feature' },
+    ]);
+  };
+
+  const handleRemove = (index: number) => {
+    const next = items.filter((_: any, i: number) => i !== index);
+    onChange(next);
+  };
+
+  if (!items || items.length === 0) {
+    return (
+      <div className="space-y-2">
+        <p className="text-xs text-muted-foreground">
+          No features yet. Add feature cards to this grid.
+        </p>
+        <Button size="xs" variant="outline" type="button" onClick={handleAdd}>
+          <Plus className="mr-1 h-3 w-3" />
+          Add feature
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {items.map((item, index) => (
+        <div
+          key={index}
+          className="rounded-md border border-border/60 p-2 space-y-2"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] text-muted-foreground">
+              Feature {index + 1}
+            </span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 text-muted-foreground hover:text-destructive"
+              onClick={() => handleRemove(index)}
+            >
+              <X className="h-3 w-3" />
+            </Button>
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">Title</Label>
+            <Input
+              value={item.title || ''}
+              onChange={(e) => handleUpdate(index, 'title', e.target.value)}
+              className="h-8 text-xs"
+            />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">Description</Label>
+            <Textarea
+              value={item.description || ''}
+              onChange={(e) =>
+                handleUpdate(index, 'description', e.target.value)
+              }
+              rows={2}
+              className="text-xs"
+            />
+          </div>
+        </div>
+      ))}
+      <Button size="xs" variant="outline" type="button" onClick={handleAdd}>
+        <Plus className="mr-1 h-3 w-3" />
+        Add feature
+      </Button>
+    </div>
+  );
+}
+
 function StyleProperties({ style, onChange }: any) {
+  const { theme } = usePageBuilder();
+  const currentTheme = theme || themePresets[0];
+  
   return (
     <div className="space-y-4">
       {/* Layout */}
@@ -271,6 +756,82 @@ function StyleProperties({ style, onChange }: any) {
               value={style.margin || ''}
               onChange={(e) => onChange('margin', e.target.value)}
               placeholder="0px"
+              className="h-8"
+            />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="space-y-1">
+            <Label className="text-xs">Padding Top</Label>
+            <Input
+              value={style.paddingTop || ''}
+              onChange={(e) => onChange('paddingTop', e.target.value)}
+              placeholder="auto"
+              className="h-8"
+            />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">Padding Bottom</Label>
+            <Input
+              value={style.paddingBottom || ''}
+              onChange={(e) => onChange('paddingBottom', e.target.value)}
+              placeholder="auto"
+              className="h-8"
+            />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">Padding Left</Label>
+            <Input
+              value={style.paddingLeft || ''}
+              onChange={(e) => onChange('paddingLeft', e.target.value)}
+              placeholder="auto"
+              className="h-8"
+            />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">Padding Right</Label>
+            <Input
+              value={style.paddingRight || ''}
+              onChange={(e) => onChange('paddingRight', e.target.value)}
+              placeholder="auto"
+              className="h-8"
+            />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="space-y-1">
+            <Label className="text-xs">Margin Top</Label>
+            <Input
+              value={style.marginTop || ''}
+              onChange={(e) => onChange('marginTop', e.target.value)}
+              placeholder="auto"
+              className="h-8"
+            />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">Margin Bottom</Label>
+            <Input
+              value={style.marginBottom || ''}
+              onChange={(e) => onChange('marginBottom', e.target.value)}
+              placeholder="auto"
+              className="h-8"
+            />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">Margin Left</Label>
+            <Input
+              value={style.marginLeft || ''}
+              onChange={(e) => onChange('marginLeft', e.target.value)}
+              placeholder="auto"
+              className="h-8"
+            />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">Margin Right</Label>
+            <Input
+              value={style.marginRight || ''}
+              onChange={(e) => onChange('marginRight', e.target.value)}
+              placeholder="auto"
               className="h-8"
             />
           </div>
@@ -350,6 +911,41 @@ function StyleProperties({ style, onChange }: any) {
               className="h-8"
             />
           </div>
+          {/* Gradient */}
+          {currentTheme.gradients && currentTheme.gradients.length > 0 && (
+            <div className="space-y-1">
+              <Label className="text-xs">Gradient</Label>
+              <div className="flex flex-wrap gap-1">
+                {currentTheme.gradients.map((g) => (
+                  <button
+                    key={g.id}
+                    type="button"
+                    onClick={() => onChange('backgroundGradient', g.value)}
+                    className={cn(
+                      "h-8 flex-1 min-w-[60px] rounded border transition-all",
+                      style.backgroundGradient === g.value
+                        ? "border-foreground ring-2 ring-foreground/20"
+                        : "border-border/60 hover:border-border"
+                    )}
+                    style={{ backgroundImage: g.value }}
+                    title={g.label}
+                  />
+                ))}
+                {style.backgroundGradient && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => onChange('backgroundGradient', '')}
+                    title="Clear gradient"
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -461,6 +1057,60 @@ function StyleProperties({ style, onChange }: any) {
               </div>
             </>
           )}
+        </div>
+      </div>
+
+      {/* Positioning */}
+      <div className="space-y-3">
+        <h3 className="font-semibold text-sm">Position</h3>
+        <div className="space-y-2">
+          <div className="space-y-1">
+            <Label className="text-xs">Position</Label>
+            <Select
+              value={style.position || 'static'}
+              onValueChange={(value) => onChange('position', value)}
+            >
+              <SelectTrigger className="h-8">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="static">Static</SelectItem>
+                <SelectItem value="relative">Relative</SelectItem>
+                <SelectItem value="absolute">Absolute</SelectItem>
+                <SelectItem value="fixed">Fixed</SelectItem>
+                <SelectItem value="sticky">Sticky</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="space-y-1">
+              <Label className="text-xs">Top</Label>
+              <Input
+                value={style.top || ''}
+                onChange={(e) => onChange('top', e.target.value)}
+                placeholder="e.g. 0, 10px"
+                className="h-8"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Bottom</Label>
+              <Input
+                value={style.bottom || ''}
+                onChange={(e) => onChange('bottom', e.target.value)}
+                placeholder="e.g. 0, 10px"
+                className="h-8"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Z-index</Label>
+              <Input
+                value={style.zIndex || ''}
+                onChange={(e) => onChange('zIndex', e.target.value)}
+                placeholder="e.g. 10"
+                className="h-8"
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>

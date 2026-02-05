@@ -92,7 +92,7 @@ export function ComponentPanel() {
   }, [components, selectedCategory, search]);
 
   return (
-    <div className="w-80 border-l bg-background h-full overflow-y-auto">
+    <div className="w-80 border-l bg-background h-full overflow-y-auto scrollbar-none">
       <div className="p-4 border-b space-y-3">
         <div>
           <h2 className="text-lg font-semibold">Components</h2>

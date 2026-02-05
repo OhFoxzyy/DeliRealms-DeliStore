@@ -1,12 +1,13 @@
 "use client";
 
 import { createContext, useContext, useState, useCallback } from 'react';
-import type { PageElement } from '@/lib/page-builder/types';
+import type { PageElement, PageTheme } from '@/lib/page-builder/types';
 
 interface PageBuilderContextType {
   elements: PageElement[];
   selectedElement: PageElement | null;
   selectedElementId: string | null;
+  theme: PageTheme | null;
   setElements: (elements: PageElement[]) => void;
   selectElement: (idOrElement: string | PageElement | null) => void;
   updateElement: (id: string, updates: Partial<PageElement>) => void;
@@ -15,6 +16,7 @@ interface PageBuilderContextType {
   addElementAt: (element: PageElement, parentId: string | null, index: number) => void;
   moveElement: (id: string, direction: 'up' | 'down') => void;
   duplicateElement: (id: string) => void;
+  setTheme: (theme: PageTheme | null) => void;
   undo: () => void;
   redo: () => void;
   canUndo: boolean;
@@ -25,13 +27,16 @@ const PageBuilderContext = createContext<PageBuilderContextType | undefined>(und
 
 export function PageBuilderProvider({ 
   children, 
-  initialElements = [] 
+  initialElements = [],
+  initialTheme = null,
 }: { 
   children: React.ReactNode;
   initialElements?: PageElement[];
+  initialTheme?: PageTheme | null;
 }) {
   const [elements, setElements] = useState<PageElement[]>(initialElements);
   const [selectedElement, setSelectedElement] = useState<PageElement | null>(null);
+  const [theme, setTheme] = useState<PageTheme | null>(initialTheme);
   const [history, setHistory] = useState<PageElement[][]>([initialElements]);
   const [historyIndex, setHistoryIndex] = useState(0);
 
@@ -233,6 +238,7 @@ export function PageBuilderProvider({
         elements,
         selectedElement,
         selectedElementId: selectedElement?.id || null,
+        theme,
         setElements,
         selectElement,
         updateElement,
@@ -241,6 +247,7 @@ export function PageBuilderProvider({
         addElementAt,
         moveElement,
         duplicateElement,
+        setTheme,
         undo,
         redo,
         canUndo: historyIndex > 0,
