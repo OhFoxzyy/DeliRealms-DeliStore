@@ -18,7 +18,9 @@ import {
   MoreHorizontal,
   ExternalLink,
   GitBranch,
-  Clock
+  Clock,
+  TrendingUp,
+  Activity
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -292,6 +294,107 @@ export default function ProjectDetailPage() {
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
+            {/* Analytics Section */}
+            <Card className="bg-black">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5" />
+                  Analytics
+                </CardTitle>
+                <CardDescription>Project performance metrics</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="p-4 rounded-lg border border-border">
+                    <p className="text-sm text-muted-foreground mb-1">Total Views</p>
+                    <p className="text-2xl font-bold">1,234</p>
+                    <p className="text-xs text-green-500 mt-1">+12% from last month</p>
+                  </div>
+                  <div className="p-4 rounded-lg border border-border">
+                    <p className="text-sm text-muted-foreground mb-1">Unique Visitors</p>
+                    <p className="text-2xl font-bold">892</p>
+                    <p className="text-xs text-green-500 mt-1">+8% from last month</p>
+                  </div>
+                  <div className="p-4 rounded-lg border border-border">
+                    <p className="text-sm text-muted-foreground mb-1">Avg. Load Time</p>
+                    <p className="text-2xl font-bold">1.2s</p>
+                    <p className="text-xs text-green-500 mt-1">-0.3s improvement</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Health Metrics */}
+            <Card className="bg-black">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Activity className="h-5 w-5" />
+                  Health Metrics
+                </CardTitle>
+                <CardDescription>System status and performance</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-green-500" />
+                      <span className="text-sm">Uptime</span>
+                    </div>
+                    <Badge variant="default">99.9%</Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-green-500" />
+                      <span className="text-sm">SSL Certificate</span>
+                    </div>
+                    <Badge variant="default">Valid</Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-yellow-500" />
+                      <span className="text-sm">CDN Status</span>
+                    </div>
+                    <Badge variant="secondary">Syncing</Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-green-500" />
+                      <span className="text-sm">Database</span>
+                    </div>
+                    <Badge variant="default">Healthy</Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Activity Feed */}
+            <Card className="bg-black">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Clock className="h-5 w-5" />
+                  Recent Activity
+                </CardTitle>
+                <CardDescription>Latest project updates</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {[
+                    { type: 'deployment', message: 'Deployment completed successfully', time: '2 hours ago', icon: Rocket },
+                    { type: 'page', message: 'Home page updated', time: '5 hours ago', icon: FileText },
+                    { type: 'settings', message: 'Project settings changed', time: '1 day ago', icon: Settings },
+                  ].map((activity, i) => (
+                    <div key={i} className="flex items-start gap-3 p-3 rounded-lg border border-border hover:bg-accent transition-colors">
+                      <activity.icon className="h-4 w-4 text-muted-foreground mt-0.5" />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">{activity.message}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{activity.time}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Pages Section */}
             <Card className="bg-black">
               <CardHeader className="flex flex-row items-center justify-between">
@@ -335,7 +438,6 @@ export default function ProjectDetailPage() {
                           {page.isHome && (
                             <Badge variant="outline" className="text-xs">Home</Badge>
                           )}
-                        </div>
                         </Link>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>

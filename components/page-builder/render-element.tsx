@@ -7,6 +7,7 @@ import type { PageElement, ElementStyle } from '@/lib/page-builder/types';
 import { cn } from '@/lib/utils';
 import { Copy, Trash2, ChevronUp, ChevronDown, AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
 import { Button } from '../ui/button';
+import { componentsMap } from './components';
 
 interface RenderElementProps {
   element: PageElement;
@@ -38,6 +39,7 @@ export function RenderElement({ element, parentId, siblingIndex = 0, createDropH
   };
 
   const renderContent = () => {
+<<<<<<< HEAD
     switch (element.type) {
       case 'container':
         const children = element.children || [];
@@ -216,7 +218,62 @@ export function RenderElement({ element, parentId, siblingIndex = 0, createDropH
 
       default:
         return <div style={element.style}>Unknown element type</div>;
+=======
+    const componentDef = componentsMap[element.type];
+    
+    if (!componentDef) {
+      return <div style={element.style as React.CSSProperties}>Unknown element type: {element.type}</div>;
+>>>>>>> c9965df20fa6fc21eb504d0fc60fd71845236cf7
     }
+
+    const { Component } = componentDef;
+    const children = element.children || [];
+    
+    // Handle container-like components that can have children
+    const containerTypes = ['container', 'card', 'section', 'grid', 'column', 'form'];
+    const isContainer = containerTypes.includes(element.type);
+
+    if (isContainer) {
+      if (!createDropHandler) {
+        return (
+          <Component element={element}>
+            {children.map((child) => (
+              <RenderElement key={child.id} element={child} />
+            ))}
+          </Component>
+        );
+      }
+      
+      return (
+        <Component element={element}>
+          {children.map((child, idx) => (
+            <React.Fragment key={child.id}>
+              <DropZone
+                onDrop={createDropHandler(element.id, idx)}
+                parentId={element.id}
+                index={idx}
+                className="min-h-[20px]"
+              />
+              <RenderElement
+                element={child}
+                parentId={element.id}
+                siblingIndex={idx}
+                createDropHandler={createDropHandler}
+              />
+            </React.Fragment>
+          ))}
+          <DropZone
+            onDrop={createDropHandler(element.id, children.length)}
+            parentId={element.id}
+            index={children.length}
+            className="min-h-[20px] flex-1"
+          />
+        </Component>
+      );
+    }
+
+    // For non-container components, render directly
+    return <Component element={element} />;
   };
 
   return (
@@ -224,11 +281,12 @@ export function RenderElement({ element, parentId, siblingIndex = 0, createDropH
       onClick={handleClick}
       data-element-id={element.id}
       className={cn(
-        'relative group',
-        isSelected && 'ring-2 ring-white ring-offset-2'
+        'relative group transition-all',
+        isSelected && 'ring-2 ring-primary ring-offset-2 ring-offset-background'
       )}
     >
       {isSelected && (
+<<<<<<< HEAD
         <div className="absolute -top-10 left-0 right-0 flex justify-center z-10">
           <div className="flex items-center gap-1 bg-card border border-border rounded-lg shadow-lg p-1">
             {isTextLike && (
@@ -272,10 +330,14 @@ export function RenderElement({ element, parentId, siblingIndex = 0, createDropH
                 <div className="h-4 w-px bg-border mx-0.5" />
               </>
             )}
+=======
+        <div className="absolute -top-12 left-0 right-0 flex justify-center z-10">
+          <div className="flex items-center gap-1 bg-card/95 backdrop-blur-sm border border-border/80 rounded-lg shadow-xl p-1.5">
+>>>>>>> c9965df20fa6fc21eb504d0fc60fd71845236cf7
             <Button
               variant="ghost"
               size="icon"
-              className="h-7 w-7"
+              className="h-7 w-7 hover:bg-accent/50"
               onClick={(e) => { e.stopPropagation(); moveElement(element.id, 'up'); }}
               title="Move up"
             >
@@ -284,7 +346,7 @@ export function RenderElement({ element, parentId, siblingIndex = 0, createDropH
             <Button
               variant="ghost"
               size="icon"
-              className="h-7 w-7"
+              className="h-7 w-7 hover:bg-accent/50"
               onClick={(e) => { e.stopPropagation(); moveElement(element.id, 'down'); }}
               title="Move down"
             >
@@ -293,7 +355,7 @@ export function RenderElement({ element, parentId, siblingIndex = 0, createDropH
             <Button
               variant="ghost"
               size="icon"
-              className="h-7 w-7"
+              className="h-7 w-7 hover:bg-accent/50"
               onClick={(e) => { e.stopPropagation(); duplicateElement(element.id); }}
               title="Duplicate"
             >
@@ -302,7 +364,7 @@ export function RenderElement({ element, parentId, siblingIndex = 0, createDropH
             <Button
               variant="ghost"
               size="icon"
-              className="h-7 w-7 text-destructive hover:text-destructive"
+              className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10"
               onClick={(e) => { e.stopPropagation(); deleteElement(element.id); }}
               title="Delete"
             >

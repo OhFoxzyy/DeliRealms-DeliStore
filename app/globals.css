@@ -93,6 +93,9 @@
   body {
     @apply bg-background text-foreground;
   }
+  button, a, [role="button"], [onclick], input[type="button"], input[type="submit"], input[type="reset"] {
+    @apply cursor-pointer;
+  }
 }
 
 /* Hide scrollbars while keeping scroll behavior */
