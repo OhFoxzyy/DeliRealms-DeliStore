@@ -50,25 +50,25 @@ export function BuilderCanvas({ viewMode = 'desktop' }: BuilderCanvasProps) {
 
   return (
     <div
-      className="flex-1 overflow-auto bg-[#111111] p-6 flex justify-center"
+      className="flex-1 overflow-auto bg-[#0a0a0a] p-6 flex justify-center"
       onDrop={handleDrop}
       onDragOver={handleDragOver}
     >
       <div
         className={cn(
-          'transition-all duration-300 bg-background rounded-lg shadow-2xl min-h-[800px] border border-border/30',
+          'transition-all duration-300 bg-background rounded-xl shadow-2xl min-h-[800px] border border-border/50 backdrop-blur-sm',
           canvasWidth[viewMode]
         )}
       >
         {elements.length === 0 ? (
-          <div className="flex items-center justify-center h-[800px] text-center border-2 border-dashed border-border/50 rounded-lg m-4">
+          <div className="flex items-center justify-center h-[800px] text-center border-2 border-dashed border-border/60 rounded-xl m-4 bg-muted/5 hover:bg-muted/10 transition-colors">
             <div>
-              <div className="h-16 w-16 rounded-full bg-accent/20 flex items-center justify-center mx-auto mb-4">
-                <svg className="h-8 w-8 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4 border border-primary/20">
+                <svg className="h-8 w-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
                 </svg>
               </div>
-              <p className="text-muted-foreground text-lg font-medium mb-2">
+              <p className="text-foreground text-lg font-medium mb-2">
                 Drop components here to start building
               </p>
               <p className="text-sm text-muted-foreground max-w-xs mx-auto">

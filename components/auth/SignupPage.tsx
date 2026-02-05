@@ -22,6 +22,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { FaDiscord } from "react-icons/fa6";
+import { signIn } from "next-auth/react";
 
 const formSchema = z.object({
   email: z.string().email(),

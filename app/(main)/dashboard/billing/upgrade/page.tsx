@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,7 @@ import { PRICING_PLANS } from '@/lib/pricing-plans';
 import { Check, ArrowLeft, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
-export default function UpgradePage() {
+function UpgradePageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const planId = searchParams.get('plan') || 'pro';
@@ -177,5 +177,13 @@ export default function UpgradePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function UpgradePage() {
+  return (
+    <Suspense fallback={<div className="container py-8 px-4 max-w-4xl mx-auto">Loading...</div>}>
+      <UpgradePageContent />
+    </Suspense>
   );
 }

@@ -40,7 +40,19 @@ export async function GET(
     }
 
     const rawLogs = await dockerService.getLogs(deployment.containerId);
-    const lines = rawLogs.split('\n').filter(Boolean);
+    const lines = rawLogs.split('\n').filter(Boolean).map(line => {
+      // Format backend logs with [VIXLE] prefix if not already present
+      if (line.includes('[v0]') || line.includes('[VIXLE]')) {
+        return line.replace(/\[v0\]/g, '[VIXLE]');
+      }
+      // Add timestamp to other logs if not present
+      if (!line.match(/^\d{2}:\d{2}:\d{2}\.\d{3}/)) {
+        const now = new Date();
+        const timestamp = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}.${now.getMilliseconds().toString().padStart(3, '0')}`;
+        return `${timestamp}  ${line}`;
+      }
+      return line;
+    });
 
     return NextResponse.json({
       status: deployment.status,

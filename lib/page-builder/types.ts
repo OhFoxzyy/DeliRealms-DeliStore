@@ -12,12 +12,27 @@ export type ElementType =
   | 'pricing-card'
   | 'hero'
   | 'feature-grid'
-  | 'checkout';
+  | 'checkout'
+  | 'navbar'
+  | 'footer'
+  | 'section'
+  | 'grid'
+  | 'column'
+  | 'badge'
+  | 'alert'
+  | 'form'
+  | 'input'
+  | 'textarea'
+  | 'select';
 
 export interface ElementStyle {
   // Layout
   width?: string;
   height?: string;
+  maxWidth?: string;
+  maxHeight?: string;
+  minWidth?: string;
+  minHeight?: string;
   padding?: string;
   paddingTop?: string;
   paddingRight?: string;
@@ -79,6 +94,7 @@ export interface ElementStyle {
   overflow?: string;
   cursor?: string;
   transition?: string;
+  visibility?: string;
 }
 
 export interface ElementContent {

@@ -4,7 +4,10 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
-import { Rocket, ExternalLink, Clock, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Rocket, ExternalLink, Clock, CheckCircle2, XCircle, Loader2, RotateCcw, Eye, Calendar, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 
@@ -25,6 +28,9 @@ interface DeploymentsListProps {
 
 export function DeploymentsList({ projectId, deployments, isPublished }: DeploymentsListProps) {
   const [isDeploying, setIsDeploying] = useState(false);
+  const [scheduleDialogOpen, setScheduleDialogOpen] = useState(false);
+  const [scheduledDate, setScheduledDate] = useState('');
+  const [scheduledTime, setScheduledTime] = useState('');
   const router = useRouter();
 
   const handleDeploy = async () => {
@@ -54,6 +60,59 @@ export function DeploymentsList({ projectId, deployments, isPublished }: Deploym
       toast.error(error.message || 'Failed to start deployment');
     } finally {
       setIsDeploying(false);
+    }
+  };
+
+  const handleRollback = async (deploymentId: string) => {
+    if (!confirm('Are you sure you want to rollback to this deployment?')) {
+      return;
+    }
+    try {
+      const response = await fetch(`/api/projects/${projectId}/deployments/${deploymentId}/rollback`, {
+        method: 'POST',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to rollback deployment');
+      }
+
+      toast.success('Rollback initiated. Creating new deployment...');
+      router.refresh();
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to rollback deployment');
+    }
+  };
+
+  const handleScheduleDeploy = async () => {
+    if (!scheduledDate || !scheduledTime) {
+      toast.error('Please select both date and time');
+      return;
+    }
+
+    const scheduledDateTime = new Date(`${scheduledDate}T${scheduledTime}`);
+    if (scheduledDateTime < new Date()) {
+      toast.error('Scheduled time must be in the future');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/projects/${projectId}/deploy`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scheduledAt: scheduledDateTime.toISOString() }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to schedule deployment');
+      }
+
+      toast.success(`Deployment scheduled for ${scheduledDateTime.toLocaleString()}`);
+      setScheduleDialogOpen(false);
+      setScheduledDate('');
+      setScheduledTime('');
+      router.refresh();
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to schedule deployment');
     }
   };
 
@@ -93,13 +152,57 @@ export function DeploymentsList({ projectId, deployments, isPublished }: Deploym
             Build and deploy your project to make it live
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <Button onClick={handleDeploy} disabled={isDeploying} size="lg">
-            <Rocket className="mr-2 h-4 w-4" />
-            {isDeploying ? 'Deploying...' : 'Deploy Now'}
-          </Button>
+        <CardContent className="space-y-4">
+          <div className="flex gap-2">
+            <Button onClick={handleDeploy} disabled={isDeploying} size="lg" className="cursor-pointer">
+              <Rocket className="mr-2 h-4 w-4" />
+              {isDeploying ? 'Deploying...' : 'Deploy Now'}
+            </Button>
+            <Dialog open={scheduleDialogOpen} onOpenChange={setScheduleDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="lg" className="cursor-pointer">
+                  <Calendar className="mr-2 h-4 w-4" />
+                  Schedule Deploy
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Schedule Deployment</DialogTitle>
+                  <DialogDescription>
+                    Schedule your deployment for a specific date and time
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="deploy-date">Date</Label>
+                    <Input
+                      id="deploy-date"
+                      type="date"
+                      value={scheduledDate}
+                      onChange={(e) => setScheduledDate(e.target.value)}
+                      min={new Date().toISOString().split('T')[0]}
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="deploy-time">Time</Label>
+                    <Input
+                      id="deploy-time"
+                      type="time"
+                      value={scheduledTime}
+                      onChange={(e) => setScheduledTime(e.target.value)}
+                      className="mt-1"
+                    />
+                  </div>
+                  <Button onClick={handleScheduleDeploy} className="w-full cursor-pointer">
+                    Schedule Deployment
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
           {isPublished && (
-            <p className="text-sm text-muted-foreground mt-4">
+            <p className="text-sm text-muted-foreground">
               Your project is currently live. Deploying again will update the live version.
             </p>
           )}
@@ -150,13 +253,43 @@ export function DeploymentsList({ projectId, deployments, isPublished }: Deploym
                       </div>
                     </div>
                   </div>
-                  {deployment.url && deployment.status === 'deployed' && (
-                    <Button variant="ghost" size="sm" asChild>
-                      <a href={deployment.url} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="h-4 w-4" />
+                  <div className="flex items-center gap-2">
+                    {deployment.url && (
+                      <>
+                        <Button variant="ghost" size="sm" asChild className="cursor-pointer">
+                          <a href={deployment.url} target="_blank" rel="noopener noreferrer" className="cursor-pointer">
+                            <Eye className="h-4 w-4" />
+                          </a>
+                        </Button>
+                        <Button variant="ghost" size="sm" asChild className="cursor-pointer">
+                          <a href={deployment.url} target="_blank" rel="noopener noreferrer" className="cursor-pointer">
+                            <ExternalLink className="h-4 w-4" />
+                          </a>
+                        </Button>
+                      </>
+                    )}
+                    {deployment.status === 'deployed' && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRollback(deployment.id)}
+                        title="Rollback to this deployment"
+                        className="cursor-pointer"
+                      >
+                        <RotateCcw className="h-4 w-4" />
+                      </Button>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      asChild
+                      className="cursor-pointer"
+                    >
+                      <a href={`/dashboard/projects/${projectId}/deployments/${deployment.id}`} className="cursor-pointer">
+                        <FileText className="h-4 w-4" />
                       </a>
                     </Button>
-                  )}
+                  </div>
                 </div>
               ))}
             </div>

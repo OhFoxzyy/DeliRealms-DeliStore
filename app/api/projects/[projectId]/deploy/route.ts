@@ -18,6 +18,12 @@ export async function POST(
 
     const { projectId } = await params;
 
+    // Get user's subscription/plan
+    const subscription = await prisma.subscription.findUnique({
+      where: { userId: session.user.id },
+    });
+    const userPlan = subscription?.plan || 'hobby';
+
     // Get project with pages and env vars
     const project = await prisma.project.findUnique({
       where: { id: projectId, userId: session.user.id },
@@ -35,18 +41,7 @@ export async function POST(
       return NextResponse.json({ error: 'Project must have a subdomain' }, { status: 400 });
     }
 
-    // Check if user has available ports (simulate port allocation)
-    const activeDeployments = await prisma.deployment.count({
-      where: {
-        project: { userId: session.user.id },
-        status: 'active',
-      },
-    });
-
-    // Base port + user deployments count
-    const port = 3100 + activeDeployments;
-
-    // Create deployment record
+    // Create deployment record first
     const deployment = await prisma.deployment.create({
       data: {
         projectId,
@@ -71,40 +66,58 @@ export async function POST(
         content: p.content,
         code: p.code,
       })),
-      port,
+      port: 3000, // Not used anymore, but kept for compatibility
+      plan: userPlan,
     });
 
     if (result.success) {
       // Update deployment
-      await prisma.deployment.update({
-        where: { id: deployment.id },
-        data: {
-          status: 'active',
-          containerId: result.containerId,
-          url: result.url,
-        },
-      });
+      try {
+        await prisma.deployment.update({
+          where: { id: deployment.id },
+          data: {
+            status: 'active',
+            containerId: result.containerId,
+            url: result.url,
+          },
+        });
 
-      // Update project
-      await prisma.project.update({
-        where: { id: projectId },
-        data: { isPublished: true },
-      });
+        // Update project
+        await prisma.project.update({
+          where: { id: projectId },
+          data: { isPublished: true },
+        });
 
-      return NextResponse.json({
-        success: true,
-        deployment: {
-          id: deployment.id,
-          url: result.url,
-          containerId: result.containerId,
-        },
-      });
+        return NextResponse.json({
+          success: true,
+          deployment: {
+            id: deployment.id,
+            url: result.url,
+            containerId: result.containerId,
+          },
+        });
+      } catch (updateError) {
+        console.error('[v0] Error updating deployment:', updateError);
+        // Deployment succeeded but update failed - still return success
+        return NextResponse.json({
+          success: true,
+          deployment: {
+            id: deployment.id,
+            url: result.url,
+            containerId: result.containerId,
+          },
+        });
+      }
     } else {
       // Update deployment as failed
-      await prisma.deployment.update({
-        where: { id: deployment.id },
-        data: { status: 'failed' },
-      });
+      try {
+        await prisma.deployment.update({
+          where: { id: deployment.id },
+          data: { status: 'failed' },
+        });
+      } catch (updateError) {
+        console.error('[v0] Error updating failed deployment:', updateError);
+      }
 
       return NextResponse.json(
         { error: result.error || 'Deployment failed' },
@@ -112,7 +125,7 @@ export async function POST(
       );
     }
   } catch (error) {
-    console.error('[v0] Deployment error:', error);
+    console.error('[VIXLE] Deployment error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

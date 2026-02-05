@@ -93,11 +93,14 @@ function PageBuilderInner({
   pages: PageInfo[];
   projectUrl: string | null;
 }) {
-  const { elements, selectedElement, undo, redo, canUndo, canRedo } = usePageBuilder();
+  const { elements, selectedElement, undo, redo, canUndo, canRedo, setElements, addElement } = usePageBuilder();
   const [isSaving, setIsSaving] = useState(false);
   const [isSavingTemplate, setIsSavingTemplate] = useState(false);
   const [isPublished, setIsPublished] = useState(false);
   const [viewMode, setViewMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
+  const [aiDialogOpen, setAiDialogOpen] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -136,7 +139,10 @@ function PageBuilderInner({
       if (!res.ok) throw new Error(data.error || 'Generation failed');
       const generated = data.elements || [];
       if (generated.length > 0) {
-        setElements([...elements, ...generated]);
+        // Use addElement for each to ensure history tracking
+        generated.forEach((element: PageElement) => {
+          addElement(element);
+        });
         toast.success(`Added ${generated.length} component(s) from AI`);
         setAiDialogOpen(false);
         setAiPrompt('');
@@ -198,7 +204,7 @@ function PageBuilderInner({
   return (
     <div className="fixed inset-0 z-40 flex flex-col bg-[#0a0a0a]">
       {/* Header */}
-      <header className="h-14 border-b border-border/50 bg-background/95 backdrop-blur px-4 flex items-center justify-between">
+      <header className="h-14 border-b border-border/60 bg-background/95 backdrop-blur-sm px-4 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-3">
           <Link 
             href={`/dashboard/projects/${projectId}`}
@@ -240,13 +246,13 @@ function PageBuilderInner({
 
         <div className="flex items-center gap-1">
           {/* Device Preview */}
-          <div className="flex items-center border border-border/50 rounded-lg overflow-hidden mr-2">
+          <div className="flex items-center border border-border/60 rounded-lg overflow-hidden mr-2 bg-card/30">
             <Button
               variant="ghost"
               size="icon"
               className={cn(
-                "h-8 w-8 rounded-none",
-                viewMode === 'desktop' && "bg-accent"
+                "h-8 w-8 rounded-none hover:bg-accent/50",
+                viewMode === 'desktop' && "bg-primary/20 text-primary"
               )}
               onClick={() => setViewMode('desktop')}
             >
@@ -256,8 +262,8 @@ function PageBuilderInner({
               variant="ghost"
               size="icon"
               className={cn(
-                "h-8 w-8 rounded-none border-x border-border/50",
-                viewMode === 'tablet' && "bg-accent"
+                "h-8 w-8 rounded-none border-x border-border/60 hover:bg-accent/50",
+                viewMode === 'tablet' && "bg-primary/20 text-primary"
               )}
               onClick={() => setViewMode('tablet')}
             >
@@ -267,8 +273,8 @@ function PageBuilderInner({
               variant="ghost"
               size="icon"
               className={cn(
-                "h-8 w-8 rounded-none",
-                viewMode === 'mobile' && "bg-accent"
+                "h-8 w-8 rounded-none hover:bg-accent/50",
+                viewMode === 'mobile' && "bg-primary/20 text-primary"
               )}
               onClick={() => setViewMode('mobile')}
             >
@@ -280,7 +286,7 @@ function PageBuilderInner({
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8"
+            className="h-8 w-8 hover:bg-accent/50"
             onClick={undo}
             disabled={!canUndo}
           >
@@ -289,7 +295,7 @@ function PageBuilderInner({
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8"
+            className="h-8 w-8 hover:bg-accent/50"
             onClick={redo}
             disabled={!canRedo}
           >
@@ -376,7 +382,7 @@ function PageBuilderInner({
             size="sm" 
             onClick={handleSave} 
             disabled={isSaving}
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground"
           >
             {isSaving ? (
               <RefreshCw className="mr-2 h-4 w-4 animate-spin" />

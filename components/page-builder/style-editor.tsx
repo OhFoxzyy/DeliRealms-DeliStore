@@ -40,17 +40,17 @@ export function StyleEditor() {
   };
 
   return (
-    <div className="w-80 border-l bg-background h-full flex flex-col">
-      <div className="p-4 border-b flex items-center justify-between">
+    <div className="w-80 border-l border-border/50 bg-background h-full flex flex-col">
+      <div className="p-4 border-b border-border/50 flex items-center justify-between bg-card/30">
         <div>
-          <h2 className="text-lg font-semibold">Properties</h2>
+          <h2 className="text-lg font-semibold text-foreground">Properties</h2>
           <p className="text-xs text-muted-foreground">{selectedElement.type}</p>
         </div>
         <Button
           variant="ghost"
           size="icon"
           onClick={handleDelete}
-          className="text-destructive hover:text-destructive"
+          className="text-destructive hover:text-destructive hover:bg-destructive/10"
         >
           <Trash2 className="h-4 w-4" />
         </Button>
@@ -229,7 +229,7 @@ function StyleProperties({ style, onChange }: any) {
     <div className="space-y-4">
       {/* Layout */}
       <div className="space-y-3">
-        <h3 className="font-semibold text-sm">Layout</h3>
+        <h3 className="font-semibold text-sm text-foreground">Layout</h3>
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1">
             <Label className="text-xs">Width</Label>
@@ -237,7 +237,7 @@ function StyleProperties({ style, onChange }: any) {
               value={style.width || ''}
               onChange={(e) => onChange('width', e.target.value)}
               placeholder="auto"
-              className="h-8"
+              className="h-8 bg-input border-border/50"
             />
           </div>
           <div className="space-y-1">
@@ -246,7 +246,7 @@ function StyleProperties({ style, onChange }: any) {
               value={style.height || ''}
               onChange={(e) => onChange('height', e.target.value)}
               placeholder="auto"
-              className="h-8"
+              className="h-8 bg-input border-border/50"
             />
           </div>
         </div>
@@ -254,7 +254,7 @@ function StyleProperties({ style, onChange }: any) {
 
       {/* Spacing */}
       <div className="space-y-3">
-        <h3 className="font-semibold text-sm">Spacing</h3>
+        <h3 className="font-semibold text-sm text-foreground">Spacing</h3>
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1">
             <Label className="text-xs">Padding</Label>
@@ -262,7 +262,7 @@ function StyleProperties({ style, onChange }: any) {
               value={style.padding || ''}
               onChange={(e) => onChange('padding', e.target.value)}
               placeholder="0px"
-              className="h-8"
+              className="h-8 bg-input border-border/50"
             />
           </div>
           <div className="space-y-1">
@@ -271,7 +271,7 @@ function StyleProperties({ style, onChange }: any) {
               value={style.margin || ''}
               onChange={(e) => onChange('margin', e.target.value)}
               placeholder="0px"
-              className="h-8"
+              className="h-8 bg-input border-border/50"
             />
           </div>
         </div>
@@ -279,7 +279,7 @@ function StyleProperties({ style, onChange }: any) {
 
       {/* Typography */}
       <div className="space-y-3">
-        <h3 className="font-semibold text-sm">Typography</h3>
+        <h3 className="font-semibold text-sm text-foreground">Typography</h3>
         <div className="space-y-2">
           <div className="space-y-1">
             <Label className="text-xs">Font Size</Label>
@@ -287,7 +287,7 @@ function StyleProperties({ style, onChange }: any) {
               value={style.fontSize || ''}
               onChange={(e) => onChange('fontSize', e.target.value)}
               placeholder="16px"
-              className="h-8"
+              className="h-8 bg-input border-border/50"
             />
           </div>
           <div className="space-y-1">
@@ -296,7 +296,7 @@ function StyleProperties({ style, onChange }: any) {
               value={style.fontWeight || '400'}
               onValueChange={(value) => onChange('fontWeight', value)}
             >
-              <SelectTrigger className="h-8">
+              <SelectTrigger className="h-8 bg-input border-border/50">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -314,7 +314,7 @@ function StyleProperties({ style, onChange }: any) {
               value={style.textAlign || 'left'}
               onValueChange={(value) => onChange('textAlign', value)}
             >
-              <SelectTrigger className="h-8">
+              <SelectTrigger className="h-8 bg-input border-border/50">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -330,7 +330,7 @@ function StyleProperties({ style, onChange }: any) {
 
       {/* Colors */}
       <div className="space-y-3">
-        <h3 className="font-semibold text-sm">Colors</h3>
+        <h3 className="font-semibold text-sm text-foreground">Colors</h3>
         <div className="space-y-2">
           <div className="space-y-1">
             <Label className="text-xs">Text Color</Label>
@@ -338,16 +338,16 @@ function StyleProperties({ style, onChange }: any) {
               type="color"
               value={style.color || '#e5e5e5'}
               onChange={(e) => onChange('color', e.target.value)}
-              className="h-8"
+              className="h-8 bg-input border-border/50"
             />
           </div>
           <div className="space-y-1">
             <Label className="text-xs">Background</Label>
             <Input
               type="color"
-              value={style.backgroundColor || '#ffffff'}
+              value={style.backgroundColor || '#1a1a1a'}
               onChange={(e) => onChange('backgroundColor', e.target.value)}
-              className="h-8"
+              className="h-8 bg-input border-border/50"
             />
           </div>
         </div>
@@ -355,7 +355,7 @@ function StyleProperties({ style, onChange }: any) {
 
       {/* Border */}
       <div className="space-y-3">
-        <h3 className="font-semibold text-sm">Border</h3>
+        <h3 className="font-semibold text-sm text-foreground">Border</h3>
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1">
             <Label className="text-xs">Border Width</Label>
@@ -372,7 +372,7 @@ function StyleProperties({ style, onChange }: any) {
               value={style.borderRadius || ''}
               onChange={(e) => onChange('borderRadius', e.target.value)}
               placeholder="0px"
-              className="h-8"
+              className="h-8 bg-input border-border/50"
             />
           </div>
         </div>
@@ -382,14 +382,14 @@ function StyleProperties({ style, onChange }: any) {
             type="color"
             value={style.borderColor || '#404040'}
             onChange={(e) => onChange('borderColor', e.target.value)}
-            className="h-8"
+            className="h-8 bg-input border-border/50"
           />
         </div>
       </div>
 
       {/* Display & Flexbox */}
       <div className="space-y-3">
-        <h3 className="font-semibold text-sm">Display</h3>
+        <h3 className="font-semibold text-sm text-foreground">Display</h3>
         <div className="space-y-2">
           <div className="space-y-1">
             <Label className="text-xs">Display</Label>
@@ -397,7 +397,7 @@ function StyleProperties({ style, onChange }: any) {
               value={style.display || 'block'}
               onValueChange={(value) => onChange('display', value)}
             >
-              <SelectTrigger className="h-8">
+              <SelectTrigger className="h-8 bg-input border-border/50">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -416,7 +416,7 @@ function StyleProperties({ style, onChange }: any) {
                   value={style.flexDirection || 'row'}
                   onValueChange={(value) => onChange('flexDirection', value)}
                 >
-                  <SelectTrigger className="h-8">
+                  <SelectTrigger className="h-8 bg-input border-border/50">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -431,7 +431,7 @@ function StyleProperties({ style, onChange }: any) {
                   value={style.justifyContent || 'flex-start'}
                   onValueChange={(value) => onChange('justifyContent', value)}
                 >
-                  <SelectTrigger className="h-8">
+                  <SelectTrigger className="h-8 bg-input border-border/50">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -448,7 +448,7 @@ function StyleProperties({ style, onChange }: any) {
                   value={style.alignItems || 'stretch'}
                   onValueChange={(value) => onChange('alignItems', value)}
                 >
-                  <SelectTrigger className="h-8">
+                  <SelectTrigger className="h-8 bg-input border-border/50">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>

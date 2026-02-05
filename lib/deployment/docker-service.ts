@@ -1,7 +1,10 @@
-import { exec } from 'child_process';
+import { exec, spawn } from 'child_process';
 import { promisify } from 'util';
 import fs from 'fs/promises';
 import path from 'path';
+import os from 'os';
+import { nginxProxyService } from './nginx-proxy';
+import { getBuildMachineConfig, generateDockerRunCommand } from './build-machines';
 
 const execAsync = promisify(exec);
 
@@ -12,6 +15,7 @@ export interface DeploymentConfig {
   envVars: Record<string, string>;
   pages: Array<{ slug: string; content: string; code?: string | null }>;
   port: number;
+  plan?: string;
 }
 
 export interface PageElement {
@@ -27,12 +31,21 @@ export interface PageElement {
 }
 
 export class DockerDeploymentService {
-  private baseDir = '/tmp/deployments';
-  private nginxConfigDir = '/etc/nginx/sites-enabled/deployments';
+  private baseDir: string;
+  private nginxNetworkName = 'vixle-network';
+
+  constructor() {
+    // Use OS temp directory instead of hardcoded /tmp
+    this.baseDir = path.join(os.tmpdir(), 'vixle-deployments');
+  }
 
   async deploy(config: DeploymentConfig): Promise<{ success: boolean; containerId?: string; url?: string; error?: string }> {
     try {
-      console.log('[v0] Starting deployment for project:', config.projectId);
+      const plan = config.plan || 'hobby';
+      const buildConfig = getBuildMachineConfig(plan);
+      
+      console.log('[VIXLE] Starting deployment for project:', config.projectId);
+      console.log('[VIXLE] Using build machine:', buildConfig.name, `(${buildConfig.functionalVcpus} vCPU, ${buildConfig.functionalRam}GB RAM)`);
       
       // Create project directory
       const projectDir = path.join(this.baseDir, config.projectId);
@@ -46,7 +59,7 @@ export class DockerDeploymentService {
 
       // Build Docker image
       const imageName = `vixle-${config.subdomain}`;
-      console.log('[v0] Building Docker image:', imageName);
+      console.log('[VIXLE] Building Docker image:', imageName);
       await execAsync(`docker build -t ${imageName} ${projectDir}`);
 
       // Stop and remove existing container if exists
@@ -57,21 +70,49 @@ export class DockerDeploymentService {
         // Ignore if container doesn't exist
       }
 
-      // Run Docker container
+      // Find available port
+      const port = await this.findAvailablePort();
+
+      // Ensure nginx network exists
+      try {
+        await execAsync(`docker network inspect ${this.nginxNetworkName}`);
+      } catch {
+        await execAsync(`docker network create ${this.nginxNetworkName}`);
+      }
+
+      // Run Docker container on nginx network (no port mapping needed)
       const envVarsString = Object.entries(config.envVars)
-        .map(([key, value]) => `-e ${key}="${value}"`)
+        .map(([key, value]) => `-e ${key}="${value.replace(/"/g, '\\"')}"`)
         .join(' ');
 
-      console.log('[v0] Starting Docker container on port:', config.port);
-      const { stdout: containerId } = await execAsync(
-        `docker run -d --name ${imageName} -p ${config.port}:3000 ${envVarsString} ${imageName}`
+      const deploymentsUrl = process.env.DEPLOYMENTS_URL || 'http://localhost:3000';
+      const fullEnvVarsString = `${envVarsString} -e DEPLOYMENTS_URL="${deploymentsUrl}"`;
+
+      console.log('[VIXLE] Starting Docker container:', imageName);
+      
+      // Stop and remove existing container if exists
+      try {
+        await execAsync(`docker stop ${imageName} 2>nul || docker stop ${imageName} 2>/dev/null || true`);
+        await execAsync(`docker rm ${imageName} 2>nul || docker rm ${imageName} 2>/dev/null || true`);
+      } catch (e) {
+        // Ignore if container doesn't exist
+      }
+
+      // Use build machine config for resource limits
+      const dockerRunCommand = generateDockerRunCommand(
+        imageName,
+        buildConfig,
+        config.envVars,
+        this.nginxNetworkName
       );
 
+      const { stdout: containerId } = await execAsync(dockerRunCommand);
+
       // Configure Nginx reverse proxy
-      await this.configureNginx(config.subdomain, config.port);
+      await nginxProxyService.addUpstream(config.subdomain, imageName);
 
       const url = `https://${config.subdomain}.vixle.app`;
-      console.log('[v0] Deployment successful. URL:', url);
+      console.log('[VIXLE] Deployment successful. URL:', url);
 
       return {
         success: true,
@@ -79,7 +120,7 @@ export class DockerDeploymentService {
         url,
       };
     } catch (error) {
-      console.error('[v0] Deployment error:', error);
+      console.error('[VIXLE] Deployment error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown deployment error',
@@ -91,19 +132,31 @@ export class DockerDeploymentService {
     try {
       const imageName = `vixle-${subdomain}`;
       
+      // Remove Nginx config first
+      await nginxProxyService.removeUpstream(subdomain);
+      
       // Stop and remove container
-      await execAsync(`docker stop ${imageName} || true`);
-      await execAsync(`docker rm ${imageName} || true`);
+      try {
+        await execAsync(`docker stop ${imageName} 2>nul || docker stop ${imageName} 2>/dev/null || true`);
+        await execAsync(`docker rm ${imageName} 2>nul || docker rm ${imageName} 2>/dev/null || true`);
+      } catch {
+        // Ignore errors
+      }
       
-      // Remove image
-      await execAsync(`docker rmi ${imageName} || true`);
-      
-      // Remove Nginx config
-      await this.removeNginxConfig(subdomain);
+      // Remove image (optional, keep for cleanup)
+      try {
+        await execAsync(`docker rmi ${imageName} 2>nul || docker rmi ${imageName} 2>/dev/null || true`);
+      } catch {
+        // Ignore errors
+      }
       
       // Clean up project directory
       const projectDir = path.join(this.baseDir, projectId);
-      await fs.rm(projectDir, { recursive: true, force: true });
+      try {
+        await fs.rm(projectDir, { recursive: true, force: true });
+      } catch {
+        // Ignore errors
+      }
 
       return { success: true };
     } catch (error) {
@@ -283,41 +336,41 @@ CMD ["npm", "start"]`;
     await fs.writeFile(path.join(projectDir, 'Dockerfile'), dockerfile);
   }
 
-  private async configureNginx(subdomain: string, port: number): Promise<void> {
-    const nginxConfig = `server {
-    listen 80;
-    server_name ${subdomain}.vixle.app;
-
-    location / {
-        proxy_pass http://localhost:${port};
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
-}`;
-
-    const configPath = path.join(this.nginxConfigDir, `${subdomain}.vixle.app.conf`);
-    await fs.writeFile(configPath, nginxConfig);
-    
-    // Reload Nginx
-    await execAsync('nginx -s reload');
+  private async findAvailablePort(): Promise<number> {
+    // Port is no longer needed since we use Docker networking
+    // But keeping this for backwards compatibility
+    return 3000;
   }
 
-  private async removeNginxConfig(subdomain: string): Promise<void> {
-    const configPath = path.join(this.nginxConfigDir, `${subdomain}.vixle.app.conf`);
-    await fs.unlink(configPath).catch(() => {});
-    await execAsync('nginx -s reload').catch(() => {});
-  }
-
-  async getLogs(containerId: string): Promise<string> {
+  async getLogs(containerId: string, tail: number = 100, follow: boolean = false): Promise<string> {
     try {
-      const { stdout } = await execAsync(`docker logs ${containerId} --tail 100`);
+      const { stdout } = await execAsync(`docker logs ${containerId} --tail ${tail}${follow ? ' --follow' : ''}`);
       return stdout;
     } catch (error) {
       return `Error fetching logs: ${error instanceof Error ? error.message : 'Unknown error'}`;
     }
+  }
+
+  async streamLogs(containerId: string, onData: (data: string) => void, onError: (error: Error) => void): Promise<void> {
+    const child = spawn('docker', ['logs', containerId, '--follow', '--tail', '100'], {
+      shell: process.platform === 'win32',
+    });
+
+    child.stdout?.on('data', (data) => {
+      onData(data.toString());
+    });
+
+    child.stderr?.on('data', (data) => {
+      onData(data.toString());
+    });
+
+    child.on('error', (error) => {
+      onError(error);
+    });
+
+    child.on('close', () => {
+      // Stream ended
+    });
   }
 
   async getContainerStatus(containerId: string): Promise<string> {

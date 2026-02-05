@@ -18,7 +18,7 @@ export function MyAdapter(): Adapter {
           name: user.name,
           emailVerified: user.emailVerified,
           image: user.image,
-          role: "user",
+          role: "hobby",
         },
       });
       return {
