@@ -31,6 +31,9 @@ model User {
   accounts          Account[]
   sessions          Session[]
   components        Component[]
+  blogPosts         BlogPost[]
+  docPages          DocPage[]
+  roadmapItems      RoadmapItem[]
 
   @@map("users")
   @@index([email])
@@ -193,4 +196,69 @@ model Component {
   @@index([userId])
   @@index([projectId])
   @@map("components")
+}
+
+model BlogPost {
+  id           String   @id @default(cuid())
+  title        String
+  slug         String   @unique
+  description  String?  @db.LongText
+  content      String   @db.LongText
+  published    Boolean  @default(false)
+  authorId     String?
+  contributorIds Json?  @default("[]")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  author User? @relation(fields: [authorId], references: [id], onDelete: SetNull)
+
+  @@index([slug])
+  @@index([published])
+  @@index([authorId])
+  @@map("blog_posts")
+}
+
+model DocPage {
+  id        String   @id @default(cuid())
+  title     String
+  slug      String   @unique
+  content   String   @db.LongText
+  published Boolean  @default(false)
+  authorId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  author User? @relation(fields: [authorId], references: [id], onDelete: SetNull)
+
+  @@index([slug])
+  @@index([published])
+  @@index([authorId])
+  @@map("doc_pages")
+}
+
+enum RoadmapStatus {
+  planned
+  in_progress
+  completed
+  cancelled
+}
+
+model RoadmapItem {
+  id          String        @id @default(cuid())
+  title       String
+  description String         @db.LongText
+  status      RoadmapStatus  @default(planned)
+  order       Int           @default(0)
+  eta         String?
+  slug        String?       @unique
+  authorId    String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  author User? @relation(fields: [authorId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([order])
+  @@index([authorId])
+  @@map("roadmap_items")
 }

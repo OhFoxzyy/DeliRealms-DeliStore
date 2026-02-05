@@ -98,16 +98,11 @@ function PageBuilderInner({
   pages: PageInfo[];
   projectUrl: string | null;
 }) {
-<<<<<<< HEAD
-  const { elements, selectedElement, theme, undo, redo, canUndo, canRedo, setElements } = usePageBuilder();
-=======
-  const { elements, selectedElement, undo, redo, canUndo, canRedo, setElements, addElement } = usePageBuilder();
->>>>>>> c9965df20fa6fc21eb504d0fc60fd71845236cf7
+  const { elements, selectedElement, theme, undo, redo, canUndo, canRedo, setElements, addElement } = usePageBuilder();
   const [isSaving, setIsSaving] = useState(false);
   const [isSavingTemplate, setIsSavingTemplate] = useState(false);
   const [isPublished, setIsPublished] = useState(false);
   const [viewMode, setViewMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
-<<<<<<< HEAD
   const [isFullscreenPreview, setIsFullscreenPreview] = useState(false);
   const [aiDialogOpen, setAiDialogOpen] = useState(false);
   const [aiPrompt, setAiPrompt] = useState('');
@@ -126,11 +121,6 @@ function PageBuilderInner({
     window.addEventListener('keydown', handleEsc);
     return () => window.removeEventListener('keydown', handleEsc);
   }, [isFullscreenPreview]);
-=======
-  const [aiDialogOpen, setAiDialogOpen] = useState(false);
-  const [aiPrompt, setAiPrompt] = useState('');
-  const [isGenerating, setIsGenerating] = useState(false);
->>>>>>> c9965df20fa6fc21eb504d0fc60fd71845236cf7
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -484,7 +474,7 @@ function PageBuilderInner({
           <Separator orientation="vertical" className="h-6 mx-2" />
 
           {/* Save as Template */}
-          <Button
+        <Button
             variant="outline"
             size="sm"
             onClick={handleSaveTemplate}
@@ -493,9 +483,8 @@ function PageBuilderInner({
             <Star className="mr-2 h-4 w-4" />
             Save as template
           </Button>
-
+          
           {/* Save Button */}
-<<<<<<< HEAD
           {designerMode ? (
             <Dialog open={componentName !== '' || isSaving} onOpenChange={(open) => !open && !isSaving && setComponentName('')}>
               <DialogTrigger asChild>
@@ -563,21 +552,6 @@ function PageBuilderInner({
               Save
             </Button>
           )}
-=======
-          <Button 
-            size="sm" 
-            onClick={handleSave} 
-            disabled={isSaving}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground"
-          >
-            {isSaving ? (
-              <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Save className="mr-2 h-4 w-4" />
-            )}
-            Save
-          </Button>
->>>>>>> c9965df20fa6fc21eb504d0fc60fd71845236cf7
         </div>
       </header>
 

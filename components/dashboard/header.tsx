@@ -30,20 +30,30 @@ import {
 import { cn } from "@/lib/utils";
 import Logo from "../logo";
 
-const mainNavItems = [
-  { href: "/dashboard", label: "Overview", exact: true },
-  { href: "/dashboard/integrations", label: "Integrations" },
-  { href: "/dashboard/activity", label: "Activity" },
-  { href: "/dashboard/domains", label: "Domains" },
-  { href: "/dashboard/usage", label: "Usage" },
-  { href: "/dashboard/billing", label: "Billing" },
-  { href: "/dashboard/settings", label: "Settings" },
-];
+const getMainNavItems = (isAdmin: boolean) => {
+  const items = [
+    { href: "/dashboard", label: "Overview", exact: true },
+    { href: "/dashboard/integrations", label: "Integrations" },
+    { href: "/dashboard/activity", label: "Activity" },
+    { href: "/dashboard/domains", label: "Domains" },
+    { href: "/dashboard/usage", label: "Usage" },
+    { href: "/dashboard/billing", label: "Billing" },
+    { href: "/dashboard/settings", label: "Settings" },
+  ];
+  
+  if (isAdmin) {
+    items.push({ href: "/admin", label: "Admin", exact: false });
+  }
+  
+  return items;
+};
 
 export function DashboardHeader() {
   const pathname = usePathname();
   const { data: session, status } = useSession();
   const [searchFocused, setSearchFocused] = useState(false);
+  const isAdmin = session?.user?.role === "admin";
+  const mainNavItems = getMainNavItems(isAdmin);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur">

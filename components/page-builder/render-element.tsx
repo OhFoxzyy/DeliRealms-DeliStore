@@ -39,197 +39,13 @@ export function RenderElement({ element, parentId, siblingIndex = 0, createDropH
   };
 
   const renderContent = () => {
-<<<<<<< HEAD
-    switch (element.type) {
-      case 'container':
-        const children = element.children || [];
-        if (!createDropHandler) {
-          return (
-            <div style={computeStyle(element.style)}>
-              {children.map((child) => (
-                <RenderElement key={child.id} element={child} />
-              ))}
-            </div>
-          );
-        }
-        return (
-          <div style={computeStyle(element.style)} className="min-h-[60px] flex flex-col">
-            {children.map((child, idx) => (
-              <React.Fragment key={child.id}>
-                <DropZone
-                  onDrop={createDropHandler(element.id, idx)}
-                  parentId={element.id}
-                  index={idx}
-                />
-                <RenderElement
-                  element={child}
-                  parentId={element.id}
-                  siblingIndex={idx}
-                  createDropHandler={createDropHandler}
-                />
-              </React.Fragment>
-            ))}
-            <DropZone
-              onDrop={createDropHandler(element.id, children.length)}
-              parentId={element.id}
-              index={children.length}
-              className="flex-1"
-            />
-          </div>
-        );
-
-      case 'heading':
-        return <h1 style={computeStyle(element.style)}>{element.content.text}</h1>;
-
-      case 'text':
-        return <p style={computeStyle(element.style)}>{element.content.text}</p>;
-
-      case 'button':
-        return (
-          <button style={computeStyle(element.style)}>
-            {element.content.text}
-          </button>
-        );
-
-      case 'image':
-        return (
-          <img
-            src={element.content.src}
-            alt={element.content.alt || ''}
-            style={computeStyle(element.style)}
-          />
-        );
-
-      case 'video':
-        return element.content.src ? (
-          <video src={element.content.src} controls style={computeStyle(element.style)} />
-        ) : (
-          <div style={{ ...element.style, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--muted)', minHeight: '200px' }}>
-            <span className="text-muted-foreground">Video placeholder</span>
-          </div>
-        );
-
-      case 'link':
-        return (
-          <a
-            href={element.content.href}
-            target={element.content.target}
-            style={computeStyle(element.style)}
-          >
-            {element.content.text}
-          </a>
-        );
-
-      case 'divider':
-        return <hr style={computeStyle(element.style)} />;
-
-      case 'hero':
-        return (
-          <div style={computeStyle(element.style)}>
-            <h1 style={{ fontSize: '48px', fontWeight: '700', marginBottom: '16px' }}>
-              {element.content.heading}
-            </h1>
-            <p style={{ fontSize: '20px', marginBottom: '32px', color: 'var(--muted-foreground)' }}>
-              {element.content.subheading}
-            </p>
-            <button
-              style={{
-                padding: '12px 32px',
-                backgroundColor: '#000',
-                color: '#fff',
-                borderRadius: '6px',
-                fontSize: '16px',
-                fontWeight: '500',
-                border: 'none',
-                cursor: 'pointer',
-              }}
-            >
-              {element.content.buttonText}
-            </button>
-          </div>
-        );
-
-      case 'pricing-card':
-        return (
-          <div style={computeStyle(element.style)}>
-            <h3 style={{ fontSize: '24px', fontWeight: '600', marginBottom: '16px' }}>
-              {element.content.title}
-            </h3>
-            <div style={{ marginBottom: '24px' }}>
-              <span style={{ fontSize: '48px', fontWeight: '700' }}>
-                {element.content.price}
-              </span>
-              <span style={{ fontSize: '16px', color: 'var(--muted-foreground)' }}>
-                {element.content.period}
-              </span>
-            </div>
-            <ul style={{ textAlign: 'left', marginBottom: '24px', listStyle: 'none', padding: 0 }}>
-              {element.content.features?.map((feature: string, index: number) => (
-                <li key={index} style={{ marginBottom: '8px' }}>
-                  ✓ {feature}
-                </li>
-              ))}
-            </ul>
-            <button
-              style={{
-                width: '100%',
-                padding: '12px',
-                backgroundColor: '#000',
-                color: '#fff',
-                borderRadius: '6px',
-                fontSize: '16px',
-                fontWeight: '500',
-                border: 'none',
-                cursor: 'pointer',
-              }}
-            >
-              {element.content.buttonText}
-            </button>
-          </div>
-        );
-
-      case 'checkout':
-        return (
-          <button style={computeStyle(element.style)}>
-            {element.content.text}
-          </button>
-        );
-
-      case 'feature-grid':
-        return (
-          <div style={computeStyle(element.style)}>
-            {element.content.features?.map((feature: any, index: number) => (
-              <div
-                key={index}
-                style={{
-                  padding: '24px',
-                  backgroundColor: 'var(--muted)',
-                  borderRadius: '8px',
-                }}
-              >
-                <h3 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '8px' }}>
-                  {feature.title}
-                </h3>
-                <p style={{ color: 'var(--muted-foreground)' }}>{feature.description}</p>
-              </div>
-            ))}
-          </div>
-        );
-
-      default:
-        return <div style={element.style}>Unknown element type</div>;
-=======
     const componentDef = componentsMap[element.type];
-    
     if (!componentDef) {
       return <div style={element.style as React.CSSProperties}>Unknown element type: {element.type}</div>;
->>>>>>> c9965df20fa6fc21eb504d0fc60fd71845236cf7
     }
 
     const { Component } = componentDef;
     const children = element.children || [];
-    
-    // Handle container-like components that can have children
     const containerTypes = ['container', 'card', 'section', 'grid', 'column', 'form'];
     const isContainer = containerTypes.includes(element.type);
 
@@ -243,7 +59,7 @@ export function RenderElement({ element, parentId, siblingIndex = 0, createDropH
           </Component>
         );
       }
-      
+
       return (
         <Component element={element}>
           {children.map((child, idx) => (
@@ -272,7 +88,6 @@ export function RenderElement({ element, parentId, siblingIndex = 0, createDropH
       );
     }
 
-    // For non-container components, render directly
     return <Component element={element} />;
   };
 
@@ -286,17 +101,16 @@ export function RenderElement({ element, parentId, siblingIndex = 0, createDropH
       )}
     >
       {isSelected && (
-<<<<<<< HEAD
-        <div className="absolute -top-10 left-0 right-0 flex justify-center z-10">
-          <div className="flex items-center gap-1 bg-card border border-border rounded-lg shadow-lg p-1">
+        <div className="absolute -top-12 left-0 right-0 flex justify-center z-10">
+          <div className="flex items-center gap-1 bg-card/95 backdrop-blur-sm border border-border/80 rounded-lg shadow-xl p-1.5">
             {isTextLike && (
               <>
                 <Button
                   variant="ghost"
                   size="icon"
                   className={cn("h-7 w-7", element.style.textAlign === 'left' && "bg-accent")}
-                  onClick={(e) => { 
-                    e.stopPropagation(); 
+                  onClick={(e) => {
+                    e.stopPropagation();
                     updateElement(element.id, { style: { ...element.style, textAlign: 'left' } });
                   }}
                   title="Align left"
@@ -307,8 +121,8 @@ export function RenderElement({ element, parentId, siblingIndex = 0, createDropH
                   variant="ghost"
                   size="icon"
                   className={cn("h-7 w-7", element.style.textAlign === 'center' && "bg-accent")}
-                  onClick={(e) => { 
-                    e.stopPropagation(); 
+                  onClick={(e) => {
+                    e.stopPropagation();
                     updateElement(element.id, { style: { ...element.style, textAlign: 'center' } });
                   }}
                   title="Align center"
@@ -319,8 +133,8 @@ export function RenderElement({ element, parentId, siblingIndex = 0, createDropH
                   variant="ghost"
                   size="icon"
                   className={cn("h-7 w-7", element.style.textAlign === 'right' && "bg-accent")}
-                  onClick={(e) => { 
-                    e.stopPropagation(); 
+                  onClick={(e) => {
+                    e.stopPropagation();
                     updateElement(element.id, { style: { ...element.style, textAlign: 'right' } });
                   }}
                   title="Align right"
@@ -330,10 +144,6 @@ export function RenderElement({ element, parentId, siblingIndex = 0, createDropH
                 <div className="h-4 w-px bg-border mx-0.5" />
               </>
             )}
-=======
-        <div className="absolute -top-12 left-0 right-0 flex justify-center z-10">
-          <div className="flex items-center gap-1 bg-card/95 backdrop-blur-sm border border-border/80 rounded-lg shadow-xl p-1.5">
->>>>>>> c9965df20fa6fc21eb504d0fc60fd71845236cf7
             <Button
               variant="ghost"
               size="icon"

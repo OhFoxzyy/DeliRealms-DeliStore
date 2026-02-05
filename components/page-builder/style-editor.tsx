@@ -152,9 +152,7 @@ export function StyleEditor() {
   };
 
   return (
-<<<<<<< HEAD
-    <div className="w-80 border-l bg-background h-full flex flex-col">
-      {/* Theme / page-level controls */}
+    <div className="w-80 border-l border-border/50 bg-background h-full flex flex-col">
       <div className="p-4 border-b space-y-3">
         <div className="flex items-center justify-between">
           <div>
@@ -180,7 +178,6 @@ export function StyleEditor() {
               ))}
             </SelectContent>
           </Select>
-          {/* Swatch row like [][][][][][] */}
           <div className="flex items-center gap-1">
             {Object.values(currentTheme.palette).map((color, idx) => (
               <button
@@ -220,11 +217,7 @@ export function StyleEditor() {
         </div>
       </div>
 
-      <div className="p-4 border-b flex items-center justify-between">
-=======
-    <div className="w-80 border-l border-border/50 bg-background h-full flex flex-col">
       <div className="p-4 border-b border-border/50 flex items-center justify-between bg-card/30">
->>>>>>> c9965df20fa6fc21eb504d0fc60fd71845236cf7
         <div>
           <h2 className="text-lg font-semibold text-foreground">Properties</h2>
           <p className="text-xs text-muted-foreground">{selectedElement.type}</p>

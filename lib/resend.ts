@@ -7,7 +7,7 @@ export async function sendVerificationEmail(email: string, token: string) {
   
   try {
     await resend.emails.send({
-      from: 'vixle <noreply@vixle.app>',
+      from: 'Vixle <noreply@noreply.delirealms.net>',
       to: email,
       subject: 'Verify your email address',
       html: `

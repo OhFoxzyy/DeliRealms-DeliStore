@@ -39,13 +39,8 @@ export function ComponentPanel() {
   }, [selectedCategory, search]);
 
   return (
-<<<<<<< HEAD
-    <div className="w-80 border-l bg-background h-full overflow-y-auto scrollbar-none">
-      <div className="p-4 border-b space-y-3">
-=======
     <div className="w-80 border-l border-border/50 bg-background h-full overflow-y-auto">
       <div className="p-4 border-b border-border/50 space-y-3 bg-card/30">
->>>>>>> c9965df20fa6fc21eb504d0fc60fd71845236cf7
         <div>
           <h2 className="text-lg font-semibold text-foreground">Components</h2>
           <p className="text-xs text-muted-foreground mt-1">
