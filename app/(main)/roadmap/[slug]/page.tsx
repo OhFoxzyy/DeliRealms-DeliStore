@@ -35,21 +35,19 @@ export default async function RoadmapItemPage({
     <div className="min-h-screen bg-black text-foreground">
       <div className="max-w-4xl mx-auto px-4 lg:px-6 py-16">
         <article>
-          <header className="mb-8 pb-8 border-b border-border/50">
+          <header className="mb-8 pb-8 border-b border-zinc-800">
             <div className="flex items-center gap-3 mb-4">
               <StatusIcon className={`h-6 w-6 ${statusColor}`} />
-              <span className="text-sm text-muted-foreground uppercase">{statusLabel}</span>
+              <span className="text-sm text-zinc-500 uppercase">{statusLabel}</span>
             </div>
-            <h1 className="text-5xl font-bold mb-4">
+            <h1 className="text-5xl font-bold mb-4 text-zinc-100">
               {item.title}
               {item.eta && (
-                <span className="text-2xl font-normal text-muted-foreground ml-3">
-                  - {item.eta}
-                </span>
+                <span className="text-2xl font-normal text-zinc-500 ml-3">- {item.eta}</span>
               )}
             </h1>
           </header>
-          <div className="prose prose-invert prose-lg max-w-none">
+          <div className="prose prose-invert prose-lg max-w-none text-zinc-300">
             <MarkdownPreview content={item.description} />
           </div>
         </article>

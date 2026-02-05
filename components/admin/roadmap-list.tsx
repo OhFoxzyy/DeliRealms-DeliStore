@@ -69,45 +69,40 @@ export function RoadmapList({ onEdit }: RoadmapListProps) {
   };
 
   if (loading) {
-    return <div className="text-muted-foreground">Loading...</div>;
+    return <div className="text-zinc-500">Loading...</div>;
   }
 
   return (
     <div className="space-y-4">
       {items.length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground">
+        <div className="text-center py-12 text-zinc-500">
           No roadmap items yet. Create your first item!
         </div>
       ) : (
-        <div className="border border-border/50 rounded-lg divide-y divide-border/50">
+        <div className="border border-zinc-800 rounded-lg divide-y divide-zinc-800 bg-black">
           {items.map((item) => (
-            <div key={item.id} className="p-4 hover:bg-card/50 transition-colors">
+            <div key={item.id} className="p-4 hover:bg-zinc-900/50 transition-colors">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-3">
-                    <h3 className="font-semibold text-foreground">{item.title}</h3>
-                    <Badge variant={statusColors[item.status] as any}>
+                    <h3 className="font-semibold text-zinc-100">{item.title}</h3>
+                    <Badge variant={statusColors[item.status] as any} className="bg-zinc-800 text-zinc-400 border-zinc-700">
                       {statusLabels[item.status]}
                     </Badge>
-                    <span className="text-xs text-muted-foreground">Order: {item.order}</span>
+                    <span className="text-xs text-zinc-500">Order: {item.order}</span>
                   </div>
-                  <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                  <p className="text-sm text-zinc-500 mt-1 line-clamp-2">
                     {item.description}
                   </p>
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-xs text-zinc-500 mt-1">
                     Updated {new Date(item.updatedAt).toLocaleDateString()}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="sm" onClick={() => onEdit(item.id)}>
+                  <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-zinc-100" onClick={() => onEdit(item.id)}>
                     <Edit className="h-4 w-4" />
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDelete(item.id)}
-                    className="text-destructive hover:text-destructive"
-                  >
+                  <Button variant="ghost" size="sm" onClick={() => handleDelete(item.id)} className="text-red-400 hover:text-red-300">
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>

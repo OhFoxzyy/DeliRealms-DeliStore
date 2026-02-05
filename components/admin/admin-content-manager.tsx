@@ -43,16 +43,16 @@ export function AdminContentManager() {
       <div className="max-w-7xl mx-auto px-4 lg:px-6 py-8">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Content Management</h1>
-            <p className="text-muted-foreground mt-1">Manage blog posts, documentation, and roadmap items</p>
+            <h1 className="text-3xl font-bold text-zinc-100">Content Management</h1>
+            <p className="text-zinc-500 mt-1">Manage blog posts, documentation, and roadmap items</p>
           </div>
           {(isCreating || editingId) && (
-            <Button variant="outline" onClick={handleCancel}>
+            <Button variant="outline" onClick={handleCancel} className="border-zinc-700 text-zinc-300 hover:bg-zinc-800">
               Cancel
             </Button>
           )}
           {!isCreating && !editingId && (
-            <Button onClick={handleCreate}>
+            <Button onClick={handleCreate} className="bg-zinc-800 hover:bg-zinc-700 text-zinc-100">
               <Plus className="mr-2 h-4 w-4" />
               Create {activeTab === "blog" ? "Post" : activeTab === "docs" ? "Page" : "Item"}
             </Button>
@@ -68,10 +68,10 @@ export function AdminContentManager() {
           />
         ) : (
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
-            <TabsList className="bg-card/50 border-border/50">
-              <TabsTrigger value="blog">Blog</TabsTrigger>
-              <TabsTrigger value="docs">Docs</TabsTrigger>
-              <TabsTrigger value="roadmap">Roadmap</TabsTrigger>
+            <TabsList className="bg-zinc-900/80 border-zinc-800">
+              <TabsTrigger value="blog" className="data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-100">Blog</TabsTrigger>
+              <TabsTrigger value="docs" className="data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-100">Docs</TabsTrigger>
+              <TabsTrigger value="roadmap" className="data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-100">Roadmap</TabsTrigger>
             </TabsList>
 
             <TabsContent value="blog" className="mt-6">

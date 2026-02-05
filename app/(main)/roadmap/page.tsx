@@ -22,12 +22,12 @@ export default async function RoadmapPage() {
     <div className="min-h-screen bg-black text-foreground">
       <div className="max-w-6xl mx-auto px-4 lg:px-6 py-16">
         <div className="mb-12">
-          <h1 className="text-5xl font-bold mb-4">Roadmap</h1>
-          <p className="text-xl text-muted-foreground">What we're working on</p>
+          <h1 className="text-5xl font-bold mb-4 text-zinc-100">Roadmap</h1>
+          <p className="text-xl text-zinc-500">What we're working on</p>
         </div>
 
         {items.length === 0 ? (
-          <div className="text-center py-16 text-muted-foreground">
+          <div className="text-center py-16 text-zinc-500">
             <p className="text-lg">No roadmap items yet.</p>
           </div>
         ) : (
@@ -35,44 +35,38 @@ export default async function RoadmapPage() {
             {items.map((item) => {
               const StatusIcon = statusConfig[item.status].icon;
               const statusColor = statusConfig[item.status].color;
-              const shortDescription = item.description.length > 150 
+              const shortDescription = item.description.length > 150
                 ? item.description.substring(0, 150) + "..."
                 : item.description;
 
               return (
-                <div
+                <article
                   key={item.id}
-                  className="border border-border/50 rounded-lg p-6 bg-card/30 hover:bg-card/50 transition-colors"
+                  className="border border-zinc-800 rounded-lg p-6 bg-black hover:bg-zinc-900/50 transition-colors"
                 >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h2 className="text-2xl font-bold">
-                          {item.title}
-                          {item.eta && (
-                            <span className="text-lg font-normal text-muted-foreground ml-2">
-                              - {item.eta}
-                            </span>
-                          )}
-                        </h2>
-                      </div>
-                      <div className="flex items-center gap-3 mb-3">
-                        <StatusIcon className={`h-5 w-5 ${statusColor}`} />
-                        <div className="text-sm text-muted-foreground prose prose-invert prose-sm max-w-none">
-                          <MarkdownPreview content={shortDescription} />
-                        </div>
+                  <div className="flex items-start gap-3 mb-3">
+                    <StatusIcon className={`h-5 w-5 shrink-0 mt-0.5 ${statusColor}`} />
+                    <div className="flex-1 min-w-0">
+                      <h2 className="text-2xl font-bold text-zinc-100">
+                        {item.title}
+                        {item.eta && (
+                          <span className="text-lg font-normal text-zinc-500 ml-2">- {item.eta}</span>
+                        )}
+                      </h2>
+                      <div className="text-sm text-zinc-400 prose prose-invert prose-sm max-w-none mt-2">
+                        <MarkdownPreview content={shortDescription} />
                       </div>
                     </div>
                   </div>
                   {item.slug && (
-                    <Button asChild variant="ghost" className="mt-4">
+                    <Button asChild variant="ghost" className="mt-4 text-zinc-400 hover:text-zinc-100">
                       <Link href={`/roadmap/${item.slug}`}>
                         Read More
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </Link>
                     </Button>
                   )}
-                </div>
+                </article>
               );
             })}
           </div>

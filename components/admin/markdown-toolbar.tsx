@@ -57,7 +57,7 @@ export function MarkdownToolbar({ textareaId, onInsert }: MarkdownToolbarProps) 
   };
 
   return (
-    <div className="flex items-center gap-1 p-2 bg-card/50 border border-border/50 rounded-lg">
+    <div className="flex flex-wrap items-center gap-1 p-2 bg-zinc-900 border border-zinc-700 rounded-lg">
       <Button
         type="button"
         variant="ghost"

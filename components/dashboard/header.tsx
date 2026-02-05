@@ -30,7 +30,14 @@ import {
 import { cn } from "@/lib/utils";
 import Logo from "../logo";
 
-const getMainNavItems = (isAdmin: boolean) => {
+const getMainNavItems = (isAdmin: boolean, pathname: string | null) => {
+  const onAdmin = pathname?.startsWith("/admin");
+  if (isAdmin && onAdmin) {
+    return [
+      { href: "/dashboard", label: "Dashboard", exact: false },
+      { href: "/admin", label: "Content", exact: true },
+    ];
+  }
   const items = [
     { href: "/dashboard", label: "Overview", exact: true },
     { href: "/dashboard/integrations", label: "Integrations" },
@@ -40,11 +47,9 @@ const getMainNavItems = (isAdmin: boolean) => {
     { href: "/dashboard/billing", label: "Billing" },
     { href: "/dashboard/settings", label: "Settings" },
   ];
-  
   if (isAdmin) {
     items.push({ href: "/admin", label: "Admin", exact: false });
   }
-  
   return items;
 };
 
@@ -53,7 +58,7 @@ export function DashboardHeader() {
   const { data: session, status } = useSession();
   const [searchFocused, setSearchFocused] = useState(false);
   const isAdmin = session?.user?.role === "admin";
-  const mainNavItems = getMainNavItems(isAdmin);
+  const mainNavItems = getMainNavItems(isAdmin, pathname);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur">
