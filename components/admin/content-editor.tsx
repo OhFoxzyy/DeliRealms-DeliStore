@@ -14,7 +14,6 @@ import { Save, Eye, Edit, X } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, Clock, XCircle } from "lucide-react";
-import { Box, Shield, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface ContentEditorProps {
   type: "blog" | "docs" | "roadmap";
@@ -24,11 +23,19 @@ interface ContentEditorProps {
 }
 
 const statusConfig = {
-  planned: { icon: Clock, color: "text-muted-foreground" },
+  planned: { icon: Clock, color: "text-[#737373]" },
   in_progress: { icon: Clock, color: "text-orange-500" },
   completed: { icon: CheckCircle2, color: "text-green-500" },
   cancelled: { icon: XCircle, color: "text-red-500" },
 };
+
+const bg = "bg-[#0a0a0a]";
+const surface = "bg-[#171717]";
+const border = "border-[#262626]";
+const text = "text-[#e5e5e5]";
+const textMuted = "text-[#737373]";
+const textBright = "text-[#fafafa]";
+const inputBg = "bg-[#0f0f0f]";
 
 export function ContentEditor({ type, id, onSave, onCancel }: ContentEditorProps) {
   const [title, setTitle] = useState("");
@@ -148,19 +155,24 @@ export function ContentEditor({ type, id, onSave, onCancel }: ContentEditorProps
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96 bg-black text-zinc-400">
+      <div className={`flex items-center justify-center h-96 ${bg} ${textMuted}`}>
         Loading...
       </div>
     );
   }
 
   const editorToolbar = (
-    <div className="sticky top-0 z-10 flex flex-wrap items-center gap-3 border-b border-zinc-800 bg-black px-4 py-3">
-      <Button size="sm" onClick={handleSave} disabled={isSaving} className="bg-zinc-800 hover:bg-zinc-700">
+    <div className={`sticky top-0 z-10 flex flex-wrap items-center gap-3 border-b ${border} ${bg} px-4 py-3`}>
+      <Button
+        size="sm"
+        onClick={handleSave}
+        disabled={isSaving}
+        className="bg-[#262626] hover:bg-[#404040] text-[#fafafa] border-0"
+      >
         <Save className="mr-2 h-4 w-4" />
         {isSaving ? "Saving..." : "Save"}
       </Button>
-      <Button size="sm" variant="ghost" onClick={onCancel} className="text-zinc-400 hover:text-zinc-100">
+      <Button size="sm" variant="ghost" onClick={onCancel} className="text-[#737373] hover:text-[#fafafa] hover:bg-[#171717]">
         <X className="mr-2 h-4 w-4" />
         Cancel
       </Button>
@@ -168,26 +180,26 @@ export function ContentEditor({ type, id, onSave, onCancel }: ContentEditorProps
         size="sm"
         variant="ghost"
         onClick={() => setPreviewMode(!previewMode)}
-        className="text-zinc-400 hover:text-zinc-100"
+        className="text-[#737373] hover:text-[#fafafa] hover:bg-[#171717]"
       >
         {previewMode ? <Edit className="mr-2 h-4 w-4" /> : <Eye className="mr-2 h-4 w-4" />}
         {previewMode ? "Edit" : "Preview"}
       </Button>
-      <span className="h-4 w-px bg-zinc-700" />
+      <span className={`h-4 w-px ${surface}`} style={{ backgroundColor: "#262626" }} />
       {type !== "roadmap" && (
         <>
           <div className="flex items-center gap-2">
-            <Label className="text-xs text-zinc-500">Slug</Label>
+            <Label className={`text-xs ${textMuted}`}>Slug</Label>
             <Input
               value={slug}
               onChange={(e) => setSlug(e.target.value)}
-              className="h-8 w-40 bg-zinc-900 border-zinc-700 text-sm text-zinc-100"
+              className={`h-8 w-40 ${inputBg} ${border} text-sm ${textBright}`}
               placeholder="url-slug"
             />
           </div>
           <div className="flex items-center gap-2">
             <Switch id="pub" checked={published} onCheckedChange={setPublished} />
-            <Label htmlFor="pub" className="text-xs text-zinc-500">
+            <Label htmlFor="pub" className={`text-xs ${textMuted}`}>
               Published
             </Label>
           </div>
@@ -196,12 +208,12 @@ export function ContentEditor({ type, id, onSave, onCancel }: ContentEditorProps
       {type === "roadmap" && (
         <>
           <div className="flex items-center gap-2">
-            <Label className="text-xs text-zinc-500">Status</Label>
+            <Label className={`text-xs ${textMuted}`}>Status</Label>
             <Select value={status} onValueChange={(v: any) => setStatus(v)}>
-              <SelectTrigger className="h-8 w-32 bg-zinc-900 border-zinc-700 text-zinc-100">
+              <SelectTrigger className={`h-8 w-32 ${inputBg} ${border} ${textBright}`}>
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className={surface}>
                 <SelectItem value="planned">Planned</SelectItem>
                 <SelectItem value="in_progress">In Progress</SelectItem>
                 <SelectItem value="completed">Completed</SelectItem>
@@ -210,20 +222,20 @@ export function ContentEditor({ type, id, onSave, onCancel }: ContentEditorProps
             </Select>
           </div>
           <div className="flex items-center gap-2">
-            <Label className="text-xs text-zinc-500">ETA</Label>
+            <Label className={`text-xs ${textMuted}`}>ETA</Label>
             <Input
               value={eta}
               onChange={(e) => setEta(e.target.value)}
-              className="h-8 w-24 bg-zinc-900 border-zinc-700 text-zinc-100"
+              className={`h-8 w-24 ${inputBg} ${border} ${textBright}`}
               placeholder="Q1 2024"
             />
           </div>
           <div className="flex items-center gap-2">
-            <Label className="text-xs text-zinc-500">Slug</Label>
+            <Label className={`text-xs ${textMuted}`}>Slug</Label>
             <Input
               value={slug}
               onChange={(e) => setSlug(e.target.value)}
-              className="h-8 w-32 bg-zinc-900 border-zinc-700 text-zinc-100"
+              className={`h-8 w-32 ${inputBg} ${border} ${textBright}`}
               placeholder="optional"
             />
           </div>
@@ -233,8 +245,8 @@ export function ContentEditor({ type, id, onSave, onCancel }: ContentEditorProps
   );
 
   const darkEditorArea = (
-    <div className="bg-black border border-zinc-800 rounded-lg overflow-hidden">
-      <div className="flex items-center justify-between gap-2 p-2 border-b border-zinc-800 bg-zinc-900/80">
+    <div className={`${bg} border ${border} rounded-lg overflow-hidden`}>
+      <div className={`flex items-center justify-between gap-2 p-2 border-b ${border} ${surface}`}>
         <MarkdownToolbar
           textareaId="content-editor"
           onInsert={(replacement) => {
@@ -259,7 +271,7 @@ export function ContentEditor({ type, id, onSave, onCancel }: ContentEditorProps
         onChange={(e) => setContent(e.target.value)}
         placeholder="Write your content in Markdown..."
         rows={18}
-        className="min-h-[400px] w-full resize-y rounded-none border-0 bg-black p-4 font-mono text-sm text-zinc-100 placeholder:text-zinc-600 focus-visible:ring-0"
+        className="min-h-[400px] w-full resize-y rounded-none border-0 bg-[#0a0a0a] p-4 font-mono text-sm text-[#fafafa] placeholder:text-[#737373] focus-visible:ring-0"
       />
     </div>
   );
@@ -267,27 +279,27 @@ export function ContentEditor({ type, id, onSave, onCancel }: ContentEditorProps
   if (previewMode) {
     if (type === "blog") {
       return (
-        <div className="min-h-screen bg-black text-foreground">
+        <div className={`min-h-screen ${bg} ${text}`}>
           {editorToolbar}
           <div className="max-w-4xl mx-auto px-4 lg:px-6 py-16">
             <article>
-              <header className="mb-8 pb-8 border-b border-border/50">
-                <div className="mb-4 text-sm text-muted-foreground">
+              <header className="mb-8 pb-8 border-b border-[#262626]">
+                <div className={`mb-4 text-sm ${textMuted}`}>
                   {new Date().toLocaleDateString("en-US", {
                     year: "numeric",
                     month: "long",
                     day: "numeric",
                   })}
                 </div>
-                <h1 className="text-5xl font-bold mb-6">{title || "Untitled"}</h1>
+                <h1 className="text-5xl font-bold mb-6 text-[#fafafa]">{title || "Untitled"}</h1>
                 <div className="flex items-center gap-3">
-                  <span className="text-sm text-muted-foreground">POSTED BY</span>
+                  <span className={`text-sm ${textMuted}`}>POSTED BY</span>
                   <div className="flex items-center gap-2">
                     <Avatar className="h-8 w-8">
-                      <AvatarFallback>?</AvatarFallback>
+                      <AvatarFallback className={surface}>?</AvatarFallback>
                     </Avatar>
-                    <span className="font-medium">Author</span>
-                    <Badge variant="secondary" className="text-xs">
+                    <span className="font-medium text-[#e5e5e5]">Author</span>
+                    <Badge variant="secondary" className="text-xs bg-[#262626] text-[#e5e5e5]">
                       admin
                     </Badge>
                   </div>
@@ -303,36 +315,15 @@ export function ContentEditor({ type, id, onSave, onCancel }: ContentEditorProps
     }
     if (type === "docs") {
       return (
-        <div className="min-h-screen bg-black text-foreground flex">
+        <div className={`min-h-screen ${bg} ${text} flex`}>
           {editorToolbar}
-          <aside className="w-64 border-r border-border/50 p-6 overflow-y-auto shrink-0">
-            <div className="space-y-4 mb-8">
-              <div className="p-3 border border-border/50 rounded-lg bg-card/30">
-                <div className="flex items-center gap-2 mb-1">
-                  <Box className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm font-medium">Using App Router</span>
-                </div>
-                <p className="text-xs text-muted-foreground">Features available in /app</p>
-              </div>
-              <div className="p-3 border border-border/50 rounded-lg bg-card/30">
-                <div className="flex items-center gap-2 mb-1">
-                  <Shield className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm font-medium">Latest Version</span>
-                </div>
-                <p className="text-xs text-muted-foreground">16.1.6</p>
-              </div>
-            </div>
-          </aside>
+          <aside className="w-64 border-r border-[#262626] p-6 overflow-y-auto shrink-0 bg-[#0f0f0f]" />
           <main className="flex-1 overflow-y-auto">
             <div className="max-w-4xl mx-auto px-8 py-16">
               <article>
-                <header className="mb-8 pb-8 border-b border-border/50">
-                  <div className="flex items-center gap-2 mb-4">
-                    <ChevronLeft className="h-5 w-5 text-muted-foreground" />
-                    <h1 className="text-5xl font-bold">{title || "Untitled"}</h1>
-                    <ChevronRight className="h-5 w-5 text-muted-foreground" />
-                  </div>
-                  <p className="text-xl text-muted-foreground">Welcome to the Next.js documentation!</p>
+                <header className="mb-8 pb-8 border-b border-[#262626]">
+                  <h1 className="text-5xl font-bold text-[#fafafa]">{title || "Untitled"}</h1>
+                  <p className={`text-xl ${textMuted} mt-2`}>Welcome to the documentation!</p>
                 </header>
                 <div className="prose prose-invert prose-lg max-w-none">
                   <MarkdownPreview content={content} />
@@ -340,11 +331,7 @@ export function ContentEditor({ type, id, onSave, onCancel }: ContentEditorProps
               </article>
             </div>
           </main>
-          <aside className="w-64 border-l border-border/50 p-6 shrink-0">
-            <div className="sticky top-6">
-              <h3 className="text-sm font-semibold mb-4">On this page</h3>
-            </div>
-          </aside>
+          <aside className="w-64 border-l border-[#262626] p-6 shrink-0 bg-[#0f0f0f]" />
         </div>
       );
     }
@@ -352,20 +339,18 @@ export function ContentEditor({ type, id, onSave, onCancel }: ContentEditorProps
       const StatusIcon = statusConfig[status].icon;
       const statusColor = statusConfig[status].color;
       return (
-        <div className="min-h-screen bg-black text-foreground">
+        <div className={`min-h-screen ${bg} ${text}`}>
           {editorToolbar}
           <div className="max-w-4xl mx-auto px-4 lg:px-6 py-16">
             <article>
-              <header className="mb-8 pb-8 border-b border-border/50">
+              <header className="mb-8 pb-8 border-b border-[#262626]">
                 <div className="flex items-center gap-3 mb-4">
                   <StatusIcon className={`h-6 w-6 ${statusColor}`} />
-                  <span className="text-sm text-muted-foreground uppercase">
-                    {status.replace("_", " ")}
-                  </span>
+                  <span className={`text-sm ${textMuted} uppercase`}>{status.replace("_", " ")}</span>
                 </div>
-                <h1 className="text-5xl font-bold mb-4">
+                <h1 className="text-5xl font-bold mb-4 text-[#fafafa]">
                   {title || "Untitled"}
-                  {eta && <span className="text-2xl font-normal text-muted-foreground ml-3">- {eta}</span>}
+                  {eta && <span className={`text-2xl font-normal ${textMuted} ml-3`}>- {eta}</span>}
                 </h1>
               </header>
               <div className="prose prose-invert prose-lg max-w-none">
@@ -380,12 +365,12 @@ export function ContentEditor({ type, id, onSave, onCancel }: ContentEditorProps
 
   if (type === "blog") {
     return (
-      <div className="min-h-screen bg-black text-foreground">
+      <div className={`min-h-screen ${bg} ${text}`}>
         {editorToolbar}
         <div className="max-w-4xl mx-auto px-4 lg:px-6 py-8">
           <article>
-            <header className="mb-6 pb-6 border-b border-zinc-800">
-              <div className="mb-3 text-sm text-zinc-500">
+            <header className={`mb-6 pb-6 border-b ${border}`}>
+              <div className={`mb-3 text-sm ${textMuted}`}>
                 {new Date().toLocaleDateString("en-US", {
                   year: "numeric",
                   month: "long",
@@ -396,16 +381,16 @@ export function ContentEditor({ type, id, onSave, onCancel }: ContentEditorProps
                 value={title}
                 onChange={(e) => handleTitleChange(e.target.value)}
                 placeholder="Post title"
-                className="text-4xl font-bold h-auto py-2 px-0 border-0 bg-transparent text-zinc-100 placeholder:text-zinc-600 focus-visible:ring-0 focus-visible:ring-offset-0"
+                className={`text-4xl font-bold h-auto py-2 px-0 border-0 bg-transparent ${textBright} placeholder:${textMuted} focus-visible:ring-0 focus-visible:ring-offset-0`}
               />
               <div className="flex items-center gap-3 mt-4">
-                <span className="text-sm text-zinc-500">POSTED BY</span>
+                <span className={`text-sm ${textMuted}`}>POSTED BY</span>
                 <div className="flex items-center gap-2">
                   <Avatar className="h-8 w-8">
-                    <AvatarFallback className="bg-zinc-700 text-zinc-300">?</AvatarFallback>
+                    <AvatarFallback className="bg-[#262626] text-[#a3a3a3]">?</AvatarFallback>
                   </Avatar>
-                  <span className="font-medium text-zinc-300">Author</span>
-                  <Badge variant="secondary" className="text-xs bg-zinc-800 text-zinc-300">
+                  <span className="font-medium text-[#e5e5e5]">Author</span>
+                  <Badge variant="secondary" className={`text-xs ${surface} text-[#e5e5e5]`}>
                     admin
                   </Badge>
                 </div>
@@ -413,18 +398,18 @@ export function ContentEditor({ type, id, onSave, onCancel }: ContentEditorProps
             </header>
             {type === "blog" && (
               <div className="mb-6">
-                <Label className="text-xs text-zinc-500 mb-2 block">Card description (for list page)</Label>
+                <Label className={`text-xs ${textMuted} mb-2 block`}>Card description (for list page)</Label>
                 <Textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Short description shown on blog cards..."
                   rows={3}
-                  className="bg-zinc-900 border-zinc-700 text-zinc-100 placeholder:text-zinc-500"
+                  className={`${inputBg} ${border} ${textBright} placeholder:${textMuted}`}
                 />
               </div>
             )}
             <div className="mt-6">
-              <Label className="text-xs text-zinc-500 mb-2 block">Content</Label>
+              <Label className={`text-xs ${textMuted} mb-2 block`}>Content</Label>
               {darkEditorArea}
             </div>
           </article>
@@ -435,54 +420,44 @@ export function ContentEditor({ type, id, onSave, onCancel }: ContentEditorProps
 
   if (type === "docs") {
     return (
-      <div className="min-h-screen bg-black text-foreground flex">
+      <div className={`min-h-screen ${bg} ${text} flex`}>
         {editorToolbar}
-        <aside className="w-64 border-r border-zinc-800 p-6 overflow-y-auto shrink-0">
-          <div className="space-y-4 mb-8">
-            <div className="p-3 border border-zinc-800 rounded-lg bg-zinc-900/50">
-              <div className="flex items-center gap-2 mb-1">
-                <Box className="h-4 w-4 text-zinc-500" />
-                <span className="text-sm font-medium text-zinc-300">Using App Router</span>
-              </div>
-              <p className="text-xs text-zinc-500">Features available in /app</p>
+        <aside className="w-52 shrink-0 border-r border-[#262626] bg-[#0f0f0f] flex flex-col">
+          <div className="p-4 border-b border-[#262626] space-y-4">
+            <div>
+              <Label className={`text-xs ${textMuted} block mb-1`}>Title</Label>
+              <Input
+                value={title}
+                onChange={(e) => handleTitleChange(e.target.value)}
+                placeholder="Doc title"
+                className={`text-sm ${inputBg} ${border} ${textBright}`}
+              />
             </div>
-            <div className="p-3 border border-zinc-800 rounded-lg bg-zinc-900/50">
-              <div className="flex items-center gap-2 mb-1">
-                <Shield className="h-4 w-4 text-zinc-500" />
-                <span className="text-sm font-medium text-zinc-300">Latest Version</span>
-              </div>
-              <p className="text-xs text-zinc-500">16.1.6</p>
+            <div>
+              <Label className={`text-xs ${textMuted} block mb-1`}>Slug</Label>
+              <Input
+                value={slug}
+                onChange={(e) => setSlug(e.target.value)}
+                className={`h-8 ${inputBg} ${border} ${textBright} text-sm`}
+                placeholder="url-slug"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <Switch id="doc-pub" checked={published} onCheckedChange={setPublished} />
+              <Label htmlFor="doc-pub" className={`text-xs ${textMuted}`}>
+                Published
+              </Label>
             </div>
           </div>
         </aside>
         <main className="flex-1 overflow-y-auto">
           <div className="max-w-4xl mx-auto px-8 py-8">
-            <article>
-              <header className="mb-6 pb-6 border-b border-zinc-800">
-                <div className="flex items-center gap-2 mb-4">
-                  <ChevronLeft className="h-5 w-5 text-zinc-500" />
-                  <Input
-                    value={title}
-                    onChange={(e) => handleTitleChange(e.target.value)}
-                    placeholder="Doc title"
-                    className="text-4xl font-bold h-auto py-2 px-0 border-0 bg-transparent text-zinc-100 placeholder:text-zinc-600 focus-visible:ring-0 flex-1"
-                  />
-                  <ChevronRight className="h-5 w-5 text-zinc-500" />
-                </div>
-                <p className="text-xl text-zinc-500">Welcome to the documentation!</p>
-              </header>
-              <div className="mt-6">
-                <Label className="text-xs text-zinc-500 mb-2 block">Content</Label>
-                {darkEditorArea}
-              </div>
-            </article>
+            <div className="mt-6">
+              <Label className={`text-xs ${textMuted} mb-2 block`}>Content</Label>
+              {darkEditorArea}
+            </div>
           </div>
         </main>
-        <aside className="w-64 border-l border-zinc-800 p-6 shrink-0">
-          <div className="sticky top-6">
-            <h3 className="text-sm font-semibold mb-4 text-zinc-400">On this page</h3>
-          </div>
-        </aside>
       </div>
     );
   }
@@ -491,29 +466,27 @@ export function ContentEditor({ type, id, onSave, onCancel }: ContentEditorProps
     const StatusIcon = statusConfig[status].icon;
     const statusColor = statusConfig[status].color;
     return (
-      <div className="min-h-screen bg-black text-foreground">
+      <div className={`min-h-screen ${bg} ${text}`}>
         {editorToolbar}
         <div className="max-w-4xl mx-auto px-4 lg:px-6 py-8">
           <article>
-            <header className="mb-6 pb-6 border-b border-zinc-800">
+            <header className={`mb-6 pb-6 border-b ${border}`}>
               <div className="flex items-center gap-3 mb-4">
                 <StatusIcon className={`h-6 w-6 ${statusColor}`} />
-                <span className="text-sm text-zinc-500 uppercase">{status.replace("_", " ")}</span>
+                <span className={`text-sm ${textMuted} uppercase`}>{status.replace("_", " ")}</span>
               </div>
               <div className="flex flex-wrap items-baseline gap-2">
                 <Input
                   value={title}
                   onChange={(e) => handleTitleChange(e.target.value)}
                   placeholder="Feature title"
-                  className="text-4xl font-bold h-auto py-2 px-0 border-0 bg-transparent text-zinc-100 placeholder:text-zinc-600 focus-visible:ring-0 w-full max-w-md"
+                  className={`text-4xl font-bold h-auto py-2 px-0 border-0 bg-transparent ${textBright} placeholder:${textMuted} focus-visible:ring-0 w-full max-w-md`}
                 />
-                {eta && (
-                  <span className="text-2xl font-normal text-zinc-500">- {eta}</span>
-                )}
+                {eta && <span className={`text-2xl font-normal ${textMuted}`}>- {eta}</span>}
               </div>
             </header>
             <div className="mt-6">
-              <Label className="text-xs text-zinc-500 mb-2 block">Description</Label>
+              <Label className={`text-xs ${textMuted} mb-2 block`}>Description</Label>
               {darkEditorArea}
             </div>
           </article>

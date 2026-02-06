@@ -21,6 +21,13 @@ import {
   FileText as InputIcon,
   FileText as TextareaIcon,
   List,
+  BarChart3,
+  Quote,
+  HelpCircle,
+  Image as ImageLogoIcon,
+  Megaphone,
+  Mail,
+  ShoppingBag,
 } from 'lucide-react';
 import type { ElementType } from '@/lib/page-builder/types';
 import type { ComponentDefinition } from './component-library';
@@ -51,6 +58,13 @@ import { Form } from './components/Form';
 import { Input } from './components/Input';
 import { Textarea } from './components/Textarea';
 import { Select } from './components/Select';
+import { Stats } from './components/Stats';
+import { Testimonial } from './components/Testimonial';
+import { Faq } from './components/Faq';
+import { LogoCloud } from './components/LogoCloud';
+import { CtaBanner } from './components/CtaBanner';
+import { Newsletter } from './components/Newsletter';
+import { ProductCard } from './components/ProductCard';
 
 export interface ComponentDefinitionWithComponent extends ComponentDefinition {
   Component: React.ComponentType<{ element: any; children?: React.ReactNode }>;
@@ -79,6 +93,13 @@ function getIcon(key: string): React.ReactNode {
     input: InputIcon,
     textarea: TextareaIcon,
     select: List,
+    'bar-chart': BarChart3,
+    quote: Quote,
+    'help-circle': HelpCircle,
+    'logo-cloud': ImageLogoIcon,
+    megaphone: Megaphone,
+    mail: Mail,
+    'shopping-bag': ShoppingBag,
   };
 
   const IconComponent = iconComponents[key];
@@ -104,6 +125,24 @@ export const componentsMap: Record<ElementType, ComponentDefinitionWithComponent
     },
     Component: Container,
   },
+  'container-narrow': {
+    type: 'container-narrow',
+    label: 'Container (narrow)',
+    icon: getIcon('box'),
+    category: 'layout',
+    defaultContent: {},
+    defaultStyle: {
+      display: 'flex',
+      flexDirection: 'column',
+      padding: '20px',
+      gap: '10px',
+      backgroundColor: 'transparent',
+      borderRadius: '8px',
+      maxWidth: '720px',
+      margin: '0 auto',
+    },
+    Component: Container,
+  },
   heading: {
     type: 'heading',
     label: 'Heading',
@@ -113,7 +152,7 @@ export const componentsMap: Record<ElementType, ComponentDefinitionWithComponent
     defaultStyle: {
       fontSize: '32px',
       fontWeight: '700',
-      color: '#e5e5e5',
+      color: 'var(--page-text, #fafafa)',
       marginBottom: '16px',
     },
     Component: Heading,
@@ -127,7 +166,7 @@ export const componentsMap: Record<ElementType, ComponentDefinitionWithComponent
     defaultStyle: {
       fontSize: '16px',
       lineHeight: '1.6',
-      color: '#a3a3a3',
+      color: 'var(--page-text, #a3a3a3)',
     },
     Component: Text,
   },
@@ -139,8 +178,8 @@ export const componentsMap: Record<ElementType, ComponentDefinitionWithComponent
     defaultContent: { text: 'Click me', href: '#' },
     defaultStyle: {
       padding: '12px 24px',
-      backgroundColor: '#000000',
-      color: '#ffffff',
+      backgroundColor: 'var(--page-primary, #6366f1)',
+      color: 'var(--page-background, #fff)',
       borderRadius: '6px',
       fontSize: '16px',
       fontWeight: '500',
@@ -193,7 +232,7 @@ export const componentsMap: Record<ElementType, ComponentDefinitionWithComponent
       target: '_self',
     },
     defaultStyle: {
-      color: '#0070f3',
+      color: 'var(--page-primary, #6366f1)',
       textDecoration: 'underline',
       cursor: 'pointer',
     },
@@ -220,7 +259,7 @@ export const componentsMap: Record<ElementType, ComponentDefinitionWithComponent
     defaultStyle: {
       width: '100%',
       height: '1px',
-      backgroundColor: '#404040',
+      backgroundColor: 'var(--page-border, #262626)',
       margin: '20px 0',
     },
     Component: Divider,
@@ -236,8 +275,8 @@ export const componentsMap: Record<ElementType, ComponentDefinitionWithComponent
     },
     defaultStyle: {
       padding: '24px',
-      backgroundColor: '#1a1a1a',
-      border: '1px solid #404040',
+      backgroundColor: 'var(--page-surface, #171717)',
+      border: '1px solid var(--page-border, #262626)',
       borderRadius: '8px',
     },
     Component: Card,
@@ -257,8 +296,8 @@ export const componentsMap: Record<ElementType, ComponentDefinitionWithComponent
     },
     defaultStyle: {
       padding: '32px',
-      backgroundColor: '#1a1a1a',
-      border: '1px solid #404040',
+      backgroundColor: 'var(--page-surface, #171717)',
+      border: '1px solid var(--page-border, #262626)',
       borderRadius: '12px',
       textAlign: 'center',
     },
@@ -281,7 +320,7 @@ export const componentsMap: Record<ElementType, ComponentDefinitionWithComponent
       alignItems: 'center',
       justifyContent: 'center',
       padding: '80px 20px',
-      backgroundColor: '#1a1a1a',
+      backgroundColor: 'var(--page-surface, #171717)',
       textAlign: 'center',
     },
     Component: Hero,
@@ -317,8 +356,8 @@ export const componentsMap: Record<ElementType, ComponentDefinitionWithComponent
     },
     defaultStyle: {
       padding: '12px 32px',
-      backgroundColor: '#6366f1',
-      color: '#ffffff',
+      backgroundColor: 'var(--page-primary, #6366f1)',
+      color: 'var(--page-background, #fff)',
       borderRadius: '6px',
       fontSize: '16px',
       fontWeight: '600',
@@ -342,8 +381,8 @@ export const componentsMap: Record<ElementType, ComponentDefinitionWithComponent
     },
     defaultStyle: {
       padding: '16px 24px',
-      backgroundColor: '#1a1a1a',
-      borderBottom: '1px solid #404040',
+      backgroundColor: 'var(--page-surface, #171717)',
+      borderBottom: '1px solid var(--page-border, #262626)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
@@ -361,9 +400,9 @@ export const componentsMap: Record<ElementType, ComponentDefinitionWithComponent
     },
     defaultStyle: {
       padding: '48px 24px',
-      backgroundColor: '#1a1a1a',
-      borderTop: '1px solid #404040',
-      color: 'var(--muted-foreground)',
+      backgroundColor: 'var(--page-surface, #171717)',
+      borderTop: '1px solid var(--page-border, #262626)',
+      color: 'var(--page-text, #a3a3a3)',
     },
     Component: Footer,
   },
@@ -379,6 +418,40 @@ export const componentsMap: Record<ElementType, ComponentDefinitionWithComponent
     defaultStyle: {
       padding: '60px 20px',
       width: '100%',
+      maxWidth: '100%',
+    },
+    Component: Section,
+  },
+  'section-fullbleed': {
+    type: 'section-fullbleed',
+    label: 'Section (full-bleed)',
+    icon: getIcon('layers'),
+    category: 'layout',
+    defaultContent: {
+      title: 'Section Title',
+      subtitle: 'Section subtitle',
+    },
+    defaultStyle: {
+      padding: '80px 0',
+      width: '100%',
+      maxWidth: '100%',
+    },
+    Component: Section,
+  },
+  'section-contained': {
+    type: 'section-contained',
+    label: 'Section (contained)',
+    icon: getIcon('layers'),
+    category: 'layout',
+    defaultContent: {
+      title: 'Section Title',
+      subtitle: 'Section subtitle',
+    },
+    defaultStyle: {
+      padding: '60px 20px',
+      width: '100%',
+      maxWidth: '1280px',
+      margin: '0 auto',
     },
     Component: Section,
   },
@@ -420,8 +493,8 @@ export const componentsMap: Record<ElementType, ComponentDefinitionWithComponent
     },
     defaultStyle: {
       padding: '4px 12px',
-      backgroundColor: '#404040',
-      color: '#ffffff',
+      backgroundColor: 'var(--page-primary, #6366f1)',
+      color: 'var(--page-background, #fff)',
       borderRadius: '12px',
       fontSize: '12px',
       fontWeight: '500',
@@ -457,9 +530,9 @@ export const componentsMap: Record<ElementType, ComponentDefinitionWithComponent
     },
     defaultStyle: {
       padding: '24px',
-      backgroundColor: '#1a1a1a',
+      backgroundColor: 'var(--page-surface, #171717)',
       borderRadius: '8px',
-      border: '1px solid #404040',
+      border: '1px solid var(--page-border, #262626)',
     },
     Component: Form,
   },
@@ -511,6 +584,125 @@ export const componentsMap: Record<ElementType, ComponentDefinitionWithComponent
     },
     defaultStyle: {},
     Component: Select,
+  },
+  stats: {
+    type: 'stats',
+    label: 'Stats Block',
+    icon: getIcon('bar-chart'),
+    category: 'elements',
+    defaultContent: {
+      items: [
+        { value: '10k+', label: 'Customers' },
+        { value: '99%', label: 'Uptime' },
+        { value: '24/7', label: 'Support' },
+      ],
+    },
+    defaultStyle: {
+      padding: '32px 0',
+      display: 'flex',
+      justifyContent: 'center',
+    },
+    Component: Stats,
+  },
+  testimonial: {
+    type: 'testimonial',
+    label: 'Testimonial Card',
+    icon: getIcon('quote'),
+    category: 'elements',
+    defaultContent: {
+      quote: 'This product changed how we work. Highly recommend.',
+      author: 'Jane Doe',
+      role: 'Customer',
+    },
+    defaultStyle: {
+      maxWidth: '640px',
+    },
+    Component: Testimonial,
+  },
+  faq: {
+    type: 'faq',
+    label: 'FAQ Accordion',
+    icon: getIcon('help-circle'),
+    category: 'elements',
+    defaultContent: {
+      title: 'Frequently asked questions',
+      items: [
+        { question: 'How do I get started?', answer: 'Sign up and follow the onboarding steps.' },
+        { question: 'What payment methods do you accept?', answer: 'We accept all major cards and PayPal.' },
+        { question: 'Can I cancel anytime?', answer: 'Yes, cancel from your account settings.' },
+      ],
+    },
+    defaultStyle: {
+      maxWidth: '640px',
+    },
+    Component: Faq,
+  },
+  'logo-cloud': {
+    type: 'logo-cloud',
+    label: 'Logo Cloud',
+    icon: getIcon('logo-cloud'),
+    category: 'elements',
+    defaultContent: {
+      title: 'Trusted by teams everywhere',
+      logos: [
+        { name: 'Company 1', url: 'https://placehold.co/120x40/262626/737373?text=Logo+1' },
+        { name: 'Company 2', url: 'https://placehold.co/120x40/262626/737373?text=Logo+2' },
+        { name: 'Company 3', url: 'https://placehold.co/120x40/262626/737373?text=Logo+3' },
+        { name: 'Company 4', url: 'https://placehold.co/120x40/262626/737373?text=Logo+4' },
+      ],
+    },
+    defaultStyle: {
+      padding: '40px 0',
+    },
+    Component: LogoCloud,
+  },
+  'cta-banner': {
+    type: 'cta-banner',
+    label: 'CTA Banner',
+    icon: getIcon('megaphone'),
+    category: 'elements',
+    defaultContent: {
+      heading: 'Ready to get started?',
+      subtext: 'Join thousands of satisfied customers today.',
+      buttonText: 'Get started',
+      buttonHref: '#',
+    },
+    defaultStyle: {},
+    Component: CtaBanner,
+  },
+  newsletter: {
+    type: 'newsletter',
+    label: 'Newsletter Signup',
+    icon: getIcon('mail'),
+    category: 'elements',
+    defaultContent: {
+      title: 'Subscribe to our newsletter',
+      description: 'Get the latest updates and offers.',
+      placeholder: 'Enter your email',
+      buttonText: 'Subscribe',
+    },
+    defaultStyle: {
+      maxWidth: '480px',
+    },
+    Component: Newsletter,
+  },
+  'product-card': {
+    type: 'product-card',
+    label: 'Product Card',
+    icon: getIcon('shopping-bag'),
+    category: 'ecommerce',
+    defaultContent: {
+      title: 'Product name',
+      price: '$29',
+      imageSrc: 'https://placehold.co/400x300/171717/404040?text=Product',
+      imageAlt: 'Product',
+      buttonText: 'Add to cart',
+      buttonHref: '#',
+    },
+    defaultStyle: {
+      maxWidth: '320px',
+    },
+    Component: ProductCard,
   },
 };
 

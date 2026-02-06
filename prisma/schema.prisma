@@ -93,21 +93,22 @@ model EmailVerification {
 }
 
 model Project {
-  id          String   @id @default(cuid())
-  name        String
-  description String?  @db.Text
-  userId      String
-  subdomain   String?  @unique
-  customDomain String? @unique
-  isPublished Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+  id            String   @id @default(cuid())
+  name          String
+  description   String?  @db.Text
+  userId        String
+  subdomain     String?  @unique
+  customDomain  String?  @unique
+  isPublished   Boolean  @default(false)
+  customThemes  Json?    @default("[]")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
   pages       Page[]
   envVars     EnvironmentVariable[]
   deployments Deployment[]
   components  Component[]
-  
+
   @@index([userId])
   @@map("projects")
 }

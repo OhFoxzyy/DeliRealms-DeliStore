@@ -26,12 +26,17 @@ function createElementFromDrag(componentData: string): PageElement | null {
 }
 
 export function BuilderCanvas({ viewMode = 'desktop' }: BuilderCanvasProps) {
-  const { elements, addElementAt, theme } = usePageBuilder();
+  const { elements, addElementAt, moveElementTo, theme } = usePageBuilder();
   const [isDraggingOverEmpty, setIsDraggingOverEmpty] = React.useState(false);
 
   const createDropHandler = (parentId: string | null, index: number) => (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    const elementId = e.dataTransfer.getData('element-id');
+    if (elementId) {
+      moveElementTo(elementId, parentId, index);
+      return;
+    }
     const componentData = e.dataTransfer.getData('component');
     if (!componentData) return;
     const newElement = createElementFromDrag(componentData);
@@ -118,7 +123,7 @@ export function BuilderCanvas({ viewMode = 'desktop' }: BuilderCanvasProps) {
               </div>
             </div>
           ) : (
-            <div className="p-6 flex flex-col gap-0">
+            <div className="relative p-6 flex flex-col gap-0 min-h-[800px]">
               {elements.map((element, index) => (
                 <div key={element.id} className="contents">
                   <DropZone

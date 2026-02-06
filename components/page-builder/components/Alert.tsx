@@ -8,7 +8,7 @@ interface AlertProps {
 export function Alert({ element }: AlertProps) {
   const variant = element.content.variant || 'info';
   const variantStyles: Record<string, { backgroundColor: string; color: string; borderColor: string }> = {
-    info: { backgroundColor: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', borderColor: '#3b82f6' },
+    info: { backgroundColor: 'rgba(99, 102, 241, 0.1)', color: 'var(--page-primary, #6366f1)', borderColor: 'var(--page-primary, #6366f1)' },
     success: { backgroundColor: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', borderColor: '#22c55e' },
     warning: { backgroundColor: 'rgba(234, 179, 8, 0.1)', color: '#eab308', borderColor: '#eab308' },
     error: { backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', borderColor: '#ef4444' },

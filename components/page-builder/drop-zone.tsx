@@ -16,7 +16,7 @@ export function DropZone({ onDrop, parentId, index, className }: DropZoneProps) 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    e.dataTransfer.dropEffect = "copy";
+    e.dataTransfer.dropEffect = e.dataTransfer.types.includes("element-id") ? "move" : "copy";
     setIsOver(true);
   };
 
@@ -42,14 +42,14 @@ export function DropZone({ onDrop, parentId, index, className }: DropZoneProps) 
       data-drop-index={index}
       className={cn(
         "min-h-[24px] transition-all duration-200 flex-shrink-0 relative",
-        isOver && "bg-primary/20 rounded border-2 border-dashed border-primary/50",
-        !isOver && "hover:bg-accent/5",
+        isOver && "min-h-[32px] bg-[#6366f1]/15 rounded border-2 border-dashed border-[#6366f1]",
+        !isOver && "hover:bg-[#262626]/50",
         className
       )}
     >
       {isOver && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-xs font-medium text-primary">Drop here</div>
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <span className="text-xs font-medium text-[#6366f1]">Drop here</span>
         </div>
       )}
     </div>

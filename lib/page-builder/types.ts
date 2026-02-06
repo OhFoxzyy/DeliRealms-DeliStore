@@ -1,5 +1,6 @@
 export type ElementType = 
   | 'container'
+  | 'container-narrow'
   | 'heading'
   | 'text'
   | 'button'
@@ -16,6 +17,8 @@ export type ElementType =
   | 'navbar'
   | 'footer'
   | 'section'
+  | 'section-fullbleed'
+  | 'section-contained'
   | 'grid'
   | 'column'
   | 'badge'
@@ -23,7 +26,14 @@ export type ElementType =
   | 'form'
   | 'input'
   | 'textarea'
-  | 'select';
+  | 'select'
+  | 'stats'
+  | 'testimonial'
+  | 'faq'
+  | 'logo-cloud'
+  | 'cta-banner'
+  | 'newsletter'
+  | 'product-card';
 
 /**
  * Simple theme model for the page builder.

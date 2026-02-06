@@ -55,40 +55,40 @@ export function DocsList({ onEdit }: DocsListProps) {
   };
 
   if (loading) {
-    return <div className="text-zinc-500">Loading...</div>;
+    return <div className="text-[#737373]">Loading...</div>;
   }
 
   return (
     <div className="space-y-4">
       {pages.length === 0 ? (
-        <div className="text-center py-12 text-zinc-500">
+        <div className="text-center py-12 text-[#737373]">
           No doc pages yet. Create your first page!
         </div>
       ) : (
-        <div className="border border-zinc-800 rounded-lg divide-y divide-zinc-800 bg-black">
+        <div className="border border-[#262626] rounded-lg divide-y divide-[#262626] bg-[#0f0f0f]">
           {pages.map((page) => (
-            <div key={page.id} className="p-4 hover:bg-zinc-900/50 transition-colors">
+            <div key={page.id} className="p-4 hover:bg-[#171717] transition-colors">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-3">
-                    <h3 className="font-semibold text-zinc-100">{page.title}</h3>
-                    <Badge variant={page.published ? "default" : "secondary"} className={page.published ? "bg-zinc-700" : "bg-zinc-800 text-zinc-400"}>
+                    <h3 className="font-semibold text-[#fafafa]">{page.title}</h3>
+                    <Badge variant={page.published ? "default" : "secondary"} className={page.published ? "bg-[#404040] text-[#fafafa]" : "bg-[#262626] text-[#a3a3a3]"}>
                       {page.published ? "Published" : "Draft"}
                     </Badge>
                   </div>
-                  <p className="text-sm text-zinc-500 mt-1">/{page.slug}</p>
-                  <p className="text-xs text-zinc-500 mt-1">
+                  <p className="text-sm text-[#737373] mt-1">/{page.slug}</p>
+                  <p className="text-xs text-[#737373] mt-1">
                     Updated {new Date(page.updatedAt).toLocaleDateString()}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-zinc-100" onClick={() => window.open(`/docs/${page.slug}`, "_blank")}>
+                  <Button variant="ghost" size="sm" className="text-[#e5e5e5] hover:text-[#fafafa] hover:bg-[#262626]" onClick={() => window.open(`/docs/${page.slug}`, "_blank")}>
                     <Eye className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-zinc-100" onClick={() => onEdit(page.id)}>
+                  <Button variant="ghost" size="sm" className="text-[#e5e5e5] hover:text-[#fafafa] hover:bg-[#262626]" onClick={() => onEdit(page.id)}>
                     <Edit className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="sm" onClick={() => handleDelete(page.id)} className="text-red-400 hover:text-red-300">
+                  <Button variant="ghost" size="sm" onClick={() => handleDelete(page.id)} className="text-red-400 hover:text-red-300 hover:bg-[#262626]">
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>

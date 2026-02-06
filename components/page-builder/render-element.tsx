@@ -1,11 +1,11 @@
 "use client";
 
-import React, { type CSSProperties } from 'react';
+import React, { useRef, useCallback, type CSSProperties } from 'react';
 import { usePageBuilder } from './page-builder-context';
 import { DropZone } from './drop-zone';
 import type { PageElement, ElementStyle } from '@/lib/page-builder/types';
 import { cn } from '@/lib/utils';
-import { Copy, Trash2, ChevronUp, ChevronDown, AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
+import { Copy, Trash2, ChevronUp, ChevronDown, AlignLeft, AlignCenter, AlignRight, Move, ArrowUpToLine, ArrowDownToLine, ClipboardCopy, ClipboardPaste, Box, Layout } from 'lucide-react';
 import { Button } from '../ui/button';
 import { componentsMap } from './components';
 
@@ -27,16 +27,52 @@ function computeStyle(style: ElementStyle | undefined): CSSProperties | undefine
 }
 
 export function RenderElement({ element, parentId, siblingIndex = 0, createDropHandler }: RenderElementProps) {
-  const { selectElement, selectedElement, duplicateElement, deleteElement, moveElement, updateElement } = usePageBuilder();
+  const { selectElement, selectedElement, duplicateElement, deleteElement, moveElement, updateElement, moveElementToTop, moveElementToBottom, copyStyle, pasteStyle, wrapInContainer, convertToSection, copiedStyle } = usePageBuilder();
   const isSelected = selectedElement?.id === element.id;
-  
+  const positionDragRef = useRef(false);
+  const isFreePosition = element.style?.position === 'absolute';
+
   const textLikeTypes = ['heading', 'text', 'button', 'hero', 'pricing-card', 'feature-grid'];
   const isTextLike = textLikeTypes.includes(element.type);
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (positionDragRef.current) {
+      positionDragRef.current = false;
+      return;
+    }
     selectElement(element);
   };
+
+  const handlePositionDrag = useCallback(
+    (e: React.MouseEvent) => {
+      if (!isFreePosition || !element.style) return;
+      e.preventDefault();
+      const startX = e.clientX;
+      const startY = e.clientY;
+      const startLeft = parseFloat(String(element.style.left || 0)) || 0;
+      const startTop = parseFloat(String(element.style.top || 0)) || 0;
+      const onMove = (e: MouseEvent) => {
+        positionDragRef.current = true;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        updateElement(element.id, {
+          style: {
+            ...element.style,
+            left: `${startLeft + dx}px`,
+            top: `${startTop + dy}px`,
+          },
+        });
+      };
+      const onUp = () => {
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+      };
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    },
+    [element.id, element.style, isFreePosition, updateElement]
+  );
 
   const renderContent = () => {
     const componentDef = componentsMap[element.type];
@@ -46,7 +82,7 @@ export function RenderElement({ element, parentId, siblingIndex = 0, createDropH
 
     const { Component } = componentDef;
     const children = element.children || [];
-    const containerTypes = ['container', 'card', 'section', 'grid', 'column', 'form'];
+    const containerTypes = ['container', 'container-narrow', 'card', 'section', 'section-fullbleed', 'section-contained', 'grid', 'column', 'form'];
     const isContainer = containerTypes.includes(element.type);
 
     if (isContainer) {
@@ -91,12 +127,33 @@ export function RenderElement({ element, parentId, siblingIndex = 0, createDropH
     return <Component element={element} />;
   };
 
+  const handleDragStart = (e: React.DragEvent) => {
+    e.stopPropagation();
+    e.dataTransfer.setData('element-id', element.id);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const wrapperStyle: React.CSSProperties = isFreePosition
+    ? {
+        position: 'absolute',
+        left: element.style?.left || 0,
+        top: element.style?.top || 0,
+        zIndex: element.style?.zIndex ? Number(element.style.zIndex) : undefined,
+      }
+    : {};
+
   return (
     <div
       onClick={handleClick}
+      draggable={!isFreePosition}
+      onDragStart={handleDragStart}
+      onMouseDown={isFreePosition ? handlePositionDrag : undefined}
       data-element-id={element.id}
+      style={wrapperStyle}
       className={cn(
-        'relative group transition-all',
+        'group transition-all',
+        isFreePosition ? 'cursor-move' : 'cursor-grab active:cursor-grabbing',
+        !isFreePosition && 'relative',
         isSelected && 'ring-2 ring-primary ring-offset-2 ring-offset-background'
       )}
     >
@@ -166,6 +223,61 @@ export function RenderElement({ element, parentId, siblingIndex = 0, createDropH
               variant="ghost"
               size="icon"
               className="h-7 w-7 hover:bg-accent/50"
+              onClick={(e) => { e.stopPropagation(); moveElementToTop(element.id); }}
+              title="Move to top"
+            >
+              <ArrowUpToLine className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 hover:bg-accent/50"
+              onClick={(e) => { e.stopPropagation(); moveElementToBottom(element.id); }}
+              title="Move to bottom"
+            >
+              <ArrowDownToLine className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 hover:bg-accent/50"
+              onClick={(e) => { e.stopPropagation(); copyStyle(element.id); }}
+              title="Copy style"
+            >
+              <ClipboardCopy className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 hover:bg-accent/50 disabled:opacity-50"
+              onClick={(e) => { e.stopPropagation(); pasteStyle(element.id); }}
+              disabled={!copiedStyle}
+              title="Paste style"
+            >
+              <ClipboardPaste className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 hover:bg-accent/50"
+              onClick={(e) => { e.stopPropagation(); wrapInContainer(element.id); }}
+              title="Wrap in container"
+            >
+              <Box className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 hover:bg-accent/50"
+              onClick={(e) => { e.stopPropagation(); convertToSection(element.id); }}
+              title="Convert to section"
+            >
+              <Layout className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 hover:bg-accent/50"
               onClick={(e) => { e.stopPropagation(); duplicateElement(element.id); }}
               title="Duplicate"
             >
@@ -179,6 +291,24 @@ export function RenderElement({ element, parentId, siblingIndex = 0, createDropH
               title="Delete"
             >
               <Trash2 className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 hover:bg-accent/50"
+              onClick={(e) => {
+                e.stopPropagation();
+                updateElement(element.id, {
+                  style: {
+                    ...element.style,
+                    position: isFreePosition ? 'static' : 'absolute',
+                    ...(isFreePosition ? {} : { left: '0px', top: '0px' }),
+                  },
+                });
+              }}
+              title={isFreePosition ? 'Flow position' : 'Free position'}
+            >
+              <Move className="h-3.5 w-3.5" />
             </Button>
           </div>
         </div>

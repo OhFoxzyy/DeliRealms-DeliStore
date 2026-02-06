@@ -11,7 +11,7 @@ export function Navbar({ element }: NavbarProps) {
   return (
     <nav style={element.style as React.CSSProperties}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-        <div style={{ fontSize: '20px', fontWeight: '700' }}>
+        <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--page-text, #fafafa)' }}>
           {element.content.logo || 'Logo'}
         </div>
         <ul style={{ display: 'flex', gap: '24px', listStyle: 'none', padding: 0, margin: 0 }}>
@@ -19,7 +19,7 @@ export function Navbar({ element }: NavbarProps) {
             <li key={index}>
               <a
                 href={link.href || '#'}
-                style={{ color: 'inherit', textDecoration: 'none' }}
+                style={{ color: 'var(--page-text, #e5e5e5)', textDecoration: 'none' }}
               >
                 {link.text || `Link ${index + 1}`}
               </a>

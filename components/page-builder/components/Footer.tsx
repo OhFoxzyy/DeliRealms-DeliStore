@@ -16,14 +16,14 @@ export function Footer({ element }: FooterProps) {
           {columns.map((column: any, index: number) => (
             <div key={index}>
               {column.title && (
-                <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px' }}>
+                <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: 'var(--page-text, #fafafa)' }}>
                   {column.title}
                 </h4>
               )}
               <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                 {(column.links || []).map((link: any, linkIndex: number) => (
                   <li key={linkIndex} style={{ marginBottom: '8px' }}>
-                    <a href={link.href || '#'} style={{ color: 'var(--muted-foreground)', textDecoration: 'none' }}>
+                    <a href={link.href || '#'} style={{ color: 'var(--page-text, #a3a3a3)', textDecoration: 'none' }}>
                       {link.text || `Link ${linkIndex + 1}`}
                     </a>
                   </li>
@@ -33,7 +33,7 @@ export function Footer({ element }: FooterProps) {
           ))}
         </div>
       ) : (
-        <div style={{ textAlign: 'center', color: 'var(--muted-foreground)' }}>
+        <div style={{ textAlign: 'center', color: 'var(--page-text, #737373)' }}>
           {element.content.copyright || `© ${new Date().getFullYear()} Your Company`}
         </div>
       )}

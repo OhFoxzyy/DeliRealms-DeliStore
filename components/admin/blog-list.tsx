@@ -55,40 +55,40 @@ export function BlogList({ onEdit }: BlogListProps) {
   };
 
   if (loading) {
-    return <div className="text-zinc-500">Loading...</div>;
+    return <div className="text-[#737373]">Loading...</div>;
   }
 
   return (
     <div className="space-y-4">
       {posts.length === 0 ? (
-        <div className="text-center py-12 text-zinc-500">
+        <div className="text-center py-12 text-[#737373]">
           No blog posts yet. Create your first post!
         </div>
       ) : (
-        <div className="border border-zinc-800 rounded-lg divide-y divide-zinc-800 bg-black">
+        <div className="border border-[#262626] rounded-lg divide-y divide-[#262626] bg-[#0f0f0f]">
           {posts.map((post) => (
-            <div key={post.id} className="p-4 hover:bg-zinc-900/50 transition-colors">
+            <div key={post.id} className="p-4 hover:bg-[#171717] transition-colors">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-3">
-                    <h3 className="font-semibold text-zinc-100">{post.title}</h3>
-                    <Badge variant={post.published ? "default" : "secondary"} className={post.published ? "bg-zinc-700" : "bg-zinc-800 text-zinc-400"}>
+                    <h3 className="font-semibold text-[#fafafa]">{post.title}</h3>
+                    <Badge variant={post.published ? "default" : "secondary"} className={post.published ? "bg-[#404040] text-[#fafafa]" : "bg-[#262626] text-[#a3a3a3]"}>
                       {post.published ? "Published" : "Draft"}
                     </Badge>
                   </div>
-                  <p className="text-sm text-zinc-500 mt-1">/{post.slug}</p>
-                  <p className="text-xs text-zinc-500 mt-1">
+                  <p className="text-sm text-[#737373] mt-1">/{post.slug}</p>
+                  <p className="text-xs text-[#737373] mt-1">
                     Updated {new Date(post.updatedAt).toLocaleDateString()}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-zinc-100" onClick={() => window.open(`/blog/${post.slug}`, "_blank")}>
+                  <Button variant="ghost" size="sm" className="text-[#e5e5e5] hover:text-[#fafafa] hover:bg-[#262626]" onClick={() => window.open(`/blog/${post.slug}`, "_blank")}>
                     <Eye className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-zinc-100" onClick={() => onEdit(post.id)}>
+                  <Button variant="ghost" size="sm" className="text-[#e5e5e5] hover:text-[#fafafa] hover:bg-[#262626]" onClick={() => onEdit(post.id)}>
                     <Edit className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="sm" onClick={() => handleDelete(post.id)} className="text-red-400 hover:text-red-300">
+                  <Button variant="ghost" size="sm" onClick={() => handleDelete(post.id)} className="text-red-400 hover:text-red-300 hover:bg-[#262626]">
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { PageBuilderProvider, usePageBuilder } from './page-builder-context';
 import { BuilderCanvas } from './builder-canvas';
 import { ComponentPanel } from './component-panel';
+import { StructurePanel } from './structure-panel';
 import { StyleEditor } from './style-editor';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
@@ -22,8 +23,10 @@ import {
   ExternalLink,
   Star,
   ChevronDown,
+  ChevronRight,
   X,
 } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible';
 import Link from 'next/link';
 import {
   DropdownMenu,
@@ -110,8 +113,12 @@ function PageBuilderInner({
   const [designerMode, setDesignerMode] = useState(false);
   const [componentName, setComponentName] = useState('');
   const [componentCategory, setComponentCategory] = useState<'layout' | 'elements' | 'ecommerce'>('elements');
-  
-  // Handle ESC key to close fullscreen preview
+  const [leftPanelOpen, setLeftPanelOpen] = useState(true);
+  const [rightPanelOpen, setRightPanelOpen] = useState(true);
+  const [rightPanelTab, setRightPanelTab] = useState<'components' | 'structure'>('components');
+
+  const toolbarBtn = "text-[#fafafa] hover:bg-[#262626] hover:text-white disabled:opacity-50 disabled:text-[#525252]";
+
   React.useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isFullscreenPreview) {
@@ -276,32 +283,29 @@ function PageBuilderInner({
 
   return (
     <div className="fixed inset-0 z-40 flex flex-col bg-[#0a0a0a]">
-      {/* Header */}
-      <header className="h-14 border-b border-border/60 bg-background/95 backdrop-blur-sm px-4 flex items-center justify-between shadow-sm">
+      <header className="h-14 border-b border-[#262626] bg-[#0f0f0f] px-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Link 
             href={`/dashboard/projects/${projectId}`}
-            className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+            className={`flex items-center gap-2 ${toolbarBtn} transition-colors rounded-md p-1`}
           >
             <ArrowLeft className="h-4 w-4" />
           </Link>
-          
-          <Separator orientation="vertical" className="h-6" />
-          
+          <Separator orientation="vertical" className="h-6 bg-[#262626]" />
           <div className="flex items-center gap-2">
             {pages.length > 1 ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center gap-2 h-8">
+                  <Button variant="ghost" className={`flex items-center gap-2 h-8 ${toolbarBtn}`}>
                     <span className="font-medium">{pageName}</span>
-                    <span className="text-muted-foreground text-sm">/{pageSlug}</span>
+                    <span className="text-[#737373] text-sm">/{pageSlug}</span>
                     <ChevronDown className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start">
+                <DropdownMenuContent align="start" className="bg-[#171717] border-[#262626]">
                   {pages.map((p) => (
                     <DropdownMenuItem key={p.id} asChild>
-                      <Link href={`/dashboard/projects/${projectId}/pages/${p.id}/edit`}>
+                      <Link href={`/dashboard/projects/${projectId}/pages/${p.id}/edit`} className="text-[#e5e5e5] focus:bg-[#262626] focus:text-[#fafafa]">
                         {p.name} {p.isHome && '(Home)'}
                       </Link>
                     </DropdownMenuItem>
@@ -310,23 +314,19 @@ function PageBuilderInner({
               </DropdownMenu>
             ) : (
               <>
-                <span className="font-medium">{pageName}</span>
-                <span className="text-muted-foreground text-sm">Path: /{pageSlug}</span>
+                <span className="font-medium text-[#fafafa]">{pageName}</span>
+                <span className="text-[#737373] text-sm">Path: /{pageSlug}</span>
               </>
             )}
           </div>
         </div>
 
         <div className="flex items-center gap-1">
-          {/* Device Preview */}
-          <div className="flex items-center border border-border/60 rounded-lg overflow-hidden mr-2 bg-card/30">
+          <div className="flex items-center border border-[#262626] rounded-lg overflow-hidden mr-2 bg-[#171717]">
             <Button
               variant="ghost"
               size="icon"
-              className={cn(
-                "h-8 w-8 rounded-none hover:bg-accent/50",
-                viewMode === 'desktop' && "bg-primary/20 text-primary"
-              )}
+              className={cn("h-8 w-8 rounded-none", toolbarBtn, viewMode === 'desktop' && "bg-[#262626] text-[#fafafa]")}
               onClick={() => setViewMode('desktop')}
             >
               <Monitor className="h-4 w-4" />
@@ -334,10 +334,7 @@ function PageBuilderInner({
             <Button
               variant="ghost"
               size="icon"
-              className={cn(
-                "h-8 w-8 rounded-none border-x border-border/60 hover:bg-accent/50",
-                viewMode === 'tablet' && "bg-primary/20 text-primary"
-              )}
+              className={cn("h-8 w-8 rounded-none border-x border-[#262626]", toolbarBtn, viewMode === 'tablet' && "bg-[#262626] text-[#fafafa]")}
               onClick={() => setViewMode('tablet')}
             >
               <Tablet className="h-4 w-4" />
@@ -345,103 +342,83 @@ function PageBuilderInner({
             <Button
               variant="ghost"
               size="icon"
-              className={cn(
-                "h-8 w-8 rounded-none hover:bg-accent/50",
-                viewMode === 'mobile' && "bg-primary/20 text-primary"
-              )}
+              className={cn("h-8 w-8 rounded-none", toolbarBtn, viewMode === 'mobile' && "bg-[#262626] text-[#fafafa]")}
               onClick={() => setViewMode('mobile')}
             >
               <Smartphone className="h-4 w-4" />
             </Button>
           </div>
 
-          {/* Undo/Redo */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 hover:bg-accent/50"
-            onClick={undo}
-            disabled={!canUndo}
-          >
+          <Button variant="ghost" size="icon" className={cn("h-8 w-8", toolbarBtn)} onClick={undo} disabled={!canUndo}>
             <Undo2 className="h-4 w-4" />
           </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 hover:bg-accent/50"
-            onClick={redo}
-            disabled={!canRedo}
-          >
+          <Button variant="ghost" size="icon" className={cn("h-8 w-8", toolbarBtn)} onClick={redo} disabled={!canRedo}>
             <Redo2 className="h-4 w-4" />
           </Button>
 
-          <Separator orientation="vertical" className="h-6 mx-2" />
+          <Separator orientation="vertical" className="h-6 mx-2 bg-[#262626]" />
 
-          {/* Mode Toggle */}
-          <div className="flex items-center gap-2 px-2 border border-border/50 rounded-lg">
+          <div className="flex items-center gap-2 px-2 border border-[#262626] rounded-lg bg-[#171717]">
             <Button
-              variant={!designerMode ? "default" : "ghost"}
+              variant="ghost"
               size="sm"
-              className={cn("h-7 text-xs", !designerMode && "bg-accent")}
+              className={cn("h-7 text-xs", toolbarBtn, !designerMode && "bg-[#262626] text-[#fafafa]")}
               onClick={() => setDesignerMode(false)}
             >
               Page
             </Button>
             <Button
-              variant={designerMode ? "default" : "ghost"}
+              variant="ghost"
               size="sm"
-              className={cn("h-7 text-xs", designerMode && "bg-accent")}
+              className={cn("h-7 text-xs", toolbarBtn, designerMode && "bg-[#262626] text-[#fafafa]")}
               onClick={() => setDesignerMode(true)}
             >
               Component
             </Button>
           </div>
 
-          <Separator orientation="vertical" className="h-6 mx-2" />
+          <Separator orientation="vertical" className="h-6 mx-2 bg-[#262626]" />
 
-          {/* Preview / View */}
           {projectUrl ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8" title="View page">
+                <Button variant="ghost" size="icon" className={cn("h-8 w-8", toolbarBtn)} title="View page">
                   <Eye className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => window.open(projectUrl, '_blank')}>
+              <DropdownMenuContent align="end" className="bg-[#171717] border-[#262626]">
+                <DropdownMenuItem onClick={() => window.open(projectUrl, '_blank')} className="text-[#e5e5e5] focus:bg-[#262626] focus:text-[#fafafa]">
                   <ExternalLink className="mr-2 h-4 w-4" />
                   Open in new tab
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setIsFullscreenPreview(true)}>
+                <DropdownMenuItem onClick={() => setIsFullscreenPreview(true)} className="text-[#e5e5e5] focus:bg-[#262626] focus:text-[#fafafa]">
                   <Eye className="mr-2 h-4 w-4" />
                   Fullscreen preview
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button variant="ghost" size="icon" className="h-8 w-8" disabled title="Deploy to view page">
+            <Button variant="ghost" size="icon" className={cn("h-8 w-8", toolbarBtn)} disabled title="Deploy to view page">
               <Eye className="h-4 w-4" />
             </Button>
           )}
 
-          <Separator orientation="vertical" className="h-6 mx-2" />
+          <Separator orientation="vertical" className="h-6 mx-2 bg-[#262626]" />
 
-          {/* Publish Toggle */}
           <div className="flex items-center gap-2 px-2">
-            <span className="text-sm text-muted-foreground">Draft</span>
+            <span className="text-sm text-[#737373]">Draft</span>
             <Switch 
               checked={isPublished}
               onCheckedChange={setIsPublished}
             />
-            <span className="text-sm">Publish</span>
+            <span className="text-sm text-[#fafafa]">Publish</span>
           </div>
 
-          <Separator orientation="vertical" className="h-6 mx-2" />
+          <Separator orientation="vertical" className="h-6 mx-2 bg-[#262626]" />
 
-          {/* Generate with AI */}
           <Dialog open={aiDialogOpen} onOpenChange={setAiDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" className="border-[#262626] text-[#fafafa] hover:bg-[#262626]">
                 <Sparkles className="mr-2 h-4 w-4" />
                 Generate with AI
               </Button>
@@ -471,20 +448,20 @@ function PageBuilderInner({
             </DialogContent>
           </Dialog>
 
-          <Separator orientation="vertical" className="h-6 mx-2" />
+          <Separator orientation="vertical" className="h-6 mx-2 bg-[#262626]" />
 
-          {/* Save as Template */}
-        <Button
+          <Button
             variant="outline"
             size="sm"
             onClick={handleSaveTemplate}
             disabled={isSavingTemplate || !selectedElement}
+            className="border-[#262626] text-[#fafafa] hover:bg-[#262626] disabled:opacity-50"
           >
             <Star className="mr-2 h-4 w-4" />
             Save as template
           </Button>
           
-          {/* Save Button */}
+          
           {designerMode ? (
             <Dialog open={componentName !== '' || isSaving} onOpenChange={(open) => !open && !isSaving && setComponentName('')}>
               <DialogTrigger asChild>
@@ -555,21 +532,76 @@ function PageBuilderInner({
         </div>
       </header>
 
-      {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Left Panel - Style Editor */}
-        <StyleEditor />
+        <Collapsible open={leftPanelOpen} onOpenChange={setLeftPanelOpen} className={cn("flex shrink-0 h-full", leftPanelOpen ? "w-80" : "w-12")}>
+          <div className="h-full flex flex-col border-r border-[#262626] w-full">
+            <CollapsibleTrigger asChild>
+              <button className={cn(
+                "flex items-center border-b border-[#262626] bg-[#0f0f0f] text-[#fafafa] hover:bg-[#171717] text-sm font-medium shrink-0",
+                leftPanelOpen ? "gap-2 w-full px-3 py-2" : "w-12 h-12 justify-center"
+              )}>
+                {leftPanelOpen ? (
+                  <> <ChevronDown className="h-4 w-4" /> Theme & Properties </>
+                ) : (
+                  <ChevronRight className="h-4 w-4" />
+                )}
+              </button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="flex-1 overflow-hidden data-[state=closed]:hidden min-h-0">
+              <StyleEditor projectId={projectId} />
+            </CollapsibleContent>
+          </div>
+        </Collapsible>
         
-        {/* Center - Canvas */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 flex flex-col overflow-hidden min-w-0">
           <BuilderCanvas viewMode={viewMode} />
         </div>
         
-        {/* Right Panel - Components */}
-        <ComponentPanel />
+        <Collapsible open={rightPanelOpen} onOpenChange={setRightPanelOpen} className={cn("flex shrink-0 h-full", rightPanelOpen ? "w-80" : "w-12")}>
+          <div className="h-full flex flex-col border-l border-[#262626] w-full">
+            <CollapsibleTrigger asChild>
+              <button className={cn(
+                "flex items-center border-b border-[#262626] bg-[#0f0f0f] text-[#fafafa] hover:bg-[#171717] text-sm font-medium shrink-0",
+                rightPanelOpen ? "gap-2 w-full px-3 py-2" : "w-12 h-12 justify-center"
+              )}>
+                {rightPanelOpen ? (
+                  <> <ChevronDown className="h-4 w-4" /> Components </>
+                ) : (
+                  <ChevronRight className="h-4 w-4" />
+                )}
+              </button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="flex-1 overflow-hidden data-[state=closed]:hidden min-h-0 flex flex-col">
+              <div className="flex border-b border-[#262626] shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setRightPanelTab('components')}
+                  className={cn(
+                    "flex-1 py-2 text-xs font-medium",
+                    rightPanelTab === 'components' ? "bg-[#262626] text-[#fafafa]" : "text-[#737373] hover:bg-[#171717] hover:text-[#e5e5e5]"
+                  )}
+                >
+                  Components
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRightPanelTab('structure')}
+                  className={cn(
+                    "flex-1 py-2 text-xs font-medium",
+                    rightPanelTab === 'structure' ? "bg-[#262626] text-[#fafafa]" : "text-[#737373] hover:bg-[#171717] hover:text-[#e5e5e5]"
+                  )}
+                >
+                  Structure
+                </button>
+              </div>
+              <div className="flex-1 min-h-0 overflow-hidden">
+                {rightPanelTab === 'components' ? <ComponentPanel /> : <StructurePanel />}
+              </div>
+            </CollapsibleContent>
+          </div>
+        </Collapsible>
       </div>
-      
-      {/* Fullscreen Preview Overlay */}
+
       {isFullscreenPreview && (
         <div className="fixed inset-0 z-50 bg-black/95 flex flex-col">
           <div className="h-14 border-b border-border/50 bg-background/95 backdrop-blur px-4 flex items-center justify-between">

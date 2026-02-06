@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from 'react';
 import { usePageBuilder } from './page-builder-context';
 import { Label } from '../ui/label';
 import { Input } from '../ui/input';
@@ -10,8 +11,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Trash2, Plus, X, RotateCcw } from 'lucide-react';
 import { ScrollArea } from '../ui/scroll-area';
 import { Switch } from '../ui/switch';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from '../ui/dialog';
 import { cn } from '@/lib/utils';
-import type { PageTheme } from '@/lib/page-builder/types';
+import type { PageTheme, PageThemePalette, PageThemeGradient } from '@/lib/page-builder/types';
 
 const themePresets: PageTheme[] = [
   {
@@ -102,8 +104,31 @@ const themePresets: PageTheme[] = [
   },
 ];
 
-export function StyleEditor() {
+const defaultPalette: PageThemePalette = {
+  primary: '#6366f1',
+  secondary: '#10b981',
+  accent: '#f97316',
+  background: '#0a0a0a',
+  surface: '#171717',
+  text: '#e5e7eb',
+};
+
+export function StyleEditor({ projectId }: { projectId: string }) {
   const { selectedElement, updateElement, deleteElement, theme, setTheme } = usePageBuilder();
+  const [customThemes, setCustomThemes] = useState<PageTheme[]>([]);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [newPalette, setNewPalette] = useState<PageThemePalette>(defaultPalette);
+  const [savingCustom, setSavingCustom] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!projectId) return;
+    fetch(`/api/projects/${projectId}/themes`)
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => setCustomThemes(Array.isArray(data) ? data : []))
+      .catch(() => setCustomThemes([]));
+  }, [projectId]);
 
   const ensureDefaultTheme = () => {
     if (theme) return theme;
@@ -113,51 +138,80 @@ export function StyleEditor() {
   };
 
   const currentTheme = ensureDefaultTheme();
+  const allThemes = [...themePresets, ...customThemes];
 
-  const handleThemePresetChange = (presetId: string) => {
-    const preset = themePresets.find((p) => p.id === presetId);
-    if (preset) {
-      setTheme(preset);
-    }
+  const handleThemePresetChange = (themeId: string) => {
+    const found = allThemes.find((p) => p.id === themeId);
+    if (found) setTheme(found);
   };
 
   const handleResetTheme = () => {
     setTheme(themePresets[0]);
   };
 
-  if (!selectedElement) {
-    return (
-      <div className="w-80 border-l bg-background p-4 h-full flex items-center justify-center text-center">
-        <p className="text-muted-foreground text-sm">
-          Select an element to edit its properties
-        </p>
-      </div>
-    );
-  }
+  const handleCreateCustom = async () => {
+    if (!newName.trim() || !projectId) return;
+    setSavingCustom(true);
+    try {
+      const res = await fetch(`/api/projects/${projectId}/themes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newName.trim(), palette: newPalette }),
+      });
+      if (!res.ok) throw new Error('Failed to create');
+      const created = await res.json();
+      setCustomThemes((prev) => [...prev, created]);
+      setTheme(created);
+      setCreateOpen(false);
+      setNewName('');
+      setNewPalette(defaultPalette);
+    } catch {
+      setSavingCustom(false);
+    } finally {
+      setSavingCustom(false);
+    }
+  };
+
+  const handleDeleteCustom = async (id: string) => {
+    if (!projectId || !id.startsWith('custom-')) return;
+    setDeletingId(id);
+    try {
+      const res = await fetch(`/api/projects/${projectId}/themes?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Failed to delete');
+      setCustomThemes((prev) => prev.filter((t) => t.id !== id));
+      if (theme?.id === id) setTheme(themePresets[0]);
+    } catch {
+      setDeletingId(null);
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   const handleContentChange = (key: string, value: any) => {
+    if (!selectedElement) return;
     updateElement(selectedElement.id, {
       content: { ...selectedElement.content, [key]: value },
     });
   };
 
   const handleStyleChange = (key: string, value: string) => {
+    if (!selectedElement) return;
     updateElement(selectedElement.id, {
       style: { ...selectedElement.style, [key]: value },
     });
   };
 
   const handleDelete = () => {
-    deleteElement(selectedElement.id);
+    if (selectedElement) deleteElement(selectedElement.id);
   };
 
   return (
-    <div className="w-80 border-l border-border/50 bg-background h-full flex flex-col">
-      <div className="p-4 border-b space-y-3">
+    <div className="w-80 border-l border-[#262626] bg-[#0a0a0a] h-full flex flex-col">
+      <div className="p-4 border-b border-[#262626] space-y-3">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-semibold">Theme</h2>
-            <p className="text-[11px] text-muted-foreground">
+            <h2 className="text-sm font-semibold text-[#fafafa]">Theme</h2>
+            <p className="text-[11px] text-[#737373]">
               Quickly change your page colors.
             </p>
           </div>
@@ -167,24 +221,86 @@ export function StyleEditor() {
             value={currentTheme.id}
             onValueChange={handleThemePresetChange}
           >
-            <SelectTrigger className="h-8 text-xs">
+            <SelectTrigger className="h-8 text-xs bg-[#171717] border-[#262626] text-[#e5e5e5]">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-[#171717] border-[#262626]">
               {themePresets.map((preset) => (
-                <SelectItem key={preset.id} value={preset.id}>
+                <SelectItem key={preset.id} value={preset.id} className="text-[#e5e5e5] focus:bg-[#262626]">
                   {preset.name}
                 </SelectItem>
               ))}
+              {customThemes.length > 0 && (
+                <>
+                  <div className="px-2 py-1 text-[10px] text-[#737373] font-medium">My themes</div>
+                  {customThemes.map((t) => (
+                    <SelectItem key={t.id} value={t.id} className="text-[#e5e5e5] focus:bg-[#262626]">
+                      {t.name}
+                    </SelectItem>
+                  ))}
+                </>
+              )}
             </SelectContent>
           </Select>
+          <div className="flex gap-1">
+            <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+              <DialogTrigger asChild>
+                <Button size="xs" variant="outline" className="h-7 text-[10px] flex-1 border-[#262626] text-[#e5e5e5] hover:bg-[#262626]">
+                  <Plus className="mr-1 h-3 w-3" />
+                  Custom theme
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="bg-[#171717] border-[#262626] text-[#e5e5e5]">
+                <DialogHeader>
+                  <DialogTitle className="text-[#fafafa]">Create custom theme</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-3 mt-2">
+                  <div>
+                    <Label className="text-xs text-[#a3a3a3]">Name</Label>
+                    <Input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="My theme" className="mt-1 bg-[#0f0f0f] border-[#262626] text-[#fafafa]" />
+                  </div>
+                  {(['primary', 'secondary', 'accent', 'background', 'surface', 'text'] as const).map((key) => (
+                    <div key={key}>
+                      <Label className="text-xs text-[#a3a3a3] capitalize">{key}</Label>
+                      <div className="flex gap-2 mt-1">
+                        <Input
+                          type="color"
+                          value={newPalette[key]}
+                          onChange={(e) => setNewPalette((p) => ({ ...p, [key]: e.target.value }))}
+                          className="w-10 h-8 p-1 bg-[#0f0f0f] border-[#262626] cursor-pointer"
+                        />
+                        <Input value={newPalette[key]} onChange={(e) => setNewPalette((p) => ({ ...p, [key]: e.target.value }))} className="flex-1 h-8 text-xs bg-[#0f0f0f] border-[#262626] text-[#fafafa]" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <DialogFooter className="mt-4">
+                  <Button variant="outline" size="sm" onClick={() => setCreateOpen(false)} className="border-[#262626] text-[#e5e5e5] hover:bg-[#262626]">Cancel</Button>
+                  <Button size="sm" onClick={handleCreateCustom} disabled={savingCustom || !newName.trim()} className="bg-[#262626] hover:bg-[#404040] text-[#fafafa]">
+                    {savingCustom ? 'Saving...' : 'Create'}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+            {currentTheme.id.startsWith('custom-') && (
+              <Button
+                size="xs"
+                variant="outline"
+                className="h-7 text-[10px] border-red-500/50 text-red-400 hover:bg-red-500/10"
+                onClick={() => handleDeleteCustom(currentTheme.id)}
+                disabled={deletingId === currentTheme.id}
+              >
+                <Trash2 className="h-3 w-3" />
+              </Button>
+            )}
+          </div>
           <div className="flex items-center gap-1">
             {Object.values(currentTheme.palette).map((color, idx) => (
               <button
                 key={`${color}-${idx}`}
                 type="button"
                 aria-label={color}
-                className="h-5 w-5 rounded-[4px] border border-border/60 hover:scale-110 transition-transform"
+                className="h-5 w-5 rounded-[4px] border border-[#262626] hover:scale-110 transition-transform"
                 style={{ background: color }}
                 title={color}
               />
@@ -196,7 +312,7 @@ export function StyleEditor() {
                 <button
                   key={g.id}
                   type="button"
-                  className="h-5 flex-1 min-w-[40px] rounded-[4px] border border-border/60 hover:scale-110 transition-transform"
+                  className="h-5 flex-1 min-w-[40px] rounded-[4px] border border-[#262626] hover:scale-110 transition-transform"
                   style={{ backgroundImage: g.value }}
                   title={g.label}
                 />
@@ -207,7 +323,7 @@ export function StyleEditor() {
             <Button
               size="xs"
               variant="outline"
-              className="h-7 text-[10px] flex-1"
+              className="h-7 text-[10px] flex-1 border-[#262626] text-[#e5e5e5] hover:bg-[#262626]"
               onClick={handleResetTheme}
             >
               <RotateCcw className="mr-1 h-3 w-3" />
@@ -217,43 +333,53 @@ export function StyleEditor() {
         </div>
       </div>
 
-      <div className="p-4 border-b border-border/50 flex items-center justify-between bg-card/30">
-        <div>
-          <h2 className="text-lg font-semibold text-foreground">Properties</h2>
-          <p className="text-xs text-muted-foreground">{selectedElement.type}</p>
+      {selectedElement ? (
+        <>
+          <div className="p-4 border-b border-[#262626] flex items-center justify-between bg-[#0f0f0f]">
+            <div>
+              <h2 className="text-lg font-semibold text-[#fafafa]">Properties</h2>
+              <p className="text-xs text-[#737373]">{selectedElement.type}</p>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleDelete}
+              className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+
+          <ScrollArea className="flex-1 scrollbar-none">
+            <Tabs defaultValue="content" className="w-full">
+              <TabsList className="w-full grid grid-cols-2 px-4 bg-[#0f0f0f] border-b border-[#262626]">
+                <TabsTrigger value="content" className="data-[state=active]:bg-[#171717] data-[state=active]:text-[#fafafa] text-[#737373]">Content</TabsTrigger>
+                <TabsTrigger value="style" className="data-[state=active]:bg-[#171717] data-[state=active]:text-[#fafafa] text-[#737373]">Style</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="content" className="p-4 space-y-4">
+                <ContentEditor
+                  element={selectedElement}
+                  onChange={handleContentChange}
+                />
+              </TabsContent>
+
+              <TabsContent value="style" className="p-4 space-y-4">
+                <StyleProperties
+                  style={selectedElement.style}
+                  onChange={handleStyleChange}
+                />
+              </TabsContent>
+            </Tabs>
+          </ScrollArea>
+        </>
+      ) : (
+        <div className="p-4 flex items-center justify-center flex-1 text-center">
+          <p className="text-[#737373] text-sm">
+            Select an element to edit its properties
+          </p>
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleDelete}
-          className="text-destructive hover:text-destructive hover:bg-destructive/10"
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
-      </div>
-
-      <ScrollArea className="flex-1 scrollbar-none">
-        <Tabs defaultValue="content" className="w-full">
-          <TabsList className="w-full grid grid-cols-2 px-4">
-            <TabsTrigger value="content">Content</TabsTrigger>
-            <TabsTrigger value="style">Style</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="content" className="p-4 space-y-4">
-            <ContentEditor
-              element={selectedElement}
-              onChange={handleContentChange}
-            />
-          </TabsContent>
-
-          <TabsContent value="style" className="p-4 space-y-4">
-            <StyleProperties
-              style={selectedElement.style}
-              onChange={handleStyleChange}
-            />
-          </TabsContent>
-        </Tabs>
-      </ScrollArea>
+      )}
     </div>
   );
 }

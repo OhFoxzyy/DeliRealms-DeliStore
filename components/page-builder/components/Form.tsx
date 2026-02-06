@@ -19,8 +19,8 @@ export function Form({ element, children }: FormProps) {
           type="submit"
           style={{
             padding: '12px 24px',
-            backgroundColor: '#000',
-            color: '#fff',
+            backgroundColor: 'var(--page-primary, #6366f1)',
+            color: 'var(--page-background, #fff)',
             borderRadius: '6px',
             fontSize: '16px',
             fontWeight: '500',

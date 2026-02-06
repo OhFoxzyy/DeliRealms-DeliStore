@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useCallback } from 'react';
-import type { PageElement, PageTheme } from '@/lib/page-builder/types';
+import type { PageElement, PageTheme, ElementStyle } from '@/lib/page-builder/types';
 
 interface PageBuilderContextType {
   elements: PageElement[];
@@ -15,12 +15,20 @@ interface PageBuilderContextType {
   addElement: (element: PageElement, parentId?: string) => void;
   addElementAt: (element: PageElement, parentId: string | null, index: number) => void;
   moveElement: (id: string, direction: 'up' | 'down') => void;
+  moveElementTo: (id: string, targetParentId: string | null, targetIndex: number) => void;
   duplicateElement: (id: string) => void;
   setTheme: (theme: PageTheme | null) => void;
   undo: () => void;
   redo: () => void;
   canUndo: boolean;
   canRedo: boolean;
+  copiedStyle: ElementStyle | null;
+  copyStyle: (id: string) => void;
+  pasteStyle: (id: string) => void;
+  moveElementToTop: (id: string) => void;
+  moveElementToBottom: (id: string) => void;
+  wrapInContainer: (id: string) => void;
+  convertToSection: (id: string) => void;
 }
 
 const PageBuilderContext = createContext<PageBuilderContextType | undefined>(undefined);
@@ -37,6 +45,7 @@ export function PageBuilderProvider({
   const [elements, setElements] = useState<PageElement[]>(initialElements);
   const [selectedElement, setSelectedElement] = useState<PageElement | null>(null);
   const [theme, setTheme] = useState<PageTheme | null>(initialTheme);
+  const [copiedStyle, setCopiedStyle] = useState<ElementStyle | null>(null);
   const [history, setHistory] = useState<PageElement[][]>([initialElements]);
   const [historyIndex, setHistoryIndex] = useState(0);
 
@@ -195,6 +204,203 @@ export function PageBuilderProvider({
     });
   }, [saveToHistory]);
 
+  const moveElementTo = useCallback((id: string, targetParentId: string | null, targetIndex: number) => {
+    setElements((prev) => {
+      const extract = (items: PageElement[], parentId: string | null): { el: PageElement | null; rest: PageElement[] } => {
+        const i = items.findIndex((e) => e.id === id);
+        if (i >= 0) {
+          const el = items[i];
+          const rest = items.slice(0, i).concat(items.slice(i + 1));
+          return { el, rest };
+        }
+        for (let j = 0; j < items.length; j++) {
+          if (items[j].children) {
+            const { el, rest } = extract(items[j].children!, items[j].id);
+            if (el) {
+              const next = items.slice();
+              next[j] = { ...items[j], children: rest.length ? rest : undefined };
+              return { el, rest: next };
+            }
+          }
+        }
+        return { el: null, rest: items };
+      };
+      const insertAt = (items: PageElement[], pId: string | null, idx: number, el: PageElement): PageElement[] => {
+        if (pId === null) {
+          const r = [...items];
+          r.splice(idx, 0, el);
+          return r;
+        }
+        return items.map((item) => {
+          if (item.id === pId) {
+            const ch = [...(item.children || [])];
+            ch.splice(idx, 0, el);
+            return { ...item, children: ch };
+          }
+          if (item.children) return { ...item, children: insertAt(item.children, pId, idx, el) };
+          return item;
+        });
+      };
+      const { el, rest } = extract(prev, null);
+      if (!el) return prev;
+      const next = insertAt(rest, targetParentId, targetIndex, el);
+      saveToHistory(next);
+      return next;
+    });
+  }, [saveToHistory]);
+
+  const moveElementToTop = useCallback((id: string) => {
+    setElements((prev) => {
+      const extract = (items: PageElement[]): { el: PageElement | null; rest: PageElement[] } => {
+        const i = items.findIndex((e) => e.id === id);
+        if (i >= 0) {
+          const el = items[i];
+          const rest = items.slice(0, i).concat(items.slice(i + 1));
+          return { el, rest };
+        }
+        for (let j = 0; j < items.length; j++) {
+          if (items[j].children) {
+            const { el, rest } = extract(items[j].children!);
+            if (el) {
+              const next = items.slice();
+              next[j] = { ...items[j], children: rest.length ? rest : undefined };
+              return { el, rest: next };
+            }
+          }
+        }
+        return { el: null, rest: items };
+      };
+      const { el, rest } = extract(prev);
+      if (!el) return prev;
+      const next = [el, ...rest];
+      saveToHistory(next);
+      return next;
+    });
+  }, [saveToHistory]);
+
+  const moveElementToBottom = useCallback((id: string) => {
+    setElements((prev) => {
+      const extract = (items: PageElement[]): { el: PageElement | null; rest: PageElement[] } => {
+        const i = items.findIndex((e) => e.id === id);
+        if (i >= 0) {
+          const el = items[i];
+          const rest = items.slice(0, i).concat(items.slice(i + 1));
+          return { el, rest };
+        }
+        for (let j = 0; j < items.length; j++) {
+          if (items[j].children) {
+            const { el, rest } = extract(items[j].children!);
+            if (el) {
+              const next = items.slice();
+              next[j] = { ...items[j], children: rest.length ? rest : undefined };
+              return { el, rest: next };
+            }
+          }
+        }
+        return { el: null, rest: items };
+      };
+      const { el, rest } = extract(prev);
+      if (!el) return prev;
+      const next = [...rest, el];
+      saveToHistory(next);
+      return next;
+    });
+  }, [saveToHistory]);
+
+  const copyStyle = useCallback((id: string) => {
+    const find = (items: PageElement[]): ElementStyle | null => {
+      for (const item of items) {
+        if (item.id === id) return item.style;
+        if (item.children) {
+          const found = find(item.children);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+    const style = find(elements);
+    setCopiedStyle(style ? { ...style } : null);
+  }, [elements]);
+
+  const pasteStyle = useCallback((id: string) => {
+    if (!copiedStyle) return;
+    updateElement(id, { style: { ...copiedStyle } });
+  }, [copiedStyle, updateElement]);
+
+  const wrapInContainer = useCallback((id: string) => {
+    setElements((prev) => {
+      const container: PageElement = {
+        id: `container-${Date.now()}`,
+        type: 'container',
+        content: {},
+        style: { display: 'flex', flexDirection: 'column', padding: '20px', gap: '10px', backgroundColor: 'transparent', borderRadius: '8px' },
+        children: [],
+      };
+      const extract = (items: PageElement[]): { el: PageElement | null; rest: PageElement[] } => {
+        const i = items.findIndex((e) => e.id === id);
+        if (i >= 0) {
+          const el = items[i];
+          const rest = items.slice(0, i).concat(items.slice(i + 1));
+          return { el, rest };
+        }
+        for (let j = 0; j < items.length; j++) {
+          if (items[j].children) {
+            const { el, rest } = extract(items[j].children!);
+            if (el) {
+              const next = items.slice();
+              next[j] = { ...items[j], children: rest.length ? rest : undefined };
+              return { el, rest: next };
+            }
+          }
+        }
+        return { el: null, rest: items };
+      };
+      const { el, rest } = extract(prev);
+      if (!el) return prev;
+      container.children = [el];
+      const next = [...rest, container];
+      saveToHistory(next);
+      return next;
+    });
+  }, [saveToHistory]);
+
+  const convertToSection = useCallback((id: string) => {
+    setElements((prev) => {
+      const section: PageElement = {
+        id: `section-${Date.now()}`,
+        type: 'section',
+        content: { title: '', subtitle: '' },
+        style: { padding: '60px 20px', width: '100%' },
+        children: [],
+      };
+      const extract = (items: PageElement[]): { el: PageElement | null; rest: PageElement[] } => {
+        const i = items.findIndex((e) => e.id === id);
+        if (i >= 0) {
+          const el = items[i];
+          const rest = items.slice(0, i).concat(items.slice(i + 1));
+          return { el, rest };
+        }
+        for (let j = 0; j < items.length; j++) {
+          if (items[j].children) {
+            const { el, rest } = extract(items[j].children!);
+            if (el) {
+              const next = items.slice();
+              next[j] = { ...items[j], children: rest.length ? rest : undefined };
+              return { el, rest: next };
+            }
+          }
+        }
+        return { el: null, rest: items };
+      };
+      const { el, rest } = extract(prev);
+      if (!el) return prev;
+      section.children = [el];
+      const next = [...rest, section];
+      saveToHistory(next);
+      return next;
+    });
+  }, [saveToHistory]);
+
   const duplicateElement = useCallback((id: string) => {
     setElements((prev) => {
       const duplicateRecursive = (items: PageElement[]): PageElement[] => {
@@ -239,6 +445,7 @@ export function PageBuilderProvider({
         selectedElement,
         selectedElementId: selectedElement?.id || null,
         theme,
+        copiedStyle,
         setElements,
         selectElement,
         updateElement,
@@ -246,6 +453,13 @@ export function PageBuilderProvider({
         addElement,
         addElementAt,
         moveElement,
+        moveElementTo,
+        moveElementToTop,
+        moveElementToBottom,
+        copyStyle,
+        pasteStyle,
+        wrapInContainer,
+        convertToSection,
         duplicateElement,
         setTheme,
         undo,

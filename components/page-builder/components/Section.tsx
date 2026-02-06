@@ -11,12 +11,12 @@ export function Section({ element, children }: SectionProps) {
   return (
     <section style={style}>
       {element.content.title && (
-        <h2 style={{ fontSize: '32px', fontWeight: '700', marginBottom: '16px', textAlign: (style.textAlign as React.CSSProperties['textAlign']) || 'left' }}>
+        <h2 style={{ fontSize: '32px', fontWeight: '700', marginBottom: '16px', textAlign: (style.textAlign as React.CSSProperties['textAlign']) || 'left', color: 'var(--page-text, #fafafa)' }}>
           {element.content.title}
         </h2>
       )}
       {element.content.subtitle && (
-        <p style={{ fontSize: '18px', color: 'var(--muted-foreground)', marginBottom: '32px' }}>
+        <p style={{ fontSize: '18px', color: 'var(--page-text, #737373)', marginBottom: '32px' }}>
           {element.content.subtitle}
         </p>
       )}
