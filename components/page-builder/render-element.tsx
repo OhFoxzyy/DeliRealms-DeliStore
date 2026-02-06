@@ -16,21 +16,77 @@ interface RenderElementProps {
   createDropHandler?: (parentId: string | null, index: number) => (e: React.DragEvent) => void;
 }
 
-function computeStyle(style: ElementStyle | undefined): CSSProperties | undefined {
+function computeStyle(
+  style: ElementStyle | undefined,
+  breakpoints?: Record<string, ElementStyle>,
+  viewMode?: 'desktop' | 'tablet' | 'mobile'
+): CSSProperties | undefined {
   if (!style) return undefined;
-  const computed: any = { ...style };
-  if (style.backgroundGradient) {
-    computed.backgroundImage = style.backgroundGradient;
+  
+  // Apply breakpoint-specific styles
+  let computed: any = { ...style };
+  
+  if (breakpoints && viewMode) {
+    const breakpointStyle = breakpoints[viewMode];
+    if (breakpointStyle) {
+      computed = { ...computed, ...breakpointStyle };
+    }
+  }
+  
+  if (computed.backgroundGradient) {
+    computed.backgroundImage = computed.backgroundGradient;
   }
   delete computed.backgroundGradient;
+  
   return computed;
 }
 
+function applyInteractionStyles(
+  element: PageElement,
+  baseStyle: CSSProperties
+): { style: CSSProperties; className: string } {
+  const interactions = element.content?.interactions || {};
+  const className = element.tailwindClasses || '';
+  
+  // Apply hover styles via CSS variables
+  const hoverStyles = interactions.hover || {};
+  const activeStyles = interactions.active || {};
+  const focusStyles = interactions.focus || {};
+  
+  const cssOverrides = element.cssOverrides || '';
+  
+  return {
+    style: baseStyle,
+    className: className,
+  };
+}
+
 export function RenderElement({ element, parentId, siblingIndex = 0, createDropHandler }: RenderElementProps) {
-  const { selectElement, selectedElement, duplicateElement, deleteElement, moveElement, updateElement, moveElementToTop, moveElementToBottom, copyStyle, pasteStyle, wrapInContainer, convertToSection, copiedStyle } = usePageBuilder();
+  const { selectElement, selectedElement, duplicateElement, deleteElement, moveElement, updateElement, moveElementToTop, moveElementToBottom, copyStyle, pasteStyle, wrapInContainer, convertToSection, copiedStyle, viewMode } = usePageBuilder();
   const isSelected = selectedElement?.id === element.id;
   const positionDragRef = useRef(false);
   const isFreePosition = element.style?.position === 'absolute';
+  
+  // Apply styles with breakpoints and overrides
+  const baseStyle = computeStyle(element.style, element.breakpoints, viewMode);
+  const { style: finalStyle, className: finalClassName } = applyInteractionStyles(element, baseStyle || {});
+  
+  // Inject CSS overrides if present
+  const cssId = `element-${element.id}`;
+  React.useEffect(() => {
+    if (element.cssOverrides) {
+      const styleEl = document.getElementById(cssId) || document.createElement('style');
+      styleEl.id = cssId;
+      styleEl.textContent = `.${cssId} { ${element.cssOverrides} }`;
+      if (!document.getElementById(cssId)) {
+        document.head.appendChild(styleEl);
+      }
+    }
+    return () => {
+      const styleEl = document.getElementById(cssId);
+      if (styleEl) styleEl.remove();
+    };
+  }, [element.cssOverrides, cssId]);
 
   const textLikeTypes = ['heading', 'text', 'button', 'hero', 'pricing-card', 'feature-grid'];
   const isTextLike = textLikeTypes.includes(element.type);
@@ -82,13 +138,20 @@ export function RenderElement({ element, parentId, siblingIndex = 0, createDropH
 
     const { Component } = componentDef;
     const children = element.children || [];
-    const containerTypes = ['container', 'container-narrow', 'card', 'section', 'section-fullbleed', 'section-contained', 'grid', 'column', 'form'];
+    const containerTypes = ['container', 'container-narrow', 'card', 'section', 'section-fullbleed', 'section-contained', 'grid', 'column', 'form', 'stack', 'box', 'flex', 'center', 'split-screen', 'sidebar', 'masonry', 'overlay'];
     const isContainer = containerTypes.includes(element.type);
+    
+    // Create element with updated style
+    const elementWithStyle = {
+      ...element,
+      style: finalStyle,
+      className: cn(element.className, finalClassName, cssId),
+    };
 
     if (isContainer) {
       if (!createDropHandler) {
         return (
-          <Component element={element}>
+          <Component element={elementWithStyle}>
             {children.map((child) => (
               <RenderElement key={child.id} element={child} />
             ))}
@@ -97,7 +160,7 @@ export function RenderElement({ element, parentId, siblingIndex = 0, createDropH
       }
 
       return (
-        <Component element={element}>
+        <Component element={elementWithStyle}>
           {children.map((child, idx) => (
             <React.Fragment key={child.id}>
               <DropZone
@@ -124,7 +187,7 @@ export function RenderElement({ element, parentId, siblingIndex = 0, createDropH
       );
     }
 
-    return <Component element={element} />;
+    return <Component element={elementWithStyle} />;
   };
 
   const handleDragStart = (e: React.DragEvent) => {

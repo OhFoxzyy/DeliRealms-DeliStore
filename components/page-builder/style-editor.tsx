@@ -14,6 +14,13 @@ import { Switch } from '../ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from '../ui/dialog';
 import { cn } from '@/lib/utils';
 import type { PageTheme, PageThemePalette, PageThemeGradient } from '@/lib/page-builder/types';
+import { CssOverrideEditor } from './css-override-editor';
+import { CssVariableEditor } from './css-variable-editor';
+import { BreakpointEditor } from './breakpoint-editor';
+import { SpacingScaleEditor } from './spacing-scale-editor';
+import { InteractionEditor } from './interaction-editor';
+import { AlignmentGuides } from './alignment-guides';
+import { SectionPublishControl } from './section-publish-control';
 
 const themePresets: PageTheme[] = [
   {
@@ -113,7 +120,7 @@ const defaultPalette: PageThemePalette = {
   text: '#e5e7eb',
 };
 
-export function StyleEditor({ projectId }: { projectId: string }) {
+export function StyleEditor({ projectId, pageId }: { projectId: string; pageId?: string }) {
   const { selectedElement, updateElement, deleteElement, theme, setTheme } = usePageBuilder();
   const [customThemes, setCustomThemes] = useState<PageTheme[]>([]);
   const [createOpen, setCreateOpen] = useState(false);
@@ -207,6 +214,10 @@ export function StyleEditor({ projectId }: { projectId: string }) {
 
   return (
     <div className="w-80 border-l border-[#262626] bg-[#0a0a0a] h-full flex flex-col">
+      <AlignmentGuides />
+      
+      {pageId && <SectionPublishControl pageId={pageId} />}
+      
       <div className="p-4 border-b border-[#262626] space-y-3">
         <div className="flex items-center justify-between">
           <div>
@@ -332,6 +343,27 @@ export function StyleEditor({ projectId }: { projectId: string }) {
           </div>
         </div>
       </div>
+        </TabsContent>
+
+        <TabsContent value="variables" className="flex-1 min-h-0 overflow-hidden">
+          <Tabs defaultValue="css-vars" className="w-full h-full flex flex-col">
+            <TabsList className="w-full grid grid-cols-2 px-4 bg-[#0f0f0f] border-b border-[#262626] shrink-0">
+              <TabsTrigger value="css-vars" className="data-[state=active]:bg-[#171717] data-[state=active]:text-[#fafafa] text-[#737373] text-xs">
+                CSS Variables
+              </TabsTrigger>
+              <TabsTrigger value="spacing" className="data-[state=active]:bg-[#171717] data-[state=active]:text-[#fafafa] text-[#737373] text-xs">
+                Spacing Scale
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="css-vars" className="flex-1 min-h-0 overflow-hidden">
+              <CssVariableEditor projectId={projectId} />
+            </TabsContent>
+            <TabsContent value="spacing" className="flex-1 min-h-0 overflow-hidden">
+              <SpacingScaleEditor projectId={projectId} />
+            </TabsContent>
+          </Tabs>
+        </TabsContent>
+      </Tabs>
 
       {selectedElement ? (
         <>
@@ -350,13 +382,15 @@ export function StyleEditor({ projectId }: { projectId: string }) {
             </Button>
           </div>
 
-          <ScrollArea className="flex-1 scrollbar-none">
-            <Tabs defaultValue="content" className="w-full">
-              <TabsList className="w-full grid grid-cols-2 px-4 bg-[#0f0f0f] border-b border-[#262626]">
-                <TabsTrigger value="content" className="data-[state=active]:bg-[#171717] data-[state=active]:text-[#fafafa] text-[#737373]">Content</TabsTrigger>
-                <TabsTrigger value="style" className="data-[state=active]:bg-[#171717] data-[state=active]:text-[#fafafa] text-[#737373]">Style</TabsTrigger>
-              </TabsList>
+          <Tabs defaultValue="content" className="w-full flex flex-col h-full">
+            <TabsList className="w-full grid grid-cols-4 px-4 bg-[#0f0f0f] border-b border-[#262626] shrink-0">
+              <TabsTrigger value="content" className="data-[state=active]:bg-[#171717] data-[state=active]:text-[#fafafa] text-[#737373] text-xs">Content</TabsTrigger>
+              <TabsTrigger value="style" className="data-[state=active]:bg-[#171717] data-[state=active]:text-[#fafafa] text-[#737373] text-xs">Style</TabsTrigger>
+              <TabsTrigger value="css" className="data-[state=active]:bg-[#171717] data-[state=active]:text-[#fafafa] text-[#737373] text-xs">CSS</TabsTrigger>
+              <TabsTrigger value="breakpoints" className="data-[state=active]:bg-[#171717] data-[state=active]:text-[#fafafa] text-[#737373] text-xs">Responsive</TabsTrigger>
+            </TabsList>
 
+            <ScrollArea className="flex-1 min-h-0">
               <TabsContent value="content" className="p-4 space-y-4">
                 <ContentEditor
                   element={selectedElement}
@@ -370,8 +404,20 @@ export function StyleEditor({ projectId }: { projectId: string }) {
                   onChange={handleStyleChange}
                 />
               </TabsContent>
-            </Tabs>
-          </ScrollArea>
+
+              <TabsContent value="css" className="h-full">
+                <CssOverrideEditor />
+              </TabsContent>
+
+              <TabsContent value="breakpoints" className="h-full">
+                <BreakpointEditor />
+              </TabsContent>
+
+              <TabsContent value="interactions" className="h-full">
+                <InteractionEditor />
+              </TabsContent>
+            </ScrollArea>
+          </Tabs>
         </>
       ) : (
         <div className="p-4 flex items-center justify-center flex-1 text-center">
