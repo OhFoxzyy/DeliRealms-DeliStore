@@ -26,7 +26,8 @@ function createElementFromDrag(componentData: string): PageElement | null {
 }
 
 export function BuilderCanvas({ viewMode = 'desktop' }: BuilderCanvasProps) {
-  const { elements, addElementAt, moveElementTo, theme } = usePageBuilder();
+  const { elements, addElementAt, moveElementTo, theme, viewMode: contextViewMode } = usePageBuilder();
+  const effectiveViewMode = contextViewMode || viewMode;
   const [isDraggingOverEmpty, setIsDraggingOverEmpty] = React.useState(false);
 
   const createDropHandler = (parentId: string | null, index: number) => (e: React.DragEvent) => {

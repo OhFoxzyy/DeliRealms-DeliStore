@@ -110,12 +110,10 @@ function PageBuilderInner({
   const [aiDialogOpen, setAiDialogOpen] = useState(false);
   const [aiPrompt, setAiPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [designerMode, setDesignerMode] = useState(false);
-  const [componentName, setComponentName] = useState('');
-  const [componentCategory, setComponentCategory] = useState<'layout' | 'elements' | 'ecommerce'>('elements');
   const [leftPanelOpen, setLeftPanelOpen] = useState(true);
   const [rightPanelOpen, setRightPanelOpen] = useState(true);
-  const [rightPanelTab, setRightPanelTab] = useState<'components' | 'structure'>('components');
+  const [rightPanelTab, setRightPanelTab] = useState<'components' | 'structure' | 'seo'>('components');
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
 
   const toolbarBtn = "text-[#fafafa] hover:bg-[#262626] hover:text-white disabled:opacity-50 disabled:text-[#525252]";
 
@@ -128,6 +126,17 @@ function PageBuilderInner({
     window.addEventListener('keydown', handleEsc);
     return () => window.removeEventListener('keydown', handleEsc);
   }, [isFullscreenPreview]);
+
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setCommandPaletteOpen(true);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -235,51 +244,6 @@ function PageBuilderInner({
     }
   };
 
-  const handleSaveComponent = async () => {
-    if (elements.length === 0) {
-      toast.error('Add at least one element to save as a component.');
-      return;
-    }
-
-    if (!componentName.trim()) {
-      toast.error('Please enter a component name.');
-      return;
-    }
-
-    setIsSaving(true);
-    try {
-      // In designer mode, save the root element(s) as a component
-      const rootElement = elements[0];
-      const baseDef = componentLibrary.find(
-        (c) => c.type === rootElement?.type,
-      );
-
-      const response = await fetch('/api/components', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: componentName.trim(),
-          type: rootElement.type,
-          category: componentCategory,
-          defaultContent: rootElement.content,
-          defaultStyle: rootElement.style,
-        }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        throw new Error((data as any).error || 'Failed to save component');
-      }
-
-      toast.success('Component saved to your library.');
-      setComponentName('');
-      setDesignerMode(false);
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to save component');
-    } finally {
-      setIsSaving(false);
-    }
-  };
 
   return (
     <div className="fixed inset-0 z-40 flex flex-col bg-[#0a0a0a]">
@@ -358,27 +322,6 @@ function PageBuilderInner({
 
           <Separator orientation="vertical" className="h-6 mx-2 bg-[#262626]" />
 
-          <div className="flex items-center gap-2 px-2 border border-[#262626] rounded-lg bg-[#171717]">
-            <Button
-              variant="ghost"
-              size="sm"
-              className={cn("h-7 text-xs", toolbarBtn, !designerMode && "bg-[#262626] text-[#fafafa]")}
-              onClick={() => setDesignerMode(false)}
-            >
-              Page
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className={cn("h-7 text-xs", toolbarBtn, designerMode && "bg-[#262626] text-[#fafafa]")}
-              onClick={() => setDesignerMode(true)}
-            >
-              Component
-            </Button>
-          </div>
-
-          <Separator orientation="vertical" className="h-6 mx-2 bg-[#262626]" />
-
           {projectUrl ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -413,6 +356,10 @@ function PageBuilderInner({
             />
             <span className="text-sm text-[#fafafa]">Publish</span>
           </div>
+
+          <Separator orientation="vertical" className="h-6 mx-2 bg-[#262626]" />
+
+          <CleanupTool />
 
           <Separator orientation="vertical" className="h-6 mx-2 bg-[#262626]" />
 
@@ -461,74 +408,19 @@ function PageBuilderInner({
             Save as template
           </Button>
           
-          
-          {designerMode ? (
-            <Dialog open={componentName !== '' || isSaving} onOpenChange={(open) => !open && !isSaving && setComponentName('')}>
-              <DialogTrigger asChild>
-                <Button 
-                  size="sm" 
-                  disabled={elements.length === 0}
-                  className="bg-blue-600 hover:bg-blue-700"
-                >
-                  <Save className="mr-2 h-4 w-4" />
-                  Save Component
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Save Component</DialogTitle>
-                  <DialogDescription>
-                    Save this component to your library for use across all projects.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4 mt-4">
-                  <div className="space-y-2">
-                    <Label>Component Name</Label>
-                    <Input
-                      value={componentName}
-                      onChange={(e) => setComponentName(e.target.value)}
-                      placeholder="My Custom Component"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Category</Label>
-                    <Select value={componentCategory} onValueChange={(v) => setComponentCategory(v as any)}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="layout">Layout</SelectItem>
-                        <SelectItem value="elements">Elements</SelectItem>
-                        <SelectItem value="ecommerce">E-commerce</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setComponentName('')}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleSaveComponent} disabled={isSaving || !componentName.trim()}>
-                    {isSaving ? 'Saving...' : 'Save'}
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          ) : (
-            <Button 
-              size="sm" 
-              onClick={handleSave} 
-              disabled={isSaving}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              {isSaving ? (
-                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Save className="mr-2 h-4 w-4" />
-              )}
-              Save
-            </Button>
-          )}
+          <Button 
+            size="sm" 
+            onClick={handleSave} 
+            disabled={isSaving}
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            {isSaving ? (
+              <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Save className="mr-2 h-4 w-4" />
+            )}
+            Save
+          </Button>
         </div>
       </header>
 
@@ -548,7 +440,7 @@ function PageBuilderInner({
               </button>
             </CollapsibleTrigger>
             <CollapsibleContent className="flex-1 overflow-hidden data-[state=closed]:hidden min-h-0">
-              <StyleEditor projectId={projectId} />
+              <StyleEditor projectId={projectId} pageId={pageId} />
             </CollapsibleContent>
           </div>
         </Collapsible>
@@ -593,9 +485,19 @@ function PageBuilderInner({
                 >
                   Structure
                 </button>
+                <button
+                  type="button"
+                  onClick={() => setRightPanelTab('seo')}
+                  className={cn(
+                    "flex-1 py-2 text-xs font-medium",
+                    rightPanelTab === 'seo' ? "bg-[#262626] text-[#fafafa]" : "text-[#737373] hover:bg-[#171717] hover:text-[#e5e5e5]"
+                  )}
+                >
+                  SEO & A11y
+                </button>
               </div>
               <div className="flex-1 min-h-0 overflow-hidden">
-                {rightPanelTab === 'components' ? <ComponentPanel /> : <StructurePanel />}
+                {rightPanelTab === 'components' ? <ComponentPanel /> : rightPanelTab === 'structure' ? <StructurePanel /> : <SeoAccessibilityPanel />}
               </div>
             </CollapsibleContent>
           </div>
@@ -636,6 +538,15 @@ function PageBuilderInner({
           </div>
         </div>
       )}
+
+      <CommandPalette
+        open={commandPaletteOpen}
+        onClose={() => setCommandPaletteOpen(false)}
+        onSave={handleSave}
+        onPreview={() => setIsFullscreenPreview(true)}
+        onUndo={undo}
+        onRedo={redo}
+      />
     </div>
   );
 }

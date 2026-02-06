@@ -33,7 +33,42 @@ export type ElementType =
   | 'logo-cloud'
   | 'cta-banner'
   | 'newsletter'
-  | 'product-card';
+  | 'product-card'
+  | 'stack'
+  | 'box'
+  | 'flex'
+  | 'center'
+  | 'aspect-ratio'
+  | 'split-screen'
+  | 'sidebar'
+  | 'masonry'
+  | 'sticky-header'
+  | 'overlay'
+  | 'rich-text'
+  | 'code-block'
+  | 'blockquote'
+  | 'list'
+  | 'table'
+  | 'timeline'
+  | 'accordion'
+  | 'tabs'
+  | 'breadcrumbs'
+  | 'pagination'
+  | 'progress-bar'
+  | 'skeleton'
+  | 'tooltip'
+  | 'popover'
+  | 'dropdown'
+  | 'image-gallery'
+  | 'video-player'
+  | 'audio-player'
+  | 'carousel'
+  | 'media-grid'
+  | 'smart-pricing-table'
+  | 'testimonial-carousel'
+  | 'sticky-cta'
+  | 'smart-form'
+  | 'animated-stats';
 
 /**
  * Simple theme model for the page builder.
@@ -157,6 +192,13 @@ export interface PageElement {
   style: ElementStyle;
   className?: string;
   children?: PageElement[];
+  cssOverrides?: string;
+  tailwindClasses?: string;
+  breakpoints?: Record<string, ElementStyle>;
+  versionId?: string;
+  published?: boolean;
+  seoMeta?: { title?: string; description?: string; keywords?: string[] };
+  accessibility?: { ariaLabel?: string; role?: string; tabIndex?: number };
 }
 
 export interface PageData {

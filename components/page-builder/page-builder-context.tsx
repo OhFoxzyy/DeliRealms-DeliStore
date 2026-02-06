@@ -8,6 +8,7 @@ interface PageBuilderContextType {
   selectedElement: PageElement | null;
   selectedElementId: string | null;
   theme: PageTheme | null;
+  viewMode?: 'desktop' | 'tablet' | 'mobile';
   setElements: (elements: PageElement[]) => void;
   selectElement: (idOrElement: string | PageElement | null) => void;
   updateElement: (id: string, updates: Partial<PageElement>) => void;
@@ -445,6 +446,7 @@ export function PageBuilderProvider({
         selectedElement,
         selectedElementId: selectedElement?.id || null,
         theme,
+        viewMode,
         copiedStyle,
         setElements,
         selectElement,

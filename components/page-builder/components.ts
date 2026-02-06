@@ -65,6 +65,41 @@ import { LogoCloud } from './components/LogoCloud';
 import { CtaBanner } from './components/CtaBanner';
 import { Newsletter } from './components/Newsletter';
 import { ProductCard } from './components/ProductCard';
+import { Stack } from './components/Stack';
+import { Box } from './components/Box';
+import { Flex } from './components/Flex';
+import { Center } from './components/Center';
+import { AspectRatio } from './components/AspectRatio';
+import { SplitScreen } from './components/SplitScreen';
+import { Sidebar } from './components/Sidebar';
+import { Masonry } from './components/Masonry';
+import { StickyHeader } from './components/StickyHeader';
+import { Overlay } from './components/Overlay';
+import { RichText } from './components/RichText';
+import { CodeBlock } from './components/CodeBlock';
+import { Blockquote } from './components/Blockquote';
+import { List } from './components/List';
+import { Table } from './components/Table';
+import { Timeline } from './components/Timeline';
+import { Accordion } from './components/Accordion';
+import { Tabs } from './components/Tabs';
+import { Breadcrumbs } from './components/Breadcrumbs';
+import { Pagination } from './components/Pagination';
+import { ProgressBar } from './components/ProgressBar';
+import { Skeleton } from './components/Skeleton';
+import { Tooltip } from './components/Tooltip';
+import { Popover } from './components/Popover';
+import { Dropdown } from './components/Dropdown';
+import { ImageGallery } from './components/ImageGallery';
+import { VideoPlayer } from './components/VideoPlayer';
+import { AudioPlayer } from './components/AudioPlayer';
+import { Carousel } from './components/Carousel';
+import { MediaGrid } from './components/MediaGrid';
+import { SmartPricingTable } from './components/SmartPricingTable';
+import { TestimonialCarousel } from './components/TestimonialCarousel';
+import { StickyCTA } from './components/StickyCTA';
+import { SmartForm } from './components/SmartForm';
+import { AnimatedStats } from './components/AnimatedStats';
 
 export interface ComponentDefinitionWithComponent extends ComponentDefinition {
   Component: React.ComponentType<{ element: any; children?: React.ReactNode }>;
@@ -703,6 +738,325 @@ export const componentsMap: Record<ElementType, ComponentDefinitionWithComponent
       maxWidth: '320px',
     },
     Component: ProductCard,
+  },
+  // Layout Components
+  stack: {
+    type: 'stack',
+    label: 'Stack',
+    icon: getIcon('layers'),
+    category: 'layout',
+    defaultContent: { direction: 'column', gap: '16px' },
+    defaultStyle: { display: 'flex', flexDirection: 'column', gap: '16px' },
+    Component: Stack,
+  },
+  box: {
+    type: 'box',
+    label: 'Box',
+    icon: getIcon('box'),
+    category: 'layout',
+    defaultContent: {},
+    defaultStyle: { padding: '16px' },
+    Component: Box,
+  },
+  flex: {
+    type: 'flex',
+    label: 'Flex',
+    icon: getIcon('grid'),
+    category: 'layout',
+    defaultContent: { direction: 'row', gap: '16px' },
+    defaultStyle: { display: 'flex', flexDirection: 'row', gap: '16px' },
+    Component: Flex,
+  },
+  center: {
+    type: 'center',
+    label: 'Center',
+    icon: getIcon('box'),
+    category: 'layout',
+    defaultContent: {},
+    defaultStyle: { display: 'flex', alignItems: 'center', justifyContent: 'center' },
+    Component: Center,
+  },
+  'aspect-ratio': {
+    type: 'aspect-ratio',
+    label: 'Aspect Ratio',
+    icon: getIcon('image'),
+    category: 'layout',
+    defaultContent: { ratio: '16/9' },
+    defaultStyle: { position: 'relative', width: '100%' },
+    Component: AspectRatio,
+  },
+  'split-screen': {
+    type: 'split-screen',
+    label: 'Split Screen',
+    icon: getIcon('grid'),
+    category: 'layout',
+    defaultContent: { ratio: '50/50' },
+    defaultStyle: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0' },
+    Component: SplitScreen,
+  },
+  sidebar: {
+    type: 'sidebar',
+    label: 'Sidebar',
+    icon: getIcon('navigation'),
+    category: 'layout',
+    defaultContent: { position: 'left', width: '250px', showToggle: true },
+    defaultStyle: { position: 'fixed', width: '250px', height: '100%' },
+    Component: Sidebar,
+  },
+  masonry: {
+    type: 'masonry',
+    label: 'Masonry',
+    icon: getIcon('grid'),
+    category: 'layout',
+    defaultContent: { columns: 3, gap: '16px' },
+    defaultStyle: { display: 'grid', gap: '16px' },
+    Component: Masonry,
+  },
+  'sticky-header': {
+    type: 'sticky-header',
+    label: 'Sticky Header',
+    icon: getIcon('navigation'),
+    category: 'layout',
+    defaultContent: { threshold: 100 },
+    defaultStyle: { position: 'sticky', top: 0, zIndex: 1000 },
+    Component: StickyHeader,
+  },
+  overlay: {
+    type: 'overlay',
+    label: 'Overlay',
+    icon: getIcon('square'),
+    category: 'layout',
+    defaultContent: { isOpen: true, showBackdrop: true },
+    defaultStyle: { position: 'fixed', zIndex: 9999 },
+    Component: Overlay,
+  },
+  // Content Components
+  'rich-text': {
+    type: 'rich-text',
+    label: 'Rich Text',
+    icon: getIcon('filetext'),
+    category: 'elements',
+    defaultContent: { html: '<p>Rich text content</p>' },
+    defaultStyle: { fontSize: '16px', lineHeight: '1.6' },
+    Component: RichText,
+  },
+  'code-block': {
+    type: 'code-block',
+    label: 'Code Block',
+    icon: getIcon('filetext'),
+    category: 'elements',
+    defaultContent: { code: 'console.log("Hello");', language: 'javascript' },
+    defaultStyle: { backgroundColor: '#0a0a0a', padding: '16px', borderRadius: '8px' },
+    Component: CodeBlock,
+  },
+  blockquote: {
+    type: 'blockquote',
+    label: 'Blockquote',
+    icon: getIcon('quote'),
+    category: 'elements',
+    defaultContent: { quote: 'Quote text', author: 'Author Name' },
+    defaultStyle: { borderLeft: '4px solid var(--page-primary)', paddingLeft: '24px' },
+    Component: Blockquote,
+  },
+  list: {
+    type: 'list',
+    label: 'List',
+    icon: getIcon('list'),
+    category: 'elements',
+    defaultContent: { items: ['Item 1', 'Item 2', 'Item 3'], ordered: false },
+    defaultStyle: { paddingLeft: '24px' },
+    Component: List,
+  },
+  table: {
+    type: 'table',
+    label: 'Table',
+    icon: getIcon('grid'),
+    category: 'elements',
+    defaultContent: { headers: ['Header 1', 'Header 2'], rows: [['Cell 1', 'Cell 2']] },
+    defaultStyle: { width: '100%', borderCollapse: 'collapse' },
+    Component: Table,
+  },
+  timeline: {
+    type: 'timeline',
+    label: 'Timeline',
+    icon: getIcon('list'),
+    category: 'elements',
+    defaultContent: { items: [{ date: '2024', title: 'Event', description: 'Description' }] },
+    defaultStyle: { position: 'relative', paddingLeft: '32px' },
+    Component: Timeline,
+  },
+  accordion: {
+    type: 'accordion',
+    label: 'Accordion',
+    icon: getIcon('help-circle'),
+    category: 'elements',
+    defaultContent: { items: [{ title: 'Item 1', content: 'Content' }], allowMultiple: false },
+    defaultStyle: { width: '100%' },
+    Component: Accordion,
+  },
+  tabs: {
+    type: 'tabs',
+    label: 'Tabs',
+    icon: getIcon('filetext'),
+    category: 'elements',
+    defaultContent: { tabs: [{ label: 'Tab 1', content: 'Content' }] },
+    defaultStyle: { width: '100%' },
+    Component: Tabs,
+  },
+  breadcrumbs: {
+    type: 'breadcrumbs',
+    label: 'Breadcrumbs',
+    icon: getIcon('navigation'),
+    category: 'elements',
+    defaultContent: { items: [{ label: 'Home', href: '/' }, { label: 'Current' }] },
+    defaultStyle: { display: 'flex', gap: '8px' },
+    Component: Breadcrumbs,
+  },
+  pagination: {
+    type: 'pagination',
+    label: 'Pagination',
+    icon: getIcon('list'),
+    category: 'elements',
+    defaultContent: { currentPage: 1, totalPages: 10 },
+    defaultStyle: { display: 'flex', gap: '8px' },
+    Component: Pagination,
+  },
+  'progress-bar': {
+    type: 'progress-bar',
+    label: 'Progress Bar',
+    icon: getIcon('bar-chart'),
+    category: 'elements',
+    defaultContent: { value: 50, showLabel: true },
+    defaultStyle: { width: '100%', height: '8px' },
+    Component: ProgressBar,
+  },
+  skeleton: {
+    type: 'skeleton',
+    label: 'Skeleton',
+    icon: getIcon('square'),
+    category: 'elements',
+    defaultContent: { variant: 'text', width: '100%', height: '20px' },
+    defaultStyle: { backgroundColor: '#171717', borderRadius: '4px' },
+    Component: Skeleton,
+  },
+  tooltip: {
+    type: 'tooltip',
+    label: 'Tooltip',
+    icon: getIcon('help-circle'),
+    category: 'elements',
+    defaultContent: { text: 'Tooltip text', position: 'top' },
+    defaultStyle: {},
+    Component: Tooltip,
+  },
+  popover: {
+    type: 'popover',
+    label: 'Popover',
+    icon: getIcon('square'),
+    category: 'elements',
+    defaultContent: { content: 'Popover content' },
+    defaultStyle: {},
+    Component: Popover,
+  },
+  dropdown: {
+    type: 'dropdown',
+    label: 'Dropdown',
+    icon: getIcon('list'),
+    category: 'elements',
+    defaultContent: { label: 'Menu', items: [{ label: 'Item 1', href: '#' }] },
+    defaultStyle: {},
+    Component: Dropdown,
+  },
+  // Media Components
+  'image-gallery': {
+    type: 'image-gallery',
+    label: 'Image Gallery',
+    icon: getIcon('image'),
+    category: 'elements',
+    defaultContent: { images: [], columns: 3 },
+    defaultStyle: { display: 'grid', gap: '16px' },
+    Component: ImageGallery,
+  },
+  'video-player': {
+    type: 'video-player',
+    label: 'Video Player',
+    icon: getIcon('video'),
+    category: 'elements',
+    defaultContent: { src: '', controls: true },
+    defaultStyle: { width: '100%' },
+    Component: VideoPlayer,
+  },
+  'audio-player': {
+    type: 'audio-player',
+    label: 'Audio Player',
+    icon: getIcon('video'),
+    category: 'elements',
+    defaultContent: { src: '', title: 'Audio' },
+    defaultStyle: { padding: '16px' },
+    Component: AudioPlayer,
+  },
+  carousel: {
+    type: 'carousel',
+    label: 'Carousel',
+    icon: getIcon('image'),
+    category: 'elements',
+    defaultContent: { items: [], autoPlay: false, interval: 5000 },
+    defaultStyle: { position: 'relative', overflow: 'hidden' },
+    Component: Carousel,
+  },
+  'media-grid': {
+    type: 'media-grid',
+    label: 'Media Grid',
+    icon: getIcon('grid'),
+    category: 'elements',
+    defaultContent: { items: [], columns: 3 },
+    defaultStyle: { display: 'grid', gap: '16px' },
+    Component: MediaGrid,
+  },
+  // Smart Sections
+  'smart-pricing-table': {
+    type: 'smart-pricing-table',
+    label: 'Smart Pricing Table',
+    icon: getIcon('credit-card'),
+    category: 'ecommerce',
+    defaultContent: { plans: [], defaultBilling: 'monthly' },
+    defaultStyle: { display: 'grid', gap: '24px' },
+    Component: SmartPricingTable,
+  },
+  'testimonial-carousel': {
+    type: 'testimonial-carousel',
+    label: 'Testimonial Carousel',
+    icon: getIcon('quote'),
+    category: 'elements',
+    defaultContent: { source: 'static', testimonials: [], autoPlay: false },
+    defaultStyle: { padding: '40px' },
+    Component: TestimonialCarousel,
+  },
+  'sticky-cta': {
+    type: 'sticky-cta',
+    label: 'Sticky CTA',
+    icon: getIcon('megaphone'),
+    category: 'elements',
+    defaultContent: { triggerScrollPercent: 30, position: 'bottom', dismissible: true },
+    defaultStyle: { position: 'fixed', zIndex: 1000 },
+    Component: StickyCTA,
+  },
+  'smart-form': {
+    type: 'smart-form',
+    label: 'Smart Form',
+    icon: getIcon('form'),
+    category: 'elements',
+    defaultContent: { actionType: 'webhook', actionUrl: '', submitText: 'Submit' },
+    defaultStyle: { padding: '24px' },
+    Component: SmartForm,
+  },
+  'animated-stats': {
+    type: 'animated-stats',
+    label: 'Animated Stats',
+    icon: getIcon('bar-chart'),
+    category: 'elements',
+    defaultContent: { stats: [{ value: 100, label: 'Stat' }], animationType: 'countUp' },
+    defaultStyle: { display: 'grid', gap: '32px' },
+    Component: AnimatedStats,
   },
 };
 
