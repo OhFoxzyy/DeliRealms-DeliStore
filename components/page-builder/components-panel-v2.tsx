@@ -15,7 +15,7 @@ export function ComponentsPanel({ activeTab, projectId, pageId }: ComponentsPane
 
   return (
     <div className="h-full">
-      {activeTab === 'components' && <ComponentPanel projectId={projectId} pageId={pageId} />}
+      {activeTab === 'components' && <ComponentPanel />}
       {activeTab === 'structure' && <StructurePanel />}
     </div>
   );

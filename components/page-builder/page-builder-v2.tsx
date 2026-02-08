@@ -405,9 +405,7 @@ function PageBuilderInnerContent({
 
       <CommandPalette
         open={commandPaletteOpen}
-        onOpenChange={setCommandPaletteOpen}
-        projectId={projectId}
-        pageId={pageId}
+        onClose={() => setCommandPaletteOpen(false)}
       />
     </>
   );

@@ -49,12 +49,18 @@ export async function POST(
           return NextResponse.json({ error: 'Page not found' }, { status: 404 });
         }
 
-        const currentElements = (page.elements as any[]) || [];
+        const currentContent = page.content ? JSON.parse(page.content) : { elements: [] };
+        const currentElements = currentContent.elements || [];
         const newElements = [...currentElements, ...(action.data?.elements || [])];
 
         await prisma.page.update({
           where: { id: pageId },
-          data: { elements: newElements },
+          data: { 
+            content: JSON.stringify({ 
+              ...currentContent, 
+              elements: newElements 
+            }) 
+          },
         });
 
         return NextResponse.json({ success: true, message: 'Component created' });
@@ -69,14 +75,20 @@ export async function POST(
           return NextResponse.json({ error: 'Page not found' }, { status: 404 });
         }
 
-        const currentElements = (page.elements as any[]) || [];
+        const currentContent = page.content ? JSON.parse(page.content) : { elements: [] };
+        const currentElements = currentContent.elements || [];
         const newElements = currentElements.filter(
           (el: any) => el.id !== action.data?.componentId
         );
 
         await prisma.page.update({
           where: { id: pageId },
-          data: { elements: newElements },
+          data: { 
+            content: JSON.stringify({ 
+              ...currentContent, 
+              elements: newElements 
+            }) 
+          },
         });
 
         return NextResponse.json({ success: true, message: 'Component removed' });
@@ -91,7 +103,8 @@ export async function POST(
           return NextResponse.json({ error: 'Page not found' }, { status: 404 });
         }
 
-        const currentElements = (page.elements as any[]) || [];
+        const currentContent = page.content ? JSON.parse(page.content) : { elements: [] };
+        const currentElements = currentContent.elements || [];
         const newElements = currentElements.map((el: any) => {
           if (el.id === action.data?.componentId) {
             return { ...el, ...action.data?.updates };
@@ -101,7 +114,12 @@ export async function POST(
 
         await prisma.page.update({
           where: { id: pageId },
-          data: { elements: newElements },
+          data: { 
+            content: JSON.stringify({ 
+              ...currentContent, 
+              elements: newElements 
+            }) 
+          },
         });
 
         return NextResponse.json({ success: true, message: 'Component modified' });
@@ -110,11 +128,13 @@ export async function POST(
       case 'create_page': {
         const newPage = await prisma.page.create({
           data: {
-            title: action.data?.title || 'New Page',
-            path: action.data?.path || `/page-${Date.now()}`,
+            name: action.data?.name || 'New Page',
+            slug: action.data?.slug || `/page-${Date.now()}`,
             projectId,
-            elements: action.data?.elements || [],
-            settings: action.data?.settings || {},
+            content: JSON.stringify({
+              elements: action.data?.elements || [],
+              globalStyles: action.data?.theme ? { theme: action.data.theme } : {}
+            }),
           },
         });
 
@@ -142,15 +162,18 @@ export async function POST(
           return NextResponse.json({ error: 'Page not found' }, { status: 404 });
         }
 
-        const currentSettings = (page.settings as any) || {};
-        const newSettings = {
-          ...currentSettings,
-          theme: action.data?.theme,
+        const currentContent = page.content ? JSON.parse(page.content) : { elements: [] };
+        const newContent = {
+          ...currentContent,
+          globalStyles: {
+            ...(currentContent.globalStyles || {}),
+            theme: action.data?.theme,
+          }
         };
 
         await prisma.page.update({
           where: { id: pageId },
-          data: { settings: newSettings },
+          data: { content: JSON.stringify(newContent) },
         });
 
         return NextResponse.json({ success: true, message: 'Theme modified' });
@@ -165,15 +188,18 @@ export async function POST(
           return NextResponse.json({ error: 'Page not found' }, { status: 404 });
         }
 
-        const currentSettings = (page.settings as any) || {};
-        const newSettings = {
-          ...currentSettings,
-          customStyles: action.data?.styles,
+        const currentContent = page.content ? JSON.parse(page.content) : { elements: [] };
+        const newContent = {
+          ...currentContent,
+          globalStyles: {
+            ...(currentContent.globalStyles || {}),
+            customStyles: action.data?.styles,
+          }
         };
 
         await prisma.page.update({
           where: { id: pageId },
-          data: { settings: newSettings },
+          data: { content: JSON.stringify(newContent) },
         });
 
         return NextResponse.json({ success: true, message: 'Styles modified' });

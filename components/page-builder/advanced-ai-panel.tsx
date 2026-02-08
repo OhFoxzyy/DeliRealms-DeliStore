@@ -62,10 +62,10 @@ export function AdvancedAIPanel({ projectId, pageId }: AdvancedAIPanelProps) {
     return {
       elementCount: elements.length,
       elements: elements.map(el => ({ type: el.type, id: el.id })),
-      theme: {
+      theme: theme ? {
         name: theme.name,
         palette: theme.palette,
-      }
+      } : null
     };
   };
 
