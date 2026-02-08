@@ -8,6 +8,7 @@ import { Badge } from '../ui/badge';
 import { History, RotateCcw, Eye } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 interface ComponentVersion {
   id: string;

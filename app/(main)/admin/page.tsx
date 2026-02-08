@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth/admin";
-import { AdminContentManager } from "@/components/admin/admin-content-manager";
+import { ComprehensiveAdminDashboard } from "@/components/admin/comprehensive-admin-dashboard";
 
 export default async function AdminPage() {
   try {
@@ -9,5 +9,5 @@ export default async function AdminPage() {
     redirect("/dashboard");
   }
 
-  return <AdminContentManager />;
+  return <ComprehensiveAdminDashboard />;
 }

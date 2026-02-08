@@ -129,7 +129,11 @@ model Page {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project           Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  collaborators     PageCollaborator[]
+  comments          PageComment[]
+  sections          PageSection[]
+  previewLinks      PagePreviewLink[]
   
   @@unique([projectId, slug])
   @@index([projectId])
@@ -286,4 +290,95 @@ model RoadmapItem {
   @@index([order])
   @@index([authorId])
   @@map("roadmap_items")
+}
+
+enum CollaboratorRole {
+  viewer
+  editor
+  admin
+}
+
+model PageCollaborator {
+  id        String            @id @default(cuid())
+  pageId    String
+  userId    String
+  role      CollaboratorRole  @default(viewer)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  page Page @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([pageId, userId])
+  @@index([pageId])
+  @@index([userId])
+  @@map("page_collaborators")
+}
+
+model PageComment {
+  id        String   @id @default(cuid())
+  pageId    String
+  userId    String
+  elementId String?
+  content   String   @db.Text
+  resolved  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  page    Page                @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  user    User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  threads PageCommentThread[]
+
+  @@index([pageId])
+  @@index([userId])
+  @@index([elementId])
+  @@map("page_comments")
+}
+
+model PageCommentThread {
+  id        String   @id @default(cuid())
+  commentId String
+  userId    String
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+
+  comment PageComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([commentId])
+  @@index([userId])
+  @@map("page_comment_threads")
+}
+
+model PageSection {
+  id        String   @id @default(cuid())
+  pageId    String
+  elementId String
+  published Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  page Page @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@unique([pageId, elementId])
+  @@index([pageId])
+  @@index([elementId])
+  @@map("page_sections")
+}
+
+model PagePreviewLink {
+  id          String    @id @default(cuid())
+  pageId      String
+  token       String    @unique
+  password    String?   @db.Text
+  expiresAt   DateTime?
+  accessCount Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  page Page @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@index([pageId])
+  @@index([token])
+  @@map("page_preview_links")
 }

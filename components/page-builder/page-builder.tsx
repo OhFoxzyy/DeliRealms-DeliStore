@@ -25,6 +25,9 @@ import {
   ChevronDown,
   ChevronRight,
   X,
+  MessageSquare,
+  Users,
+  Activity,
 } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible';
 import Link from 'next/link';
@@ -101,6 +104,35 @@ function PageBuilderInner({
   pages: PageInfo[];
   projectUrl: string | null;
 }) {
+  return (
+    <CollaborationProvider pageId={pageId}>
+      <PageBuilderInnerContent
+        projectId={projectId}
+        pageId={pageId}
+        pageName={pageName}
+        pageSlug={pageSlug}
+        pages={pages}
+        projectUrl={projectUrl}
+      />
+    </CollaborationProvider>
+  );
+}
+
+function PageBuilderInnerContent({ 
+  projectId, 
+  pageId, 
+  pageName,
+  pageSlug,
+  pages,
+  projectUrl,
+}: { 
+  projectId: string; 
+  pageId: string; 
+  pageName: string;
+  pageSlug: string;
+  pages: PageInfo[];
+  projectUrl: string | null;
+}) {
   const { elements, selectedElement, theme, undo, redo, canUndo, canRedo, setElements, addElement } = usePageBuilder();
   const [isSaving, setIsSaving] = useState(false);
   const [isSavingTemplate, setIsSavingTemplate] = useState(false);
@@ -112,7 +144,7 @@ function PageBuilderInner({
   const [isGenerating, setIsGenerating] = useState(false);
   const [leftPanelOpen, setLeftPanelOpen] = useState(true);
   const [rightPanelOpen, setRightPanelOpen] = useState(true);
-  const [rightPanelTab, setRightPanelTab] = useState<'components' | 'structure' | 'seo'>('components');
+  const [rightPanelTab, setRightPanelTab] = useState<'components' | 'structure' | 'seo' | 'comments' | 'collaborators' | 'chat' | 'preview' | 'performance'>('components');
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
 
   const toolbarBtn = "text-[#fafafa] hover:bg-[#262626] hover:text-white disabled:opacity-50 disabled:text-[#525252]";
@@ -246,6 +278,7 @@ function PageBuilderInner({
 
 
   return (
+    <>
     <div className="fixed inset-0 z-40 flex flex-col bg-[#0a0a0a]">
       <header className="h-14 border-b border-[#262626] bg-[#0f0f0f] px-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -464,12 +497,12 @@ function PageBuilderInner({
               </button>
             </CollapsibleTrigger>
             <CollapsibleContent className="flex-1 overflow-hidden data-[state=closed]:hidden min-h-0 flex flex-col">
-              <div className="flex border-b border-[#262626] shrink-0">
+              <div className="flex border-b border-[#262626] shrink-0 flex-wrap">
                 <button
                   type="button"
                   onClick={() => setRightPanelTab('components')}
                   className={cn(
-                    "flex-1 py-2 text-xs font-medium",
+                    "flex-1 min-w-[33%] py-2 text-xs font-medium",
                     rightPanelTab === 'components' ? "bg-[#262626] text-[#fafafa]" : "text-[#737373] hover:bg-[#171717] hover:text-[#e5e5e5]"
                   )}
                 >
@@ -479,7 +512,7 @@ function PageBuilderInner({
                   type="button"
                   onClick={() => setRightPanelTab('structure')}
                   className={cn(
-                    "flex-1 py-2 text-xs font-medium",
+                    "flex-1 min-w-[33%] py-2 text-xs font-medium",
                     rightPanelTab === 'structure' ? "bg-[#262626] text-[#fafafa]" : "text-[#737373] hover:bg-[#171717] hover:text-[#e5e5e5]"
                   )}
                 >
@@ -489,15 +522,70 @@ function PageBuilderInner({
                   type="button"
                   onClick={() => setRightPanelTab('seo')}
                   className={cn(
-                    "flex-1 py-2 text-xs font-medium",
+                    "flex-1 min-w-[33%] py-2 text-xs font-medium",
                     rightPanelTab === 'seo' ? "bg-[#262626] text-[#fafafa]" : "text-[#737373] hover:bg-[#171717] hover:text-[#e5e5e5]"
                   )}
                 >
                   SEO & A11y
                 </button>
+                <button
+                  type="button"
+                  onClick={() => setRightPanelTab('comments')}
+                  className={cn(
+                    "flex-1 min-w-[33%] py-2 text-xs font-medium",
+                    rightPanelTab === 'comments' ? "bg-[#262626] text-[#fafafa]" : "text-[#737373] hover:bg-[#171717] hover:text-[#e5e5e5]"
+                  )}
+                >
+                  Comments
+                </button>
               </div>
               <div className="flex-1 min-h-0 overflow-hidden">
-                {rightPanelTab === 'components' ? <ComponentPanel /> : rightPanelTab === 'structure' ? <StructurePanel /> : <SeoAccessibilityPanel />}
+                {rightPanelTab === 'components' && <ComponentPanel />}
+                {rightPanelTab === 'structure' && <StructurePanel />}
+                {rightPanelTab === 'seo' && <SeoAccessibilityPanel />}
+                {rightPanelTab === 'comments' && <CommentsPanel pageId={pageId} />}
+                {rightPanelTab === 'collaborators' && <CollaboratorsPanel pageId={pageId} />}
+                {rightPanelTab === 'chat' && <ChatPanel pageId={pageId} />}
+                {rightPanelTab === 'preview' && <PreviewLinksPanel pageId={pageId} />}
+                {rightPanelTab === 'performance' && <PerformancePanel />}
+              </div>
+              <div className="border-t border-[#262626] p-2 space-y-1 shrink-0">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setRightPanelTab('collaborators')}
+                  className={`w-full justify-start text-xs h-8 ${rightPanelTab === 'collaborators' ? 'bg-[#171717]' : ''}`}
+                >
+                  <Users className="h-3 w-3 mr-2" />
+                  Collaborators
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setRightPanelTab('chat')}
+                  className={`w-full justify-start text-xs h-8 ${rightPanelTab === 'chat' ? 'bg-[#171717]' : ''}`}
+                >
+                  <MessageSquare className="h-3 w-3 mr-2" />
+                  Chat
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setRightPanelTab('preview')}
+                  className={`w-full justify-start text-xs h-8 ${rightPanelTab === 'preview' ? 'bg-[#171717]' : ''}`}
+                >
+                  <ExternalLink className="h-3 w-3 mr-2" />
+                  Preview Links
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setRightPanelTab('performance')}
+                  className={`w-full justify-start text-xs h-8 ${rightPanelTab === 'performance' ? 'bg-[#171717]' : ''}`}
+                >
+                  <Activity className="h-3 w-3 mr-2" />
+                  Performance
+                </Button>
               </div>
             </CollapsibleContent>
           </div>
@@ -548,5 +636,6 @@ function PageBuilderInner({
         onRedo={redo}
       />
     </div>
+    </CollaborationProvider>
   );
 }
