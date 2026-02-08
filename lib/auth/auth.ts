@@ -5,6 +5,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { MyAdapter } from "./auth-adapter";
 import bcrypt from "bcryptjs";
 import { PrismaClient } from "../../generated/prisma";
+import { checkIfBanned, logLoginAttempt } from "./abuse-detection";
 
 const prisma = new PrismaClient();
 
@@ -35,6 +36,15 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!user || !user.password) {
+          if (user) {
+            await logLoginAttempt(user.id, 'unknown', 'unknown', false, 'Invalid credentials');
+          }
+          return null;
+        }
+
+        // Check if user is banned
+        if (user.isBanned) {
+          await logLoginAttempt(user.id, 'unknown', 'unknown', false, 'Account banned');
           return null;
         }
 
@@ -44,8 +54,18 @@ export const authOptions: NextAuthOptions = {
         );
 
         if (!isPasswordValid) {
+          await logLoginAttempt(user.id, 'unknown', 'unknown', false, 'Invalid password');
           return null;
         }
+
+        // Log successful login
+        await logLoginAttempt(user.id, 'unknown', 'unknown', true);
+
+        // Update last login timestamp
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { lastLoginAt: new Date() },
+        });
 
         return {
           id: user.id,

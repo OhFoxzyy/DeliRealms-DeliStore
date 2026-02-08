@@ -13,6 +13,45 @@ enum Role {
   pro
   elite
   admin
+  banned
+}
+
+enum PermissionAction {
+  create
+  read
+  update
+  delete
+  manage
+}
+
+enum PermissionResource {
+  project
+  page
+  component
+  user
+  blog
+  doc
+  roadmap
+  deployment
+  settings
+  analytics
+}
+
+enum AuditAction {
+  user_login
+  user_logout
+  user_register
+  user_banned
+  user_unbanned
+  role_changed
+  permission_granted
+  permission_revoked
+  project_created
+  project_deleted
+  content_flagged
+  content_approved
+  content_rejected
+  settings_changed
 }
 
 model User {
@@ -25,11 +64,17 @@ model User {
   role              Role      @default(hobby)
   username          String?   @unique
   profilePictureId  String?
+  isBanned          Boolean   @default(false)
+  banReason         String?   @db.Text
+  bannedAt          DateTime?
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
+  lastLoginAt       DateTime?
+  lastLoginIp       String?
 
   accounts          Account[]
   sessions          Session[]
+  projects          Project[]
   components        Component[]
   blogPosts         BlogPost[]
   docPages          DocPage[]
@@ -37,11 +82,16 @@ model User {
   pageCollaborators PageCollaborator[]
   pageComments      PageComment[]
   commentThreads    PageCommentThread[]
+  userPermissions   UserPermission[]
+  loginHistory      LoginHistory[]
+  auditLogs         AuditLog[]
+  flaggedContent    FlaggedContent[]
+  moderationActions ModerationAction[]
 
   @@map("users")
   @@index([email])
+  @@index([isBanned])
 }
-
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -68,6 +118,8 @@ model Session {
   sessionToken String   @unique
   userId       String
   expires      DateTime
+  ipAddress    String?
+  userAgent    String?  @db.Text
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -95,6 +147,104 @@ model EmailVerification {
   @@map("email_verifications")
 }
 
+model LoginHistory {
+  id         String   @id @default(cuid())
+  userId     String
+  ipAddress  String
+  userAgent  String?  @db.Text
+  success    Boolean
+  failReason String?  @db.Text
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([ipAddress])
+  @@index([createdAt])
+  @@map("login_history")
+}
+
+model RolePermission {
+  id         String             @id @default(cuid())
+  role       Role
+  resource   PermissionResource
+  action     PermissionAction
+  createdAt  DateTime           @default(now())
+
+  @@unique([role, resource, action])
+  @@index([role])
+  @@map("role_permissions")
+}
+
+model UserPermission {
+  id         String             @id @default(cuid())
+  userId     String
+  resource   PermissionResource
+  action     PermissionAction
+  allowed    Boolean            @default(true)
+  createdAt  DateTime           @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, resource, action])
+  @@index([userId])
+  @@map("user_permissions")
+}
+
+model AuditLog {
+  id          String      @id @default(cuid())
+  userId      String?
+  action      AuditAction
+  resource    String?
+  resourceId  String?
+  details     Json?
+  ipAddress   String?
+  userAgent   String?     @db.Text
+  createdAt   DateTime    @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model FlaggedContent {
+  id          String   @id @default(cuid())
+  contentType String
+  contentId   String
+  reason      String   @db.Text
+  reportedBy  String
+  status      String   @default("pending")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  reporter User @relation(fields: [reportedBy], references: [id], onDelete: Cascade)
+  moderationActions ModerationAction[]
+
+  @@index([status])
+  @@index([contentType, contentId])
+  @@index([reportedBy])
+  @@map("flagged_content")
+}
+
+model ModerationAction {
+  id              String   @id @default(cuid())
+  flaggedContentId String
+  moderatorId     String
+  action          String
+  reason          String?  @db.Text
+  createdAt       DateTime @default(now())
+
+  flaggedContent FlaggedContent @relation(fields: [flaggedContentId], references: [id], onDelete: Cascade)
+  moderator      User           @relation(fields: [moderatorId], references: [id], onDelete: Cascade)
+
+  @@index([flaggedContentId])
+  @@index([moderatorId])
+  @@map("moderation_actions")
+}
+
 model Project {
   id            String   @id @default(cuid())
   name          String
@@ -109,6 +259,7 @@ model Project {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   pages       Page[]
   envVars     EnvironmentVariable[]
   deployments Deployment[]

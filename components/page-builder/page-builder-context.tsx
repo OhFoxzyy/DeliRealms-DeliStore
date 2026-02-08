@@ -30,6 +30,7 @@ interface PageBuilderContextType {
   moveElementToBottom: (id: string) => void;
   wrapInContainer: (id: string) => void;
   convertToSection: (id: string) => void;
+  setViewMode: (mode: 'desktop' | 'tablet' | 'mobile') => void; // Add this line
 }
 
 const PageBuilderContext = createContext<PageBuilderContextType | undefined>(undefined);
@@ -46,6 +47,7 @@ export function PageBuilderProvider({
   const [elements, setElements] = useState<PageElement[]>(initialElements);
   const [selectedElement, setSelectedElement] = useState<PageElement | null>(null);
   const [theme, setTheme] = useState<PageTheme | null>(initialTheme);
+  const [viewMode, setViewMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop'); // Add this line
   const [copiedStyle, setCopiedStyle] = useState<ElementStyle | null>(null);
   const [history, setHistory] = useState<PageElement[][]>([initialElements]);
   const [historyIndex, setHistoryIndex] = useState(0);
@@ -464,6 +466,7 @@ export function PageBuilderProvider({
         convertToSection,
         duplicateElement,
         setTheme,
+        setViewMode, // Add this line
         undo,
         redo,
         canUndo: historyIndex > 0,

@@ -1,20 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth/auth';
 import { db as prisma } from '@/lib/prisma';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { pageId: string; commentId: string } }
+  { params }: { params: Promise<{ pageId: string; commentId: string }> }
 ) {
   try {
+    const { pageId, commentId } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const comment = await prisma.pageComment.findUnique({
-      where: { id: params.commentId },
+      where: { id: commentId },
       include: { page: { include: { project: true } } },
     });
 
@@ -26,7 +27,7 @@ export async function POST(
     const hasAccess = comment.page.project.userId === session.user.id ||
       await prisma.pageCollaborator.findFirst({
         where: {
-          pageId: params.pageId,
+          pageId: pageId,
           userId: session.user.id,
         },
       });
@@ -39,7 +40,7 @@ export async function POST(
 
     const thread = await prisma.pageCommentThread.create({
       data: {
-        commentId: params.commentId,
+        commentId: commentId,
         userId: session.user.id,
         content,
       },

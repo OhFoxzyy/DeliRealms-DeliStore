@@ -36,7 +36,7 @@ export function CodeBlock({ element }: CodeBlockProps) {
         {showLineNumbers ? (
           <div style={{ display: 'flex', gap: '16px' }}>
             <div style={{ color: 'var(--page-text, #737373)', userSelect: 'none' }}>
-              {lines.map((_, i) => (
+              {lines.map((_: any, i: any) => (
                 <div key={i}>{i + 1}</div>
               ))}
             </div>

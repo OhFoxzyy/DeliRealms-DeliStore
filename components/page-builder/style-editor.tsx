@@ -218,131 +218,142 @@ export function StyleEditor({ projectId, pageId }: { projectId: string; pageId?:
       
       {pageId && <SectionPublishControl pageId={pageId} />}
       
-      <div className="p-4 border-b border-[#262626] space-y-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-sm font-semibold text-[#fafafa]">Theme</h2>
-            <p className="text-[11px] text-[#737373]">
-              Quickly change your page colors.
-            </p>
-          </div>
-        </div>
-        <div className="space-y-2">
-          <Select
-            value={currentTheme.id}
-            onValueChange={handleThemePresetChange}
-          >
-            <SelectTrigger className="h-8 text-xs bg-[#171717] border-[#262626] text-[#e5e5e5]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-[#171717] border-[#262626]">
-              {themePresets.map((preset) => (
-                <SelectItem key={preset.id} value={preset.id} className="text-[#e5e5e5] focus:bg-[#262626]">
-                  {preset.name}
-                </SelectItem>
-              ))}
-              {customThemes.length > 0 && (
-                <>
-                  <div className="px-2 py-1 text-[10px] text-[#737373] font-medium">My themes</div>
-                  {customThemes.map((t) => (
-                    <SelectItem key={t.id} value={t.id} className="text-[#e5e5e5] focus:bg-[#262626]">
-                      {t.name}
+      <Tabs defaultValue="theme" className="w-full flex flex-col flex-1 min-h-0">
+        <TabsList className="w-full grid grid-cols-2 px-4 bg-[#0f0f0f] border-b border-[#262626] shrink-0">
+          <TabsTrigger value="theme" className="data-[state=active]:bg-[#171717] data-[state=active]:text-[#fafafa] text-[#737373] text-xs">
+            Theme
+          </TabsTrigger>
+          <TabsTrigger value="variables" className="data-[state=active]:bg-[#171717] data-[state=active]:text-[#fafafa] text-[#737373] text-xs">
+            Variables
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="theme" className="flex-1 min-h-0 overflow-auto">
+          <div className="p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-sm font-semibold text-[#fafafa]">Theme</h2>
+                <p className="text-[11px] text-[#737373]">
+                  Quickly change your page colors.
+                </p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Select
+                value={currentTheme.id}
+                onValueChange={handleThemePresetChange}
+              >
+                <SelectTrigger className="h-8 text-xs bg-[#171717] border-[#262626] text-[#e5e5e5]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-[#171717] border-[#262626]">
+                  {themePresets.map((preset) => (
+                    <SelectItem key={preset.id} value={preset.id} className="text-[#e5e5e5] focus:bg-[#262626]">
+                      {preset.name}
                     </SelectItem>
                   ))}
-                </>
-              )}
-            </SelectContent>
-          </Select>
-          <div className="flex gap-1">
-            <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-              <DialogTrigger asChild>
-                <Button size="xs" variant="outline" className="h-7 text-[10px] flex-1 border-[#262626] text-[#e5e5e5] hover:bg-[#262626]">
-                  <Plus className="mr-1 h-3 w-3" />
-                  Custom theme
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="bg-[#171717] border-[#262626] text-[#e5e5e5]">
-                <DialogHeader>
-                  <DialogTitle className="text-[#fafafa]">Create custom theme</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-3 mt-2">
-                  <div>
-                    <Label className="text-xs text-[#a3a3a3]">Name</Label>
-                    <Input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="My theme" className="mt-1 bg-[#0f0f0f] border-[#262626] text-[#fafafa]" />
-                  </div>
-                  {(['primary', 'secondary', 'accent', 'background', 'surface', 'text'] as const).map((key) => (
-                    <div key={key}>
-                      <Label className="text-xs text-[#a3a3a3] capitalize">{key}</Label>
-                      <div className="flex gap-2 mt-1">
-                        <Input
-                          type="color"
-                          value={newPalette[key]}
-                          onChange={(e) => setNewPalette((p) => ({ ...p, [key]: e.target.value }))}
-                          className="w-10 h-8 p-1 bg-[#0f0f0f] border-[#262626] cursor-pointer"
-                        />
-                        <Input value={newPalette[key]} onChange={(e) => setNewPalette((p) => ({ ...p, [key]: e.target.value }))} className="flex-1 h-8 text-xs bg-[#0f0f0f] border-[#262626] text-[#fafafa]" />
+                  {customThemes.length > 0 && (
+                    <>
+                      <div className="px-2 py-1 text-[10px] text-[#737373] font-medium">My themes</div>
+                      {customThemes.map((t) => (
+                        <SelectItem key={t.id} value={t.id} className="text-[#e5e5e5] focus:bg-[#262626]">
+                          {t.name}
+                        </SelectItem>
+                      ))}
+                    </>
+                  )}
+                </SelectContent>
+              </Select>
+              <div className="flex gap-1">
+                <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+                  <DialogTrigger asChild>
+                    <Button size="xs" variant="outline" className="h-7 text-[10px] flex-1 border-[#262626] text-[#e5e5e5] hover:bg-[#262626]">
+                      <Plus className="mr-1 h-3 w-3" />
+                      Custom theme
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="bg-[#171717] border-[#262626] text-[#e5e5e5]">
+                    <DialogHeader>
+                      <DialogTitle className="text-[#fafafa]">Create custom theme</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-3 mt-2">
+                      <div>
+                        <Label className="text-xs text-[#a3a3a3]">Name</Label>
+                        <Input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="My theme" className="mt-1 bg-[#0f0f0f] border-[#262626] text-[#fafafa]" />
                       </div>
+                      {(['primary', 'secondary', 'accent', 'background', 'surface', 'text'] as const).map((key) => (
+                        <div key={key}>
+                          <Label className="text-xs text-[#a3a3a3] capitalize">{key}</Label>
+                          <div className="flex gap-2 mt-1">
+                            <Input
+                              type="color"
+                              value={newPalette[key]}
+                              onChange={(e) => setNewPalette((p) => ({ ...p, [key]: e.target.value }))}
+                              className="w-10 h-8 p-1 bg-[#0f0f0f] border-[#262626] cursor-pointer"
+                            />
+                            <Input value={newPalette[key]} onChange={(e) => setNewPalette((p) => ({ ...p, [key]: e.target.value }))} className="flex-1 h-8 text-xs bg-[#0f0f0f] border-[#262626] text-[#fafafa]" />
+                          </div>
+                        </div>
+                      ))}
                     </div>
+                    <DialogFooter className="mt-4">
+                      <Button variant="outline" size="sm" onClick={() => setCreateOpen(false)} className="border-[#262626] text-[#e5e5e5] hover:bg-[#262626]">Cancel</Button>
+                      <Button size="sm" onClick={handleCreateCustom} disabled={savingCustom || !newName.trim()} className="bg-[#262626] hover:bg-[#404040] text-[#fafafa]">
+                        {savingCustom ? 'Saving...' : 'Create'}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+                {currentTheme.id.startsWith('custom-') && (
+                  <Button
+                    size="xs"
+                    variant="outline"
+                    className="h-7 text-[10px] border-red-500/50 text-red-400 hover:bg-red-500/10"
+                    onClick={() => handleDeleteCustom(currentTheme.id)}
+                    disabled={deletingId === currentTheme.id}
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                )}
+              </div>
+              <div className="flex items-center gap-1">
+                {Object.values(currentTheme.palette).map((color, idx) => (
+                  <button
+                    key={`${color}-${idx}`}
+                    type="button"
+                    aria-label={color}
+                    className="h-5 w-5 rounded-[4px] border border-[#262626] hover:scale-110 transition-transform"
+                    style={{ background: color }}
+                    title={color}
+                  />
+                ))}
+              </div>
+              {currentTheme.gradients && currentTheme.gradients.length > 0 && (
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {currentTheme.gradients.map((g) => (
+                    <button
+                      key={g.id}
+                      type="button"
+                      className="h-5 flex-1 min-w-[40px] rounded-[4px] border border-[#262626] hover:scale-110 transition-transform"
+                      style={{ backgroundImage: g.value }}
+                      title={g.label}
+                    />
                   ))}
                 </div>
-                <DialogFooter className="mt-4">
-                  <Button variant="outline" size="sm" onClick={() => setCreateOpen(false)} className="border-[#262626] text-[#e5e5e5] hover:bg-[#262626]">Cancel</Button>
-                  <Button size="sm" onClick={handleCreateCustom} disabled={savingCustom || !newName.trim()} className="bg-[#262626] hover:bg-[#404040] text-[#fafafa]">
-                    {savingCustom ? 'Saving...' : 'Create'}
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-            {currentTheme.id.startsWith('custom-') && (
-              <Button
-                size="xs"
-                variant="outline"
-                className="h-7 text-[10px] border-red-500/50 text-red-400 hover:bg-red-500/10"
-                onClick={() => handleDeleteCustom(currentTheme.id)}
-                disabled={deletingId === currentTheme.id}
-              >
-                <Trash2 className="h-3 w-3" />
-              </Button>
-            )}
-          </div>
-          <div className="flex items-center gap-1">
-            {Object.values(currentTheme.palette).map((color, idx) => (
-              <button
-                key={`${color}-${idx}`}
-                type="button"
-                aria-label={color}
-                className="h-5 w-5 rounded-[4px] border border-[#262626] hover:scale-110 transition-transform"
-                style={{ background: color }}
-                title={color}
-              />
-            ))}
-          </div>
-          {currentTheme.gradients && currentTheme.gradients.length > 0 && (
-            <div className="flex flex-wrap gap-1 mt-1">
-              {currentTheme.gradients.map((g) => (
-                <button
-                  key={g.id}
-                  type="button"
-                  className="h-5 flex-1 min-w-[40px] rounded-[4px] border border-[#262626] hover:scale-110 transition-transform"
-                  style={{ backgroundImage: g.value }}
-                  title={g.label}
-                />
-              ))}
+              )}
+              <div className="flex gap-1 pt-1">
+                <Button
+                  size="xs"
+                  variant="outline"
+                  className="h-7 text-[10px] flex-1 border-[#262626] text-[#e5e5e5] hover:bg-[#262626]"
+                  onClick={handleResetTheme}
+                >
+                  <RotateCcw className="mr-1 h-3 w-3" />
+                  Reset
+                </Button>
+              </div>
             </div>
-          )}
-          <div className="flex gap-1 pt-1">
-            <Button
-              size="xs"
-              variant="outline"
-              className="h-7 text-[10px] flex-1 border-[#262626] text-[#e5e5e5] hover:bg-[#262626]"
-              onClick={handleResetTheme}
-            >
-              <RotateCcw className="mr-1 h-3 w-3" />
-              Reset
-            </Button>
           </div>
-        </div>
-      </div>
         </TabsContent>
 
         <TabsContent value="variables" className="flex-1 min-h-0 overflow-hidden">

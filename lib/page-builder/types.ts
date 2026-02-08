@@ -154,6 +154,8 @@ export interface ElementStyle {
   borderWidth?: string;
   borderStyle?: string;
   borderRadius?: string;
+  borderBottom?: string;
+  borderTop?: string;
   
   // Effects
   opacity?: string;

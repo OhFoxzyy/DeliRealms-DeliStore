@@ -1,20 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth/auth';
 import { db as prisma } from '@/lib/prisma';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { pageId: string } }
+  { params }: { params: Promise<{ pageId: string }> }
 ) {
   try {
+    const { pageId } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const page = await prisma.page.findUnique({
-      where: { id: params.pageId },
+      where: { id: pageId },
       include: { project: true },
     });
 
@@ -26,7 +27,7 @@ export async function GET(
     const hasAccess = page.project.userId === session.user.id ||
       await prisma.pageCollaborator.findFirst({
         where: {
-          pageId: params.pageId,
+          pageId: pageId,
           userId: session.user.id,
         },
       });
@@ -36,7 +37,7 @@ export async function GET(
     }
 
     const comments = await prisma.pageComment.findMany({
-      where: { pageId: params.pageId },
+      where: { pageId: pageId },
       include: {
         user: { select: { id: true, name: true, email: true, image: true } },
         threads: {
@@ -57,16 +58,17 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { pageId: string } }
+  { params }: { params: Promise<{ pageId: string }> }
 ) {
   try {
+    const { pageId } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const page = await prisma.page.findUnique({
-      where: { id: params.pageId },
+      where: { id: pageId },
       include: { project: true },
     });
 
@@ -78,7 +80,7 @@ export async function POST(
     const hasAccess = page.project.userId === session.user.id ||
       await prisma.pageCollaborator.findFirst({
         where: {
-          pageId: params.pageId,
+          pageId: pageId,
           userId: session.user.id,
           role: { in: ['editor', 'admin'] },
         },
@@ -92,7 +94,7 @@ export async function POST(
 
     const comment = await prisma.pageComment.create({
       data: {
-        pageId: params.pageId,
+        pageId: pageId,
         userId: session.user.id,
         elementId,
         content,
@@ -111,9 +113,10 @@ export async function POST(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { pageId: string } }
+  { params }: { params: Promise<{ pageId: string }> }
 ) {
   try {
+    const { pageId } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

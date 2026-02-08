@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import type { PageElement } from '@/lib/page-builder/types';
 

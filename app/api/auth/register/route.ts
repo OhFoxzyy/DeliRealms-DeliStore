@@ -4,6 +4,8 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { sendVerificationEmail } from "@/lib/resend";
 import crypto from "crypto";
+import { getClientIp, getUserAgent } from "@/lib/auth/ip-utils";
+import { checkForAbuse } from "@/lib/auth/abuse-detection";
 
 const prisma = new PrismaClient();
 
@@ -17,6 +19,23 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { email, password, name } = registerSchema.parse(body);
+
+    // Get IP and user agent for tracking
+    const ipAddress = getClientIp(request);
+    const userAgent = getUserAgent(request);
+
+    // Check for abuse patterns
+    const abuseCheck = await checkForAbuse(email, ipAddress, userAgent);
+    if (abuseCheck.isAbusive) {
+      console.log("[v0] Registration blocked - abuse detected:", abuseCheck.reason);
+      return NextResponse.json(
+        { 
+          error: "Registration temporarily unavailable. Please try again later or contact support.",
+          code: "ABUSE_DETECTED"
+        },
+        { status: 429 },
+      );
+    }
 
     const existingUser = await prisma.user.findUnique({
       where: { email },
@@ -37,6 +56,7 @@ export async function POST(request: NextRequest) {
         password: hashedPassword,
         name: name || null,
         role: "hobby",
+        lastLoginIp: ipAddress,
       },
     });
 

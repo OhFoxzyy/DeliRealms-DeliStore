@@ -1,20 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth/auth';
 import { db as prisma } from '@/lib/prisma';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { pageId: string } }
+  { params }: { params: Promise<{ pageId: string }> }
 ) {
   try {
+    const { pageId } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const page = await prisma.page.findUnique({
-      where: { id: params.pageId },
+      where: { id: pageId },
       include: { project: true },
     });
 
@@ -23,7 +24,7 @@ export async function GET(
     }
 
     const collaborators = await prisma.pageCollaborator.findMany({
-      where: { pageId: params.pageId },
+      where: { pageId: pageId },
       include: { user: { select: { id: true, name: true, email: true, image: true } } },
     });
 
@@ -36,16 +37,17 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { pageId: string } }
+  { params }: { params: Promise<{ pageId: string }> }
 ) {
   try {
+    const { pageId } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const page = await prisma.page.findUnique({
-      where: { id: params.pageId },
+      where: { id: pageId },
       include: { project: true },
     });
 
@@ -58,13 +60,13 @@ export async function POST(
     const collaborator = await prisma.pageCollaborator.upsert({
       where: {
         pageId_userId: {
-          pageId: params.pageId,
+          pageId: pageId,
           userId,
         },
       },
       update: { role },
       create: {
-        pageId: params.pageId,
+        pageId: pageId,
         userId,
         role: role || 'viewer',
       },
@@ -80,9 +82,10 @@ export async function POST(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { pageId: string } }
+  { params }: { params: Promise<{ pageId: string }> }
 ) {
   try {
+    const { pageId } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -96,7 +99,7 @@ export async function DELETE(
     }
 
     const page = await prisma.page.findUnique({
-      where: { id: params.pageId },
+      where: { id: pageId },
       include: { project: true },
     });
 
@@ -107,7 +110,7 @@ export async function DELETE(
     await prisma.pageCollaborator.delete({
       where: {
         pageId_userId: {
-          pageId: params.pageId,
+          pageId: pageId,
           userId,
         },
       },

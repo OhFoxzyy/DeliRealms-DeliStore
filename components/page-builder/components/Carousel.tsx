@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import type { PageElement } from '@/lib/page-builder/types';
 
@@ -107,7 +109,7 @@ export function Carousel({ element }: CarouselProps) {
               gap: '8px',
             }}
           >
-            {items.map((_, index: number) => (
+            {items.map((_item: any, index: number) => (
               <button
                 key={index}
                 onClick={() => goToSlide(index)}

@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import type { PageElement } from '@/lib/page-builder/types';
 
@@ -46,7 +48,7 @@ export function TestimonialCarousel({ element }: TestimonialCarouselProps) {
       }}
       className="testimonial-carousel-component"
     >
-      <div style={{ fontSize: '48px', marginBottom: '16px' }}>"</div>
+      <div style={{ fontSize: '48px', marginBottom: '16px' }}>&quot;</div>
       <p style={{ fontSize: '20px', lineHeight: '1.6', color: 'var(--page-text, #e5e5e5)', marginBottom: '24px' }}>
         {current.quote || current.text}
       </p>
@@ -67,7 +69,7 @@ export function TestimonialCarousel({ element }: TestimonialCarouselProps) {
       </div>
       {testimonials.length > 1 && (
         <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '24px' }}>
-          {testimonials.map((_, index: number) => (
+          {testimonials.map((_: any, index: number) => (
             <button
               key={index}
               onClick={() => setCurrentIndex(index)}

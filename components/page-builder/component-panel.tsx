@@ -6,11 +6,10 @@ import { Input } from '../ui/input';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '../ui/hover-card';
 import { usePageBuilder } from './page-builder-context';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible';
-import { ChevronDown, ChevronRight, LayoutGrid, Type, ShoppingBag, Upload } from 'lucide-react';
+import { ChevronDown, ChevronRight, LayoutGrid, Type, ShoppingBag } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { ComponentImport } from './component-import';
-import { usePageBuilder } from './page-builder-context';
 
 const categoryMeta: Record<string, { label: string; icon: React.ReactNode; groups?: Record<string, string[]> }> = {
   layout: {
@@ -46,11 +45,12 @@ const categoryMeta: Record<string, { label: string; icon: React.ReactNode; group
 };
 
 export function ComponentPanel() {
-  usePageBuilder();
+  const { addElement } = usePageBuilder();
   const [search, setSearch] = useState('');
   const [openLayout, setOpenLayout] = useState(true);
   const [openElements, setOpenElements] = useState(true);
   const [openShop, setOpenShop] = useState(true);
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
 
   const handleDragStart = (e: React.DragEvent, component: ComponentDefinition) => {
     e.dataTransfer.setData('component', JSON.stringify(component));
@@ -104,7 +104,7 @@ export function ComponentPanel() {
   };
 
   return (
-    <div className="w-80 h-full flex flex-col bg-[#0a0a0a] border-[#262626] overflow-hidden">
+    <div className="w-80 h-full flex flex-col bg-[#0a0a0a] border-r border-[#262626] overflow-hidden">
       <Tabs defaultValue="library" className="w-full h-full flex flex-col">
         <div className="p-4 border-b border-[#262626] space-y-3 bg-[#0f0f0f] shrink-0">
           <div>

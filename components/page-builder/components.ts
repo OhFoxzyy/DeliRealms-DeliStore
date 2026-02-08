@@ -9,7 +9,7 @@ import {
   CreditCard, 
   Sparkles, 
   LayoutGrid, 
-  Box,
+  Box as BoxIcon,
   Navigation,
   FileText,
   Layers,
@@ -20,7 +20,7 @@ import {
   FileEdit,
   FileText as InputIcon,
   FileText as TextareaIcon,
-  List,
+  List as ListIcon,
   BarChart3,
   Quote,
   HelpCircle,
@@ -107,7 +107,7 @@ export interface ComponentDefinitionWithComponent extends ComponentDefinition {
 
 function getIcon(key: string): React.ReactNode {
   const iconComponents: Record<string, React.ComponentType<{ className?: string }>> = {
-    box: Box,
+    box: BoxIcon,
     type: Type,
     square: Square,
     image: ImageIcon,
@@ -127,7 +127,7 @@ function getIcon(key: string): React.ReactNode {
     form: FileEdit,
     input: InputIcon,
     textarea: TextareaIcon,
-    select: List,
+    select: ListIcon,
     'bar-chart': BarChart3,
     quote: Quote,
     'help-circle': HelpCircle,

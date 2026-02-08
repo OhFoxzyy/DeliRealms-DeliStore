@@ -47,14 +47,20 @@ import {
   DialogTrigger,
 } from '../ui/dialog';
 import { Textarea } from '../ui/textarea';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import type { PageElement, PageTheme, PageData } from '@/lib/page-builder/types';
 import { componentLibrary } from './component-library';
+import { CollaborationProvider } from './collaboration-provider';
+import { CleanupTool } from './cleanup-tool';
+import { SeoAccessibilityPanel } from './seo-accessibility-panel';
+import { CommentsPanel } from './comments-panel';
+import { CollaboratorsPanel } from './collaborators-panel';
+import { ChatPanel } from './chat-panel';
+import { PreviewLinksPanel } from './preview-links-panel';
+import { PerformancePanel } from './performance-panel';
+import { CommandPalette } from './command-palette';
 
 interface PageInfo {
   id: string;
@@ -636,6 +642,6 @@ function PageBuilderInnerContent({
         onRedo={redo}
       />
     </div>
-    </CollaborationProvider>
+    </>
   );
 }

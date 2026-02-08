@@ -7,7 +7,7 @@ interface TextProps {
 
 export function Text({ element }: TextProps) {
   const as = element.content.as || 'p';
-  const Tag = as as keyof JSX.IntrinsicElements;
+  const Tag = as as keyof React.JSX.IntrinsicElements;
   
   const baseStyle: React.CSSProperties = {
     fontSize: 'clamp(14px, 1.5vw, 16px)',

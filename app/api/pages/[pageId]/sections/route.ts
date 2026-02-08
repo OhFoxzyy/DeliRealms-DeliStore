@@ -1,20 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth/auth';
 import { db as prisma } from '@/lib/prisma';
 
+// GET handler for Sections
 export async function GET(
   request: NextRequest,
-  { params }: { params: { pageId: string } }
+  { params }: { params: Promise<{ pageId: string }> }
 ) {
   try {
+    const { pageId } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const page = await prisma.page.findUnique({
-      where: { id: params.pageId },
+      where: { id: pageId },
       include: { project: true },
     });
 
@@ -23,7 +25,7 @@ export async function GET(
     }
 
     const sections = await prisma.pageSection.findMany({
-      where: { pageId: params.pageId },
+      where: { pageId },
     });
 
     return NextResponse.json(sections);
@@ -33,18 +35,20 @@ export async function GET(
   }
 }
 
+// POST handler for Section update
 export async function POST(
   request: NextRequest,
-  { params }: { params: { pageId: string } }
+  { params }: { params: Promise<{ pageId: string }> }
 ) {
   try {
+    const { pageId } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const page = await prisma.page.findUnique({
-      where: { id: params.pageId },
+      where: { id: pageId },
       include: { project: true },
     });
 
@@ -57,13 +61,13 @@ export async function POST(
     const section = await prisma.pageSection.upsert({
       where: {
         pageId_elementId: {
-          pageId: params.pageId,
+          pageId,
           elementId,
         },
       },
       update: { published },
       create: {
-        pageId: params.pageId,
+        pageId,
         elementId,
         published: published || false,
       },

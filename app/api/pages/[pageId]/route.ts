@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/auth';
 import { PrismaClient } from '@/generated/prisma';
@@ -6,6 +6,7 @@ import { generatePageCodeFromElements } from '@/lib/page-builder/codegen';
 
 const prisma = new PrismaClient();
 
+// PATCH handler (update page content)
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ pageId: string }> },
@@ -13,7 +14,7 @@ export async function PATCH(
   try {
     const session = await getServerSession(authOptions);
     const { pageId } = await params;
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -31,10 +32,7 @@ export async function PATCH(
     const content: string | undefined = body.content;
 
     if (!content) {
-      return NextResponse.json(
-        { error: 'Missing content' },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: 'Missing content' }, { status: 400 });
     }
 
     let code: string | undefined;
@@ -58,13 +56,11 @@ export async function PATCH(
     return NextResponse.json({ page: updatedPage });
   } catch (error) {
     console.error('Page update error:', error);
-    return NextResponse.json(
-      { error: 'Failed to update page' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to update page' }, { status: 500 });
   }
 }
 
+// DELETE handler (delete page)
 export async function DELETE(
   _req: Request,
   { params }: { params: Promise<{ pageId: string }> },
@@ -93,9 +89,6 @@ export async function DELETE(
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Page delete error:', error);
-    return NextResponse.json(
-      { error: 'Failed to delete page' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to delete page' }, { status: 500 });
   }
 }

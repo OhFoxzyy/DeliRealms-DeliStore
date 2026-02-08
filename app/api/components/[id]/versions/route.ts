@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth/auth';
 import { db as prisma } from '@/lib/prisma';
+import { Prisma } from '@/generated/prisma';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -15,7 +17,7 @@ export async function GET(
 
     const component = await prisma.component.findFirst({
       where: {
-        id: params.id,
+        id: id,
         OR: [
           { userId: session.user.id },
           { isBuiltin: true },
@@ -28,7 +30,7 @@ export async function GET(
     }
 
     const versions = await prisma.componentVersion.findMany({
-      where: { componentId: params.id },
+      where: { componentId: id },
       orderBy: { version: 'desc' },
     });
 
@@ -41,9 +43,10 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -51,7 +54,7 @@ export async function POST(
 
     const component = await prisma.component.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id,
       },
     });
@@ -63,7 +66,7 @@ export async function POST(
     const { comment } = await request.json();
 
     const latestVersion = await prisma.componentVersion.findFirst({
-      where: { componentId: params.id },
+      where: { componentId: id },
       orderBy: { version: 'desc' },
     });
 
@@ -71,11 +74,11 @@ export async function POST(
 
     const version = await prisma.componentVersion.create({
       data: {
-        componentId: params.id,
+        componentId: id,
         version: nextVersion,
-        content: component.defaultContent,
-        style: component.defaultStyle,
-        code: component.componentCode,
+        content: component.defaultContent ?? Prisma.JsonNull,
+        style: component.defaultStyle ?? Prisma.JsonNull,
+        code: component.componentCode ?? undefined,
         comment,
       },
     });
