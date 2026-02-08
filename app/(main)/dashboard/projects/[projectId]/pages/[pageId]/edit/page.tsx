@@ -2,7 +2,7 @@ import { redirect, notFound } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/auth';
 import { PrismaClient } from '@/generated/prisma';
-import { PageBuilder } from '@/components/page-builder/page-builder';
+import { PageBuilderV2 } from '@/components/page-builder/page-builder-v2';
 import type { PageData, PageTheme } from '@/lib/page-builder/types';
 
 const prisma = new PrismaClient();
@@ -59,7 +59,7 @@ export default async function PageEditorPage({
     : null;
 
   return (
-    <PageBuilder
+    <PageBuilderV2
       projectId={projectId}
       pageId={pageId}
       initialElements={initialElements}

@@ -28,9 +28,10 @@ import { cn } from '@/lib/utils';
 import type { PageElement, PageTheme, PageData } from '@/lib/page-builder/types';
 import { CollaborationProvider } from './collaboration-provider';
 import { CommandPalette } from './command-palette';
-import { AgenticAIPanel } from './agentic-ai-panel';
+import { AdvancedAIPanel } from './advanced-ai-panel';
 import { PropertiesPanel } from './properties-panel';
 import { ComponentsPanel } from './components-panel-v2';
+import { FullScreenCanvas } from './full-screen-canvas';
 
 interface PageInfo {
   id: string;
@@ -344,7 +345,7 @@ function PageBuilderInnerContent({
             {/* Panel Content */}
             <div className="flex-1 overflow-y-auto">
               {aiMode ? (
-                <AgenticAIPanel projectId={projectId} pageId={pageId} />
+                <AdvancedAIPanel projectId={projectId} pageId={pageId} />
               ) : (
                 <PropertiesPanel 
                   projectId={projectId} 
@@ -356,8 +357,10 @@ function PageBuilderInnerContent({
           </div>
 
           {/* Canvas */}
-          <div className="flex-1 overflow-hidden bg-neutral-950">
-            <BuilderCanvas viewMode={viewMode} />
+          <div className="flex-1 overflow-hidden">
+            <FullScreenCanvas viewport={viewMode}>
+              <BuilderCanvas viewMode={viewMode} />
+            </FullScreenCanvas>
           </div>
 
           {/* Right Panel */}
@@ -389,7 +392,11 @@ function PageBuilderInnerContent({
 
               {/* Panel Content */}
               <div className="flex-1 overflow-y-auto">
-                <ComponentsPanel activeTab={rightPanel} />
+                <ComponentsPanel 
+                  activeTab={rightPanel}
+                  projectId={projectId}
+                  pageId={pageId}
+                />
               </div>
             </div>
           )}
