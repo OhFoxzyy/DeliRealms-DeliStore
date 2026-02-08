@@ -16,30 +16,31 @@ const categoryMeta: Record<string, { label: string; icon: React.ReactNode; group
     label: 'Layout',
     icon: <LayoutGrid className="h-4 w-4" />,
     groups: {
-      'Containers': ['container', 'container-narrow', 'box', 'center', 'overlay'],
-      'Flex & Grid': ['stack', 'flex', 'grid', 'masonry', 'split-screen'],
-      'Structure': ['section', 'section-fullbleed', 'section-contained', 'sidebar', 'sticky-header'],
-      'Spacing': ['spacer', 'divider'],
+      'Containers': ['container', 'container-narrow', 'box', 'center', 'overlay', 'card'],
+      'Flex & Grid': ['stack', 'flex', 'grid', 'masonry', 'split-screen', 'columns'],
+      'Structure': ['section', 'section-fullbleed', 'section-contained', 'sidebar', 'sticky-header', 'header', 'footer', 'navbar'],
+      'Spacing': ['spacer', 'divider', 'separator'],
     },
   },
   elements: {
     label: 'Elements',
     icon: <Type className="h-4 w-4" />,
     groups: {
-      'Typography': ['heading', 'text', 'rich-text', 'blockquote', 'code-block'],
-      'Lists & Tables': ['list', 'table', 'timeline', 'breadcrumbs', 'pagination'],
-      'Interactive': ['button', 'link', 'accordion', 'tabs', 'dropdown', 'tooltip', 'popover'],
-      'Media': ['image', 'video', 'video-player', 'audio-player', 'image-gallery', 'carousel', 'media-grid'],
-      'Feedback': ['alert', 'badge', 'progress-bar', 'skeleton'],
+      'Typography': ['heading', 'text', 'rich-text', 'blockquote', 'code-block', 'label', 'caption'],
+      'Lists & Tables': ['list', 'table', 'timeline', 'breadcrumbs', 'pagination', 'data-table'],
+      'Interactive': ['button', 'link', 'accordion', 'tabs', 'dropdown', 'tooltip', 'popover', 'modal', 'drawer', 'dialog'],
+      'Media': ['image', 'video', 'video-player', 'audio-player', 'image-gallery', 'carousel', 'media-grid', 'avatar', 'icon'],
+      'Feedback': ['alert', 'badge', 'progress-bar', 'skeleton', 'spinner', 'toast', 'notification'],
+      'Input': ['input', 'textarea', 'select', 'checkbox', 'radio', 'switch', 'slider', 'date-picker'],
     },
   },
   ecommerce: {
     label: 'Shop',
     icon: <ShoppingBag className="h-4 w-4" />,
     groups: {
-      'Products': ['product-card', 'pricing-card', 'smart-pricing-table'],
-      'Checkout': ['checkout', 'form', 'smart-form'],
-      'Marketing': ['hero', 'feature-grid', 'testimonial', 'testimonial-carousel', 'stats', 'animated-stats', 'cta-banner', 'sticky-cta', 'newsletter', 'logo-cloud', 'faq'],
+      'Products': ['product-card', 'pricing-card', 'smart-pricing-table', 'product-grid', 'product-list'],
+      'Checkout': ['checkout', 'form', 'smart-form', 'payment-form', 'shipping-form'],
+      'Marketing': ['hero', 'feature-grid', 'testimonial', 'testimonial-carousel', 'stats', 'animated-stats', 'cta-banner', 'sticky-cta', 'newsletter', 'logo-cloud', 'faq', 'comparison-table'],
     },
   },
 };
@@ -174,13 +175,6 @@ export function ComponentPanel() {
                         </Collapsible>
                       );
                     })}
-                    {categoryData.ungrouped.length > 0 && (
-                      <div className="grid grid-cols-2 gap-2">
-                        {categoryData.ungrouped.map((component) => (
-                          <ComponentCard key={component.type} component={component} onDragStart={handleDragStart} />
-                        ))}
-                      </div>
-                    )}
                     {totalCount === 0 && (
                       <p className="text-xs text-[#525252] py-2 px-2">No components match</p>
                     )}

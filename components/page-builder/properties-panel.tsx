@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { StyleEditor } from './style-editor';
+import { PropertyOnlyEditor } from './property-only-editor';
 import { AlignmentEditor } from './alignment-editor';
 import { ThemeSelector } from './theme-selector';
 
@@ -15,7 +15,7 @@ export function PropertiesPanel({ projectId, pageId, activeTab }: PropertiesPane
   if (!activeTab) return null;
 
   return (
-    <div className="h-full">
+    <div className="h-full overflow-hidden">
       {activeTab === 'theme' && (
         <ThemeSelector projectId={projectId} pageId={pageId} />
       )}
@@ -23,7 +23,7 @@ export function PropertiesPanel({ projectId, pageId, activeTab }: PropertiesPane
         <AlignmentEditor />
       )}
       {activeTab === 'properties' && (
-        <StyleEditor projectId={projectId} pageId={pageId} />
+        <PropertyOnlyEditor />
       )}
     </div>
   );
