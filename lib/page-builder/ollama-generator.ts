@@ -118,11 +118,17 @@ function normalizeElements(raw: Record<string, unknown>[]): PageElement[] {
   
   for (let i = 0; i < raw.length; i++) {
     const item = raw[i];
-    let type = String(item?.type || 'text').toLowerCase();
+    let type = String(item?.type || '').toLowerCase();
     
-    // Validate and normalize type
+    // Skip if no type provided
+    if (!type) {
+      console.warn('[v0] Skipping element with no type:', item);
+      continue;
+    }
+    
+    // Validate type exists in componentsMap
     if (!validTypes.includes(type)) {
-      // Try to map common variations
+      // Try to map common HTML variations
       if (type === 'h1' || type === 'h2' || type === 'h3' || type === 'h4' || type === 'h5' || type === 'h6') {
         type = 'heading';
       } else if (type === 'p' || type === 'paragraph') {
@@ -134,8 +140,9 @@ function normalizeElements(raw: Record<string, unknown>[]): PageElement[] {
       } else if (type === 'hr' || type === 'horizontal-rule') {
         type = 'divider';
       } else {
-        // Default to text if unknown
-        type = 'text';
+        // Skip unknown types to avoid breaking existing components
+        console.warn(`[v0] Skipping unknown component type: ${type}. Valid types: ${validTypes.join(', ')}`);
+        continue;
       }
     }
     

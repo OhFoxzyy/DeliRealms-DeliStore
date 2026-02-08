@@ -6,6 +6,7 @@ import { MyAdapter } from "./auth-adapter";
 import bcrypt from "bcryptjs";
 import { PrismaClient } from "../../generated/prisma";
 import { checkIfBanned, logLoginAttempt } from "./abuse-detection";
+import { sendLoginNotificationEmail } from "../email-service";
 
 const prisma = new PrismaClient();
 
@@ -66,6 +67,16 @@ export const authOptions: NextAuthOptions = {
           where: { id: user.id },
           data: { lastLoginAt: new Date() },
         });
+
+        // Send login notification email
+        if (user.email && user.name) {
+          sendLoginNotificationEmail(
+            user.email,
+            user.name,
+            'Unknown IP',
+            'Web Browser'
+          ).catch(err => console.error('[v0] Failed to send login email:', err));
+        }
 
         return {
           id: user.id,

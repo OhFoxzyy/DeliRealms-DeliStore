@@ -1,5 +1,6 @@
 import { PrismaClient } from '@/generated/prisma';
 import { calculateIpSimilarity } from './ip-utils';
+import { sendAbuseDetectionEmail } from '../email-service';
 
 const prisma = new PrismaClient();
 
@@ -32,6 +33,16 @@ export async function checkForAbuse(
     });
 
     if (recentLoginsFromIp > 10) {
+      // Send abuse notification to admin
+      const adminEmail = process.env.ADMIN_EMAIL || 'admin@delirealms.net';
+      sendAbuseDetectionEmail(
+        adminEmail,
+        'unknown',
+        email,
+        'Excessive login attempts',
+        `${recentLoginsFromIp} login attempts from IP ${ipAddress} in the last 24 hours`
+      ).catch(err => console.error('[v0] Failed to send abuse email:', err));
+
       return {
         isAbusive: true,
         reason: 'Excessive login attempts from same IP',
@@ -50,6 +61,16 @@ export async function checkForAbuse(
     });
 
     if (recentAccountsFromIp > 5) {
+      // Send abuse notification to admin
+      const adminEmail = process.env.ADMIN_EMAIL || 'admin@delirealms.net';
+      sendAbuseDetectionEmail(
+        adminEmail,
+        'unknown',
+        email,
+        'Multiple accounts from same IP',
+        `${recentAccountsFromIp} accounts created from IP ${ipAddress} in the last 7 days`
+      ).catch(err => console.error('[v0] Failed to send abuse email:', err));
+
       return {
         isAbusive: true,
         reason: 'Multiple accounts created from same IP recently',
