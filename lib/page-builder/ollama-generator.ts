@@ -42,18 +42,49 @@ Respond with ONLY valid JSON array, no markdown or explanation.`;
 
 export async function generatePageElementsWithOllama(
   prompt: string,
+  context?: any,
+  conversationHistory?: any[],
   ollamaHost = process.env.OLLAMA_HOST || 'http://localhost:11434'
 ): Promise<PageElement[]> {
   const model = process.env.OLLAMA_MODEL || 'llama3.2';
+  
+  // Build enhanced prompt with context
+  let enhancedPrompt = prompt;
+  if (context) {
+    enhancedPrompt += `\n\nCurrent page context:`;
+    if (context.elementCount) {
+      enhancedPrompt += `\n- Page has ${context.elementCount} existing components`;
+    }
+    if (context.theme) {
+      enhancedPrompt += `\n- Theme: ${context.theme.name} with primary color ${context.theme.palette.primary}`;
+    }
+    if (context.elements && context.elements.length > 0) {
+      enhancedPrompt += `\n- Existing components: ${context.elements.map((el: any) => el.type).join(', ')}`;
+    }
+  }
+  
+  const messages: any[] = [
+    { role: 'system', content: SYSTEM_PROMPT },
+  ];
+  
+  // Add conversation history if available
+  if (conversationHistory && conversationHistory.length > 0) {
+    conversationHistory.forEach((msg) => {
+      messages.push({
+        role: msg.role === 'user' ? 'user' : 'assistant',
+        content: msg.content,
+      });
+    });
+  }
+  
+  messages.push({ role: 'user', content: enhancedPrompt });
+  
   const response = await fetch(`${ollamaHost}/api/chat`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       model,
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user', content: prompt },
-      ],
+      messages,
       stream: false,
     }),
   });

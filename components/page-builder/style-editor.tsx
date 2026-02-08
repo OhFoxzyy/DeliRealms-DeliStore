@@ -109,6 +109,187 @@ const themePresets: PageTheme[] = [
       },
     ],
   },
+  {
+    id: 'ocean-breeze',
+    name: 'Ocean Breeze',
+    palette: {
+      primary: '#06b6d4',
+      secondary: '#3b82f6',
+      accent: '#0ea5e9',
+      background: '#0a1628',
+      surface: '#1e3a5f',
+      text: '#dbeafe',
+    },
+    gradients: [
+      {
+        id: 'ocean-wave',
+        label: 'Ocean Wave',
+        value: 'linear-gradient(135deg, #06b6d4, #3b82f6)',
+      },
+      {
+        id: 'deep-sea',
+        label: 'Deep Sea',
+        value: 'linear-gradient(135deg, #0c4a6e, #06b6d4, #3b82f6)',
+      },
+    ],
+  },
+  {
+    id: 'forest-green',
+    name: 'Forest Green',
+    palette: {
+      primary: '#059669',
+      secondary: '#10b981',
+      accent: '#34d399',
+      background: '#0a1f0f',
+      surface: '#1a2e1a',
+      text: '#d1fae5',
+    },
+    gradients: [
+      {
+        id: 'forest',
+        label: 'Forest',
+        value: 'linear-gradient(135deg, #064e3b, #059669, #10b981)',
+      },
+    ],
+  },
+  {
+    id: 'royal-purple',
+    name: 'Royal Purple',
+    palette: {
+      primary: '#8b5cf6',
+      secondary: '#a855f7',
+      accent: '#c084fc',
+      background: '#1a0a2e',
+      surface: '#2d1b4e',
+      text: '#f3e8ff',
+    },
+    gradients: [
+      {
+        id: 'purple-haze',
+        label: 'Purple Haze',
+        value: 'linear-gradient(135deg, #6b21a8, #8b5cf6, #a855f7)',
+      },
+    ],
+  },
+  {
+    id: 'crimson-red',
+    name: 'Crimson Red',
+    palette: {
+      primary: '#dc2626',
+      secondary: '#ef4444',
+      accent: '#f87171',
+      background: '#1a0a0a',
+      surface: '#2d1414',
+      text: '#fee2e2',
+    },
+    gradients: [
+      {
+        id: 'crimson',
+        label: 'Crimson',
+        value: 'linear-gradient(135deg, #7f1d1d, #dc2626, #ef4444)',
+      },
+    ],
+  },
+  {
+    id: 'midnight-blue',
+    name: 'Midnight Blue',
+    palette: {
+      primary: '#1e40af',
+      secondary: '#2563eb',
+      accent: '#3b82f6',
+      background: '#0a0f1e',
+      surface: '#1a2333',
+      text: '#dbeafe',
+    },
+    gradients: [
+      {
+        id: 'midnight',
+        label: 'Midnight',
+        value: 'linear-gradient(135deg, #1e3a8a, #1e40af, #2563eb)',
+      },
+    ],
+  },
+  {
+    id: 'amber-gold',
+    name: 'Amber Gold',
+    palette: {
+      primary: '#f59e0b',
+      secondary: '#fbbf24',
+      accent: '#fcd34d',
+      background: '#1a1410',
+      surface: '#2d2314',
+      text: '#fef3c7',
+    },
+    gradients: [
+      {
+        id: 'golden',
+        label: 'Golden',
+        value: 'linear-gradient(135deg, #b45309, #f59e0b, #fbbf24)',
+      },
+    ],
+  },
+  {
+    id: 'rose-pink',
+    name: 'Rose Pink',
+    palette: {
+      primary: '#f43f5e',
+      secondary: '#fb7185',
+      accent: '#fda4af',
+      background: '#1a0a0f',
+      surface: '#2d1419',
+      text: '#ffe4e6',
+    },
+    gradients: [
+      {
+        id: 'rose',
+        label: 'Rose',
+        value: 'linear-gradient(135deg, #be123c, #f43f5e, #fb7185)',
+      },
+    ],
+  },
+  {
+    id: 'cyberpunk',
+    name: 'Cyberpunk',
+    palette: {
+      primary: '#ff00ff',
+      secondary: '#00ffff',
+      accent: '#ffff00',
+      background: '#0a0a0a',
+      surface: '#1a0a1a',
+      text: '#ffffff',
+    },
+    gradients: [
+      {
+        id: 'cyber',
+        label: 'Cyber',
+        value: 'linear-gradient(135deg, #ff00ff, #00ffff)',
+      },
+      {
+        id: 'neon',
+        label: 'Neon',
+        value: 'linear-gradient(135deg, #ff00ff, #00ffff, #ffff00)',
+      },
+    ],
+  },
+  {
+    id: 'slate-monochrome',
+    name: 'Slate Monochrome',
+    palette: {
+      primary: '#64748b',
+      secondary: '#94a3b8',
+      accent: '#cbd5e1',
+      background: '#0f172a',
+      surface: '#1e293b',
+      text: '#f1f5f9',
+    },
+    gradients: [
+      {
+        id: 'slate',
+        label: 'Slate',
+        value: 'linear-gradient(135deg, #334155, #64748b, #94a3b8)',
+      },
+    ],
+  },
 ];
 
 const defaultPalette: PageThemePalette = {

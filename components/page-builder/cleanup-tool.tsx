@@ -113,13 +113,13 @@ export function CleanupTool() {
 
   return (
     <Button
-      variant="outline"
-      size="sm"
+      variant="ghost"
+      size="icon"
       onClick={handleCleanup}
-      className="border-[#262626] text-[#fafafa] hover:bg-[#262626]"
+      className="h-8 w-8 text-[#525252] hover:bg-[#262626] hover:text-[#a3a3a3]"
+      title="Clean up page spacing and styles"
     >
-      <Wand2 className="mr-2 h-4 w-4" />
-      Clean Up Page
+      <Wand2 className="h-4 w-4" />
     </Button>
   );
 }

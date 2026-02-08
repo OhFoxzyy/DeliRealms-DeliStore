@@ -61,6 +61,7 @@ import { ChatPanel } from './chat-panel';
 import { PreviewLinksPanel } from './preview-links-panel';
 import { PerformancePanel } from './performance-panel';
 import { CommandPalette } from './command-palette';
+import { AIAssistantPanel } from './ai-assistant-panel';
 
 interface PageInfo {
   id: string;
@@ -152,6 +153,7 @@ function PageBuilderInnerContent({
   const [rightPanelOpen, setRightPanelOpen] = useState(true);
   const [rightPanelTab, setRightPanelTab] = useState<'components' | 'structure' | 'seo' | 'comments' | 'collaborators' | 'chat' | 'preview' | 'performance'>('components');
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+  const [aiMode, setAiMode] = useState(false);
 
   const toolbarBtn = "text-[#fafafa] hover:bg-[#262626] hover:text-white disabled:opacity-50 disabled:text-[#525252]";
 
@@ -398,6 +400,20 @@ function PageBuilderInnerContent({
 
           <Separator orientation="vertical" className="h-6 mx-2 bg-[#262626]" />
 
+          <Button
+            variant={aiMode ? "default" : "outline"}
+            size="sm"
+            onClick={() => setAiMode(!aiMode)}
+            className={cn(
+              aiMode 
+                ? "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700" 
+                : "border-[#262626] text-[#fafafa] hover:bg-[#262626]"
+            )}
+          >
+            <Sparkles className="mr-2 h-4 w-4" />
+            AI Mode
+          </Button>
+
           <CleanupTool />
 
           <Separator orientation="vertical" className="h-6 mx-2 bg-[#262626]" />
@@ -464,45 +480,68 @@ function PageBuilderInnerContent({
       </header>
 
       <div className="flex-1 flex overflow-hidden">
-        <Collapsible open={leftPanelOpen} onOpenChange={setLeftPanelOpen} className={cn("flex shrink-0 h-full", leftPanelOpen ? "w-80" : "w-12")}>
-          <div className="h-full flex flex-col border-r border-[#262626] w-full">
-            <CollapsibleTrigger asChild>
-              <button className={cn(
-                "flex items-center border-b border-[#262626] bg-[#0f0f0f] text-[#fafafa] hover:bg-[#171717] text-sm font-medium shrink-0",
-                leftPanelOpen ? "gap-2 w-full px-3 py-2" : "w-12 h-12 justify-center"
-              )}>
-                {leftPanelOpen ? (
-                  <> <ChevronDown className="h-4 w-4" /> Theme & Properties </>
-                ) : (
-                  <ChevronRight className="h-4 w-4" />
-                )}
-              </button>
-            </CollapsibleTrigger>
-            <CollapsibleContent className="flex-1 overflow-hidden data-[state=closed]:hidden min-h-0">
-              <StyleEditor projectId={projectId} pageId={pageId} />
-            </CollapsibleContent>
-          </div>
-        </Collapsible>
+        {aiMode ? (
+          <Collapsible open={leftPanelOpen} onOpenChange={setLeftPanelOpen} className={cn("flex shrink-0 h-full", leftPanelOpen ? "w-96" : "w-12")}>
+            <div className="h-full flex flex-col border-r border-[#262626] w-full">
+              <CollapsibleTrigger asChild>
+                <button className={cn(
+                  "flex items-center border-b border-[#262626] bg-[#0f0f0f] text-[#fafafa] hover:bg-[#171717] text-sm font-medium shrink-0",
+                  leftPanelOpen ? "gap-2 w-full px-3 py-2" : "w-12 h-12 justify-center"
+                )}>
+                  {leftPanelOpen ? (
+                    <> <ChevronDown className="h-4 w-4" /> <Sparkles className="h-4 w-4 text-purple-400" /> AI Assistant </>
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
+                </button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="flex-1 overflow-hidden data-[state=closed]:hidden min-h-0">
+                <AIAssistantPanel projectId={projectId} pageId={pageId} />
+              </CollapsibleContent>
+            </div>
+          </Collapsible>
+        ) : (
+          <Collapsible open={leftPanelOpen} onOpenChange={setLeftPanelOpen} className={cn("flex shrink-0 h-full", leftPanelOpen ? "w-80" : "w-12")}>
+            <div className="h-full flex flex-col border-r border-[#262626] w-full">
+              <CollapsibleTrigger asChild>
+                <button className={cn(
+                  "flex items-center border-b border-[#262626] bg-[#0f0f0f] text-[#fafafa] hover:bg-[#171717] text-sm font-medium shrink-0",
+                  leftPanelOpen ? "gap-2 w-full px-3 py-2" : "w-12 h-12 justify-center"
+                )}>
+                  {leftPanelOpen ? (
+                    <> <ChevronDown className="h-4 w-4" /> Properties </>
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
+                </button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="flex-1 overflow-hidden data-[state=closed]:hidden min-h-0">
+                <StyleEditor projectId={projectId} pageId={pageId} />
+              </CollapsibleContent>
+            </div>
+          </Collapsible>
+        )}
         
         <div className="flex-1 flex flex-col overflow-hidden min-w-0">
           <BuilderCanvas viewMode={viewMode} />
         </div>
         
-        <Collapsible open={rightPanelOpen} onOpenChange={setRightPanelOpen} className={cn("flex shrink-0 h-full", rightPanelOpen ? "w-80" : "w-12")}>
-          <div className="h-full flex flex-col border-l border-[#262626] w-full">
-            <CollapsibleTrigger asChild>
-              <button className={cn(
-                "flex items-center border-b border-[#262626] bg-[#0f0f0f] text-[#fafafa] hover:bg-[#171717] text-sm font-medium shrink-0",
-                rightPanelOpen ? "gap-2 w-full px-3 py-2" : "w-12 h-12 justify-center"
-              )}>
-                {rightPanelOpen ? (
-                  <> <ChevronDown className="h-4 w-4" /> Components </>
-                ) : (
-                  <ChevronRight className="h-4 w-4" />
-                )}
-              </button>
-            </CollapsibleTrigger>
-            <CollapsibleContent className="flex-1 overflow-hidden data-[state=closed]:hidden min-h-0 flex flex-col">
+        {!aiMode && (
+          <Collapsible open={rightPanelOpen} onOpenChange={setRightPanelOpen} className={cn("flex shrink-0 h-full", rightPanelOpen ? "w-80" : "w-12")}>
+            <div className="h-full flex flex-col border-l border-[#262626] w-full">
+              <CollapsibleTrigger asChild>
+                <button className={cn(
+                  "flex items-center border-b border-[#262626] bg-[#0f0f0f] text-[#fafafa] hover:bg-[#171717] text-sm font-medium shrink-0",
+                  rightPanelOpen ? "gap-2 w-full px-3 py-2" : "w-12 h-12 justify-center"
+                )}>
+                  {rightPanelOpen ? (
+                    <> <ChevronDown className="h-4 w-4" /> Components </>
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
+                </button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="flex-1 overflow-hidden data-[state=closed]:hidden min-h-0 flex flex-col">
               <div className="flex border-b border-[#262626] shrink-0 flex-wrap">
                 <button
                   type="button"
@@ -596,6 +635,7 @@ function PageBuilderInnerContent({
             </CollapsibleContent>
           </div>
         </Collapsible>
+        )}
       </div>
 
       {isFullscreenPreview && (
