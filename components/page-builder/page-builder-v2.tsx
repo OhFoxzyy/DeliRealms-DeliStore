@@ -28,7 +28,7 @@ import { cn } from '@/lib/utils';
 import type { PageElement, PageTheme, PageData } from '@/lib/page-builder/types';
 import { CollaborationProvider } from './collaboration-provider';
 import { CommandPalette } from './command-palette';
-import { AdvancedAIPanel } from './advanced-ai-panel';
+import { EnhancedAIPanel } from './enhanced-ai-panel';
 import { PropertiesPanel } from './properties-panel';
 import { ComponentsPanel } from './components-panel-v2';
 import { FullScreenCanvas } from './full-screen-canvas';
@@ -345,7 +345,7 @@ function PageBuilderInnerContent({
             {/* Panel Content */}
             <div className="flex-1 overflow-y-auto">
               {aiMode ? (
-                <AdvancedAIPanel projectId={projectId} pageId={pageId} />
+                <EnhancedAIPanel projectId={projectId} pageId={pageId} />
               ) : (
                 <PropertiesPanel 
                   projectId={projectId} 

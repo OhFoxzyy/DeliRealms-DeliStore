@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/auth';
-import { prisma } from '@/lib/prisma/get-pool';
+import { PrismaClient } from '@/generated/prisma';
 import { z } from 'zod';
+
+const prisma = new PrismaClient();
 
 const bodySchema = z.object({
   prompt: z.string().min(1),
